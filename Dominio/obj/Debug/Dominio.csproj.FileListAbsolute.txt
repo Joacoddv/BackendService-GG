@@ -1,0 +1,144 @@
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\bin\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\bin\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\obj\Debug\Dominio.csproj.CoreCompileInputs.cache
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\obj\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\obj\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\Proyecto - copia\Gastronomics\Dominio\bin\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto - copia\Gastronomics\Dominio\bin\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\Proyecto - copia\Gastronomics\Dominio\obj\Debug\Dominio.csproj.AssemblyReference.cache
+C:\Users\joaquin.diaz\Desktop\Proyecto - copia\Gastronomics\Dominio\obj\Debug\Dominio.csproj.CoreCompileInputs.cache
+C:\Users\joaquin.diaz\Desktop\Proyecto - copia\Gastronomics\Dominio\obj\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto - copia\Gastronomics\Dominio\obj\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\bin\Debug\BouncyCastle.Crypto.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\bin\Debug\itextsharp.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\bin\Debug\itextsharp.xmlworker.dll
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\bin\Debug\itextsharp.xml
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\obj\Debug\Dominio.csproj.CopyComplete
+C:\Users\joaquin.diaz\Desktop\Proyecto\Gastronomics\Dominio\obj\Debug\Dominio.csproj.AssemblyReference.cache
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\bin\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\bin\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\bin\Debug\BouncyCastle.Crypto.dll
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\bin\Debug\itextsharp.dll
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\bin\Debug\itextsharp.xmlworker.dll
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\bin\Debug\itextsharp.xml
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\obj\Debug\Dominio.csproj.AssemblyReference.cache
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\obj\Debug\Dominio.csproj.CoreCompileInputs.cache
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\obj\Debug\Dominio.csproj.CopyComplete
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\obj\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Documents\Facutlad\2021\Trabajo de Diploma 2021\Entrega Final\Gastronomics\Dominio\obj\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\obj\Debug\Dominio.csproj.AssemblyReference.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\obj\Debug\Dominio.csproj.CoreCompileInputs.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\obj\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\obj\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\BouncyCastle.Crypto.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\itextsharp.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\itextsharp.xmlworker.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\itextsharp.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\obj\Debug\Dominio.csproj.CopyComplete
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Data.SqlClient.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Data.SqlClient.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Dominio.dll.config
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Logging.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Tokens.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Buffers.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Memory.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Numerics.Vectors.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Text.Json.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.ValueTuple.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Abstractions.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.JsonWebTokens.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Logging.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Tokens.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Buffers.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.IdentityModel.Tokens.Jwt.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Memory.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Numerics.Vectors.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Text.Encodings.Web.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Text.Json.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\System.ValueTuple.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Primitives.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Abstractions.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.FileExtensions.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Json.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Abstractions.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Physical.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileSystemGlobbing.xml
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Primitives.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Dominio.dll.config
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Dominio.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Dominio.pdb
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\BouncyCastle.Crypto.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\itextsharp.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\itextsharp.xmlworker.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Primitives.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Logging.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Tokens.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Buffers.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Data.SqlClient.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Memory.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Numerics.Vectors.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Text.Json.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.ValueTuple.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\itextsharp.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Abstractions.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.FileExtensions.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Configuration.Json.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Abstractions.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileProviders.Physical.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.FileSystemGlobbing.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.Extensions.Primitives.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Abstractions.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.JsonWebTokens.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Logging.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\Microsoft.IdentityModel.Tokens.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Buffers.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Data.SqlClient.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.IdentityModel.Tokens.Jwt.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Memory.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Numerics.Vectors.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Text.Encodings.Web.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Text.Json.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\bin\Debug\System.ValueTuple.xml
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\obj\Debug\Dominio.csproj.AssemblyReference.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\obj\Debug\Dominio.csproj.CoreCompileInputs.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\obj\Debug\Dominio.csproj.Up2Date
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\obj\Debug\Dominio.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Dominio\obj\Debug\Dominio.pdb

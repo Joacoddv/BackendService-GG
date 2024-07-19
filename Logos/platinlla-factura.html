@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Web Page Design</title>
+	<style>
+	table.border {
+	    
+	    border-collapse:collapse;
+	}
+	
+	    table.border th{
+	        padding:5px;
+	        border:1px solid black;
+	        
+	    }
+	    	    table.border td{
+	        padding:5px;
+	        border:1px solid black;
+	        
+	    }
+	</style>
+</head>
+<body>
+    <table style="width:100%">
+        <tr>
+            <td style="width:20%"></td>
+            <td style="width:60%" align="center">
+                <table>
+                    <tr><td align="center">Codigo Estudiante</td></tr>
+                    <tr><td align="center">Direccion: Av Puerba 123</td></tr>
+                    <tr><td align="center">Telefono: 121321</td></tr>
+                </table>
+            </td>
+            <td style="width:20%">
+                <table class="border" style="width:100%">
+                    <tr><td align="center">Razon Social</td></tr>
+                    <tr><td align="center">Factura</td></tr>
+                    <tr><td align="center">Número Factura: 121321</td></tr>
+                </table>
+            </td>
+        </tr>
+        
+        <tr><td colspan="3" height="20"></td></tr>
+        
+        <tr>
+            <td colspan="2">
+                <table style="width:100%">
+                    <tr>
+                        <td colspan="1" style="width:20%">Cliente:</td>
+                        <td colspan="3" style="width:80%;border-bottom:1px solid black">@Cliente</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width:20%">Documento:</td>
+                        <td colspan="1" style="width:30%;border-bottom:1px solid black">@Documento</td>
+                        <td colspan="1" style="width:10%">Fecha:</td>
+                        <td colspan="1" style="width:40%;border-bottom:1px solid black">@Fecha</td>
+                    </tr>
+                </table>
+                
+            </td>
+        </tr>
+        
+        <tr><td colspan="3" height="20"></td></tr>  
+        
+        <tr>
+            <td colspan="3">
+                <table class="border" style="width:100%">
+                    <thead style="background-color:#D8D8D8">
+                        <th>Cant.</th>
+                        <th>Descripción</th>                       
+                        <th>P. Unitario</th>                    
+                        <th>Improte</th>     
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Botella</td>
+                            <td>500</td>
+                            <td>500</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 0px !important"></td>
+                            <td style="border: 0px !important"></td>
+                            <td align"right">Total:</td>
+                            <td>@Total</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        
+    </table>
+</body>
+</html>

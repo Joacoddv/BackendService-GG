@@ -1,0 +1,114 @@
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\appsettings.Development.json
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\appsettings.json
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.exe
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.deps.json
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.runtimeconfig.json
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.runtimeconfig.dev.json
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.Logging.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.Tokens.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Text.Encodings.Web.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Text.Json.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.csproj.AssemblyReference.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.AssemblyInfoInputs.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.AssemblyInfo.cs
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.csproj.CoreCompileInputs.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\APIs Servicios.StaticWebAssets.Manifest.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\APIs Servicios.StaticWebAssets.Pack.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.APIs Servicios.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.build.APIs Servicios.props
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.buildMultiTargeting.APIs Servicios.props
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.buildTransitive.APIs Servicios.props
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.RazorTargetAssemblyInfo.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.csproj.CopyComplete
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.genruntimeconfig.cache
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\AutoMapper.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Data.SqlClient.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win-arm64\native\sni.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win-x64\native\sni.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\sni.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Dominio.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\DTO.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Servicios.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\DTO.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Servicios.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Servicios.dll.config
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Dominio.pdb
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Dominio.dll.config
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
+C:\Users\joaquin.diaz\Desktop\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\appsettings.Development.json
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\appsettings.json
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.exe
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.deps.json
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.runtimeconfig.json
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.runtimeconfig.dev.json
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\APIs Servicios.pdb
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\AutoMapper.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.Logging.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Microsoft.IdentityModel.Tokens.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Data.SqlClient.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Text.Encodings.Web.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\System.Text.Json.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win-arm64\native\sni.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win-x64\native\sni.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\sni.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Dominio.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\DTO.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Servicios.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\DTO.pdb
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Servicios.pdb
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Servicios.dll.config
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Dominio.pdb
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\bin\Debug\netcoreapp3.1\Dominio.dll.config
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.csproj.AssemblyReference.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.AssemblyInfoInputs.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.AssemblyInfo.cs
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.csproj.CoreCompileInputs.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.RazorTargetAssemblyInfo.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\APIs Servicios.StaticWebAssets.Manifest.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\APIs Servicios.StaticWebAssets.Pack.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.APIs Servicios.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.build.APIs Servicios.props
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.buildMultiTargeting.APIs Servicios.props
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\staticwebassets\msbuild.buildTransitive.APIs Servicios.props
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Ser.11215F49.Up2Date
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.dll
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.pdb
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\Apis Servicios\obj\Debug\netcoreapp3.1\APIs Servicios.genruntimeconfig.cache
