@@ -227,3 +227,4 @@ C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\APIs\obj\Debug\netcore
 C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\APIs\obj\Debug\netcoreapp3.1\APIs.dll
 C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\APIs\obj\Debug\netcoreapp3.1\APIs.pdb
 C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\APIs\obj\Debug\netcoreapp3.1\APIs.genruntimeconfig.cache
+C:\Users\JoaquinDiaz\Documents\Facutlad\Now\GastroGestion\APIs\obj\Debug\netcoreapp3.1\APIs.sourcelink.json

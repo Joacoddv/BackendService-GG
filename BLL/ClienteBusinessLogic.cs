@@ -9,6 +9,7 @@ using System.Linq;
 using Servicios.Services;
 using System.Diagnostics.Tracing;
 using Servicios.Services.Extensions;
+using System.Dynamic;
 
 namespace BLL
 {
@@ -53,6 +54,10 @@ namespace BLL
                 }
                 else
                 {
+                    //Establezco variables de creacion
+                    obj.Id_Cliente = Guid.NewGuid();
+                    obj.Estado = true;
+                    obj.Fecha_Alta_Cliente=DateTime.Now;
                     ClienteRepository.Insert(obj);
                 }
             }
@@ -70,6 +75,7 @@ namespace BLL
             try
             {
                 LoggerManager.Current.Write($"BLL Clientes - Validando desactivación de cliente", EventLevel.Informational);
+                clientes = ClienteRepository.GetAll(obj).ToList();
                 if (clientes.Any(o => o.Id_Cliente.Equals(obj.Id_Cliente)))
                 {
                     if (clientes.Any(o => o.Id_Cliente.Equals(obj.Id_Cliente) & o.Estado.Equals(true)))
@@ -142,6 +148,8 @@ namespace BLL
             LoggerManager.Current.Write($"BLL Clientes - Validando listar clientes", EventLevel.Informational);
             try
             {
+                obj.Id_Empresa = Guid.Parse("2F678A85-B654-4464-BDDC-0C4D4CA20293");
+                obj.Id_Sucursal = Guid.Parse("2F678A85-B654-4464-BDDC-0C4D4CA20293");
                 return from o in ClienteRepository.GetAll(obj)
                        orderby o.Numero_Cliente descending
                        select o;

@@ -7,20 +7,16 @@
       "RelativeMoniker": "D:0:0:{15BD91CF-474C-4679-8B7A-658FC961A7DE}|APIs\\APIs.csproj|solutionrelative:apis\\controllers\\clientecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{33F67DDE-A0E0-4628-974D-78C2E7CB3F7B}|DTO\\DTO.csproj|c:\\users\\joaquindiaz\\documents\\facutlad\\now\\gastrogestion\\dto\\cliente\\clientecreaciondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{33F67DDE-A0E0-4628-974D-78C2E7CB3F7B}|DTO\\DTO.csproj|solutionrelative:dto\\cliente\\clientecreaciondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{82AE611C-779D-4747-B97C-A68E30E5AC03}|DLL\\DAL.csproj|C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\dll\\repositories\\sqlserver\\clienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82AE611C-779D-4747-B97C-A68E30E5AC03}|DLL\\DAL.csproj|solutionrelative:dll\\repositories\\sqlserver\\clienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82AE611C-779D-4747-B97C-A68E30E5AC03}|DLL\\DAL.csproj|c:\\users\\joaquindiaz\\documents\\facutlad\\now\\gastrogestion\\dll\\repositories\\sqlserver\\clienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{82AE611C-779D-4747-B97C-A68E30E5AC03}|DLL\\DAL.csproj|solutionrelative:dll\\repositories\\sqlserver\\clienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{82AE611C-779D-4747-B97C-A68E30E5AC03}|DLL\\DAL.csproj|C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\dll\\repositories\\sqlserver\\adapters\\clienteadapter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82AE611C-779D-4747-B97C-A68E30E5AC03}|DLL\\DAL.csproj|solutionrelative:dll\\repositories\\sqlserver\\adapters\\clienteadapter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DA77653C-54B2-4C30-BC89-4CB4779726A4}|BLL\\BLL.csproj|C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\bll\\clientebusinesslogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{DA77653C-54B2-4C30-BC89-4CB4779726A4}|BLL\\BLL.csproj|solutionrelative:bll\\clientebusinesslogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{33F67DDE-A0E0-4628-974D-78C2E7CB3F7B}|DTO\\DTO.csproj|c:\\users\\joaquindiaz\\documents\\facutlad\\now\\gastrogestion\\dto\\mappers\\automapperprofiles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{33F67DDE-A0E0-4628-974D-78C2E7CB3F7B}|DTO\\DTO.csproj|solutionrelative:dto\\mappers\\automapperprofiles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -45,42 +41,32 @@
               "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ClienteCreacionDTO.cs",
-              "DocumentMoniker": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DTO\\Cliente\\ClienteCreacionDTO.cs",
-              "RelativeDocumentMoniker": "DTO\\Cliente\\ClienteCreacionDTO.cs",
-              "ToolTip": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DTO\\Cliente\\ClienteCreacionDTO.cs",
-              "RelativeToolTip": "DTO\\Cliente\\ClienteCreacionDTO.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAhAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-17T18:56:47.169Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "AutoMapperProfiles.cs",
-              "DocumentMoniker": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DTO\\Mappers\\AutoMapperProfiles.cs",
-              "RelativeDocumentMoniker": "DTO\\Mappers\\AutoMapperProfiles.cs",
-              "ToolTip": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DTO\\Mappers\\AutoMapperProfiles.cs",
-              "RelativeToolTip": "DTO\\Mappers\\AutoMapperProfiles.cs",
-              "ViewState": "AQIAADcAAAAAAAAAAAAQwAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-17T18:56:30.24Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0174dea2-fdbe-4ef1-8f99-c0beae78880f}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "ClienteAdapter.cs",
+              "DocumentMoniker": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DLL\\Repositories\\SqlServer\\Adapters\\ClienteAdapter.cs",
+              "RelativeDocumentMoniker": "DLL\\Repositories\\SqlServer\\Adapters\\ClienteAdapter.cs",
+              "ToolTip": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DLL\\Repositories\\SqlServer\\Adapters\\ClienteAdapter.cs",
+              "RelativeToolTip": "DLL\\Repositories\\SqlServer\\Adapters\\ClienteAdapter.cs",
+              "ViewState": "AQIAABgAAAAAAAAAAAAAADUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-21T23:42:01.293Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "ClienteRepository.cs",
               "DocumentMoniker": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DLL\\Repositories\\SqlServer\\ClienteRepository.cs",
               "RelativeDocumentMoniker": "DLL\\Repositories\\SqlServer\\ClienteRepository.cs",
               "ToolTip": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\DLL\\Repositories\\SqlServer\\ClienteRepository.cs",
               "RelativeToolTip": "DLL\\Repositories\\SqlServer\\ClienteRepository.cs",
-              "ViewState": "AQIAAIAAAAAAAAAAAAAuwJYAAABvAAAA",
+              "ViewState": "AQIAAH4AAAAAAAAAAAAlwJEAAAB3AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-08T12:46:08.109Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-08T12:46:08.109Z"
             },
             {
               "$type": "Document",
@@ -90,7 +76,7 @@
               "RelativeDocumentMoniker": "APIs\\Controllers\\ClienteController.cs",
               "ToolTip": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\APIs\\Controllers\\ClienteController.cs",
               "RelativeToolTip": "APIs\\Controllers\\ClienteController.cs",
-              "ViewState": "AQIAACAAAAAAAAAAAAAlwD8AAAAQAAAA",
+              "ViewState": "AQIAAFkAAAAAAAAAAAAAwGAAAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-07-08T12:44:42.848Z",
               "EditorCaption": ""
@@ -103,10 +89,9 @@
               "RelativeDocumentMoniker": "BLL\\ClienteBusinessLogic.cs",
               "ToolTip": "C:\\Users\\JoaquinDiaz\\Documents\\Facutlad\\Now\\GastroGestion\\BLL\\ClienteBusinessLogic.cs",
               "RelativeToolTip": "BLL\\ClienteBusinessLogic.cs",
-              "ViewState": "AQIAACMAAAAAAAAAAAApwDkAAAAMAAAA",
+              "ViewState": "AQIAADMAAAAAAAAAAAAQwEUAAAAIAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-08T12:36:17.623Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-08T12:36:17.623Z"
             }
           ]
         }

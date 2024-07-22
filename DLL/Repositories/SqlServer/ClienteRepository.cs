@@ -26,7 +26,7 @@ namespace DAL.Repositories.SqlServer
 
         private string UpdateStatementInactive
         {
-            get => "UPDATE [dbo].[Cliente] SET Estado = @Estado WHERE  Id_Cliente = @Id_Cliente and Id_Empresa_ = @Id_Empresa";
+            get => "UPDATE [dbo].[Cliente] SET Estado = @Estado WHERE  Id_Cliente = @Id_Cliente and Id_Empresa = @Id_Empresa";
         }
 
         private string UpdateStatement
@@ -133,48 +133,38 @@ namespace DAL.Repositories.SqlServer
             try
             {
                 int x = SqlHelper.ExecuteNonQuery(InsertStatement,
-                                               System.Data.CommandType.Text,
-                                              new SqlParameter[] {
-                                              
-                                              /*new SqlParameter("@Id_Empresa", Guid.Parse(obj.Id_Cliente.ToString())),
-                                              new SqlParameter("@Id_Sucursal", Guid.Parse(obj.Id_Cliente.ToString())),
-                                              new SqlParameter("@Id_Cliente", Guid.Parse(obj.Id_Cliente.ToString())),
-                                              //new SqlParameter("@Numero_Cliente", obj.Numero_Cliente),
-                                              new SqlParameter("@Nombre", obj.Nombre),
-                                              new SqlParameter("@Apellido", obj.Apellido),
+                                                  System.Data.CommandType.Text,
+                                                  new SqlParameter[] {
+                                              new SqlParameter("@Id_Empresa", ValidarNull(obj.Id_Empresa)),
+                                              new SqlParameter("@Id_Sucursal", ValidarNull(obj.Id_Sucursal)),
+                                              new SqlParameter("@Id_Cliente", ValidarNull(obj.Id_Cliente)),
+                                              new SqlParameter("@Nombre", ValidarNull(obj.Nombre)),
+                                              new SqlParameter("@Apellido", ValidarNull(obj.Apellido)),
                                               new SqlParameter("@Nro_Doc", ValidarNull(obj.Nro_Doc)),
                                               new SqlParameter("@Tipo_Doc", ValidarNull(obj.Tipo_Doc)),
                                               new SqlParameter("@Estado_Civil", ValidarNull(obj.Estado_Civil)),
                                               new SqlParameter("@Fecha_Nacimiento", ValidarNull(obj.Fecha_Nacimiento)),
                                               new SqlParameter("@Sexo", ValidarNull(obj.Sexo)),
-                                              new SqlParameter("Email", obj.Email),
+                                              new SqlParameter("@Email", ValidarNull(obj.Email)),
                                               new SqlParameter("@Nacionalidad", ValidarNull(obj.Nacionalidad)),
                                               new SqlParameter("@Fecha_Alta_Customer", ValidarNull(obj.Fecha_Alta_Cliente)),
-                                              new SqlParameter("@Estado", obj.Estado)*/
+                                              new SqlParameter("@Estado", ValidarNull(obj.Estado))
+                                                  });
 
-                                              new SqlParameter("@Id_Empresa", obj.Id_Empresa),
-                                              new SqlParameter("@Id_Sucursal", obj.Id_Sucursal),
-                                              new SqlParameter("@Id_Cliente", Guid.NewGuid()),
-                                              //new SqlParameter("@Numero_Cliente", obj.Numero_Cliente),
-                                              new SqlParameter("@Nombre", obj.Nombre),
-                                              new SqlParameter("@Apellido", obj.Apellido),
-                                              new SqlParameter("@Nro_Doc", ValidarNull(obj.Nro_Doc)),
-                                              new SqlParameter("@Tipo_Doc", ValidarNull(obj.Tipo_Doc)),
-                                              new SqlParameter("@Estado_Civil", ValidarNull(obj.Estado_Civil)),
-                                              new SqlParameter("@Fecha_Nacimiento", ValidarNull(obj.Fecha_Nacimiento)),
-                                              new SqlParameter("@Sexo", ValidarNull(obj.Sexo)),
-                                              new SqlParameter("Email", obj.Email),
-                                              new SqlParameter("@Nacionalidad", ValidarNull(obj.Nacionalidad)),
-                                              new SqlParameter("@Fecha_Alta_Customer", DateTime.Now),
-                                              new SqlParameter("@Estado", true)
-
-
-                                               });
+                if (x == 0)
+                {
+                    LoggerManager.Current.Write("DAL Clientes - No se insertó el cliente en la base de datos.", EventLevel.Warning);
+                }
             }
-
+            catch (SqlException sqlEx)
+            {
+                LoggerManager.Current.Write($"DAL Clientes - Error SQL al ingresar cliente en base de datos: {sqlEx.Message} (Código de error: {sqlEx.Number})", EventLevel.Error);
+                LoggerManager.Current.Write($"Consulta SQL: {InsertStatement}", EventLevel.Error);
+                LoggerManager.Current.Write($"Parámetros: Id_Empresa={obj.Id_Empresa}, Id_Sucursal={obj.Id_Sucursal}, Id_Cliente={obj.Id_Cliente}, Nombre={obj.Nombre}, Apellido={obj.Apellido}, Nro_Doc={obj.Nro_Doc}, Tipo_Doc={obj.Tipo_Doc}, Estado_Civil={obj.Estado_Civil}, Fecha_Nacimiento={obj.Fecha_Nacimiento}, Sexo={obj.Sexo}, Email={obj.Email}, Nacionalidad={obj.Nacionalidad}, Fecha_Alta_Customer={obj.Fecha_Alta_Cliente}, Estado={obj.Estado}", EventLevel.Error);
+            }
             catch (Exception ex)
             {
-                LoggerManager.Current.Write($"DAL Clientes - Error al ingresar cliente en base de datos: {ex}", EventLevel.Error);
+                LoggerManager.Current.Write($"DAL Clientes - Error general al ingresar cliente en base de datos: {ex}", EventLevel.Error);
             }
         }
 
@@ -186,7 +176,7 @@ namespace DAL.Repositories.SqlServer
                 int x = SqlHelper.ExecuteNonQuery(UpdateStatement,
                                                    System.Data.CommandType.Text,
                                                    new SqlParameter[] {
-                                              new SqlParameter("@Id_Empresa", Guid.Parse(obj.Id_Cliente.ToString())),
+                                              new SqlParameter("@Id_Empresa", Guid.Parse(obj.Id_Empresa.ToString())),
                                               //new SqlParameter("@Id_Sucursal", Guid.Parse(obj.Id_Cliente.ToString())),
                                               new SqlParameter("@Id_Cliente", Guid.Parse(obj.Id_Cliente.ToString())),
                                               //new SqlParameter("@Numero_Cliente", obj.Numero_Cliente),
@@ -212,7 +202,7 @@ namespace DAL.Repositories.SqlServer
 
         private object ValidarNull(object obj)
         {
-            if (obj == null) //|| Convert.ToInt32(obj.ToString()) == 0)
+            if (obj == null || (obj is DateTime && (DateTime)obj == DateTime.MinValue))
             {
                 return DBNull.Value;
             }
