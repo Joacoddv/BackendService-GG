@@ -69,6 +69,24 @@ namespace APIs.Controllers
             }
         }
 
+        //Baja de Cliente
+
+        [HttpDelete("Baja")]
+        public IActionResult BajaCliente([FromBody] ClienteEdicionDTO clienteEdicionDTO)
+        {
+            try
+            {
+                clienteEdicionDTO.Id_Empresa = Guid.Parse("2F678A85-B654-4464-BDDC-0C4D4CA20293");
+                ClienteBusinessLogic.Current.Remove(_mapper.Map<Dominio.Cliente>(clienteEdicionDTO));
+
+                return Ok(JsonConvert.SerializeObject("Cliente dado de baja correctamente"));
+            }
+            catch (Exception ex)
+            {
+                return HandleError(ex);
+            }
+        }
+
         //Getl All
 
         [HttpGet()]
