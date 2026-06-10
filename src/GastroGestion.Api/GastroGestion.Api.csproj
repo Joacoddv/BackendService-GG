@@ -11,4 +11,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GastroGestion.Application\GastroGestion.Application.csproj" />
+    <ProjectReference Include="..\GastroGestion.Infrastructure\GastroGestion.Infrastructure.csproj" />
+    <ProjectReference Include="..\GastroGestion.Contracts\GastroGestion.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>
