@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="../tests/GastroGestion.Application.Tests/GastroGestion.Application.Tests.csproj" />
+  <Project Path="../tests/GastroGestion.Domain.Tests/GastroGestion.Domain.Tests.csproj" />
+  <Project Path="GastroGestion.Api/GastroGestion.Api.csproj" />
+  <Project Path="GastroGestion.Application/GastroGestion.Application.csproj" />
+  <Project Path="GastroGestion.Contracts/GastroGestion.Contracts.csproj" />
+  <Project Path="GastroGestion.Domain/GastroGestion.Domain.csproj" />
+  <Project Path="GastroGestion.Infrastructure/GastroGestion.Infrastructure.csproj" />
+</Solution>
