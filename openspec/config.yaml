@@ -1,0 +1,60 @@
+schema: spec-driven
+project: backendservice-gg
+initialized: 2026-06-10
+artifact_store: openspec
+
+context: |
+  Project: GastroGestion — restaurant management system (C#/.NET)
+  Legacy stack: .NET Framework 4.8, ASP.NET Web API 2 / OWIN, Autofac DI, SQL Server (raw ADO.NET via SqlClient), WinForms (being retired), AutoMapper 10
+  Target stack: .NET 8, Clean Architecture (pragmatic, no CQRS/MediatR), EF Core 8 code-first, ASP.NET Core Web API, JWT auth, Blazor WebAssembly frontend
+  Architecture: Layered legacy (Dominio → DAL → BLL → APIs + DTO + Servicios); target is Clean Architecture (Domain, Application, Infrastructure, Presentation layers)
+  Database: SQL Server; two catalogs — GastroGestion (business data) and GastroGestion_Seguridad (auth/users)
+  Testing: No test projects currently; target xUnit (Domain.Tests + Application.Tests) with dotnet test
+  Language: C#; all artifacts and code in English
+
+testing:
+  strict_tdd: false
+  strict_tdd_note: "No test runner detected in current codebase. Strict TDD will activate once xUnit test projects (Domain.Tests, Application.Tests) are created targeting .NET 8."
+  runner: dotnet test
+  framework: xUnit (target — not yet present)
+  layers:
+    unit: false
+    integration: false
+    e2e: false
+  coverage:
+    available: false
+    command: dotnet test --collect:"XPlat Code Coverage"
+  quality:
+    linter: false
+    type_checker: false
+    formatter: false
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify which legacy components are replaced vs. retained
+    - Note migration risk (breaking changes to existing SQL schema or API contracts)
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Reference Clean Architecture layer where each requirement lives
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+    - Separate domain model from persistence model when EF Core mapping is non-trivial
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Tag tasks with target layer (Domain / Application / Infrastructure / Presentation)
+  apply:
+    - Follow Clean Architecture dependency rule (inner layers have no dependency on outer layers)
+    - Use constructor injection throughout
+    - No static state or service locator patterns
+    tdd: false
+    test_command: "dotnet test"
+  verify:
+    test_command: "dotnet test"
+    build_command: "dotnet build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas

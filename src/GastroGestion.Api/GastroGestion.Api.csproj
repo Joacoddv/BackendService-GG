@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>a3f8e2d1-7c64-4b9a-b5e6-0f3d2c1a8e94</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.27" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GastroGestion.Application\GastroGestion.Application.csproj" />
+    <ProjectReference Include="..\GastroGestion.Infrastructure\GastroGestion.Infrastructure.csproj" />
+    <ProjectReference Include="..\GastroGestion.Contracts\GastroGestion.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

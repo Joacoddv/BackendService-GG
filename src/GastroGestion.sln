@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Domain", "GastroGestion.Domain\GastroGestion.Domain.csproj", "{3F1EEE22-EBCE-48E7-B202-76097A1DB841}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Application", "GastroGestion.Application\GastroGestion.Application.csproj", "{C3165A0E-AB55-4A3F-8049-869960F25BF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Infrastructure", "GastroGestion.Infrastructure\GastroGestion.Infrastructure.csproj", "{58148386-4ED3-40CA-A8F1-7D77308E28A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Contracts", "GastroGestion.Contracts\GastroGestion.Contracts.csproj", "{ACBDC6E3-C5C6-4A71-AC28-11B404EFA4A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Api", "GastroGestion.Api\GastroGestion.Api.csproj", "{0B8034BD-8BE3-43BC-A471-6C67487B0B43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Domain.Tests", "..\tests\GastroGestion.Domain.Tests\GastroGestion.Domain.Tests.csproj", "{0BAEACFB-7903-4532-A241-696145C2914C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Application.Tests", "..\tests\GastroGestion.Application.Tests\GastroGestion.Application.Tests.csproj", "{75B245E2-2045-409E-98F3-AD4E23F79966}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3F1EEE22-EBCE-48E7-B202-76097A1DB841}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F1EEE22-EBCE-48E7-B202-76097A1DB841}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F1EEE22-EBCE-48E7-B202-76097A1DB841}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F1EEE22-EBCE-48E7-B202-76097A1DB841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3165A0E-AB55-4A3F-8049-869960F25BF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3165A0E-AB55-4A3F-8049-869960F25BF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3165A0E-AB55-4A3F-8049-869960F25BF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3165A0E-AB55-4A3F-8049-869960F25BF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58148386-4ED3-40CA-A8F1-7D77308E28A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58148386-4ED3-40CA-A8F1-7D77308E28A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58148386-4ED3-40CA-A8F1-7D77308E28A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58148386-4ED3-40CA-A8F1-7D77308E28A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACBDC6E3-C5C6-4A71-AC28-11B404EFA4A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACBDC6E3-C5C6-4A71-AC28-11B404EFA4A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACBDC6E3-C5C6-4A71-AC28-11B404EFA4A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACBDC6E3-C5C6-4A71-AC28-11B404EFA4A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B8034BD-8BE3-43BC-A471-6C67487B0B43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B8034BD-8BE3-43BC-A471-6C67487B0B43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B8034BD-8BE3-43BC-A471-6C67487B0B43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B8034BD-8BE3-43BC-A471-6C67487B0B43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BAEACFB-7903-4532-A241-696145C2914C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BAEACFB-7903-4532-A241-696145C2914C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BAEACFB-7903-4532-A241-696145C2914C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BAEACFB-7903-4532-A241-696145C2914C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75B245E2-2045-409E-98F3-AD4E23F79966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75B245E2-2045-409E-98F3-AD4E23F79966}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75B245E2-2045-409E-98F3-AD4E23F79966}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75B245E2-2045-409E-98F3-AD4E23F79966}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
