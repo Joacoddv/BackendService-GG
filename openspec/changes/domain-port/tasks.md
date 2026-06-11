@@ -485,7 +485,7 @@ Design sections: §2 (Pedido/OT aggregates), §4 (DireccionEntrega VO), §5c (IE
 
 ---
 
-### DP-11 — Zero-dependency .csproj gate (Slice 2 checkpoint) [ ]
+### DP-11 — Zero-dependency .csproj gate (Slice 2 checkpoint) [x]
 
 **Work unit:** Verification-only gate — re-run DP-01 verification commands.  
 **Conventional commit:** N/A
@@ -498,7 +498,7 @@ Repeat the same check from DP-01. Any new dependency introduced since Slice 1 is
 
 ---
 
-### DP-12 — DireccionEntrega VO + PedidoTransicionRegistry [ ]
+### DP-12 — DireccionEntrega VO + PedidoTransicionRegistry [x]
 
 **Work unit:** One commit — foundational Slice 2 types that Pedido depends on.  
 **Conventional commit:** `feat(domain): add DireccionEntrega VO and PedidoTransicionRegistry`
@@ -532,7 +532,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-13 — Pedido aggregate + LineaPedido owned entity [ ]
+### DP-13 — Pedido aggregate + LineaPedido owned entity [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add Pedido aggregate with LineaPedido`
@@ -580,7 +580,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-14 — OrdenTrabajo aggregate + LineaRecetaSnapshot owned entity [ ]
+### DP-14 — OrdenTrabajo aggregate + LineaRecetaSnapshot owned entity [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add OrdenTrabajo aggregate with recipe snapshot`
@@ -617,7 +617,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-15 — IEfectivoPrecioService contract + Slice 2 domain events [ ]
+### DP-15 — IEfectivoPrecioService contract + Slice 2 domain events [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add IEfectivoPrecioService contract and domain events`
@@ -653,7 +653,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-16 — Slice 2 domain tests [ ]
+### DP-16 — Slice 2 domain tests [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `test(domain): add Slice 2 transactional aggregate tests`
@@ -699,7 +699,7 @@ dotnet test tests/GastroGestion.Domain.Tests/GastroGestion.Domain.Tests.csproj
 
 ---
 
-### DP-17 — Slice 2 build + test verification (no code changes) [ ]
+### DP-17 — Slice 2 build + test verification (no code changes) [x]
 
 **Work unit:** Verification-only — no commits.
 
