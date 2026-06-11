@@ -25,11 +25,11 @@ public class ValueObjectTests
     }
 
     [Fact]
-    public void Dinero_Sumar_DifferentMoneda_ThrowsDomainException()
+    public void Dinero_Sumar_SameMoneda_ReturnsSum()
     {
-        // Currently only ARS exists; this tests the guard path
-        // by constructing two Dinero with the same enum value (ARS)
-        // to confirm the happy path, and asserts the structure is wired.
+        // Happy-path: two ARS amounts sum correctly.
+        // Note: the cross-currency guard (mixed Moneda → DomainException) exists in
+        // Dinero.GuardarMoneda but cannot be exercised until a second Moneda value is added.
         var a = new Dinero(100m, Moneda.ARS);
         var b = new Dinero(50m, Moneda.ARS);
         var result = a.Sumar(b);
@@ -121,6 +121,17 @@ public class ValueObjectTests
         cuit.Valor.Should().Be("20123456786");
     }
 
+    [Fact]
+    public void Cuit_WhereExpectedCheckDigitIsTen_IsRejected()
+    {
+        // AFIP rule: when the algorithm produces expected == 10, no valid check digit
+        // exists and the CUIT is structurally invalid. Fixture "30693450230":
+        // weights=[5,4,3,2,7,6,5,4,3,2], sum=133, 133%11=1, expected=10 → rejected.
+        var act = () => new Cuit("30693450230");
+        act.Should().Throw<DomainException>()
+           .WithMessage("*check digit*");
+    }
+
     // ─── Email ────────────────────────────────────────────────────────────────
 
     [Fact]
@@ -150,6 +161,15 @@ public class ValueObjectTests
     {
         var act = () => new Email("user@");
         act.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Email_DoubleAtSign_ThrowsDomainException()
+    {
+        // "a@b@c.com" must be rejected — exactly one '@' is required.
+        var act = () => new Email("a@b@c.com");
+        act.Should().Throw<DomainException>()
+           .WithMessage("*invalid*");
     }
 
     // ─── Cantidad ─────────────────────────────────────────────────────────────
@@ -187,6 +207,17 @@ public class ValueObjectTests
         var result = a.Sumar(b);
         result.Valor.Should().Be(300m);
         result.Unidad.Should().Be(UnidadDeMedida.Gramo);
+    }
+
+    [Fact]
+    public void Cantidad_Restar_EqualAmounts_ThrowsDomainException()
+    {
+        // Cantidad.Restar uses `result <= 0`, so subtracting equal values (result = 0)
+        // throws — result must be strictly positive (spec: Cantidad.Valor > 0 invariant).
+        var a = new Cantidad(5m, UnidadDeMedida.Gramo);
+        var b = new Cantidad(5m, UnidadDeMedida.Gramo);
+        var act = () => a.Restar(b);
+        act.Should().Throw<DomainException>();
     }
 
     // ─── PorcentajeIVA ────────────────────────────────────────────────────────

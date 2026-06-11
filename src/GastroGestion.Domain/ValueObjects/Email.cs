@@ -18,6 +18,10 @@ public sealed class Email : ValueObject
 
         var normalized = valor.Trim().ToLowerInvariant();
 
+        // Exactly one '@' is required; multiple '@' signs are invalid.
+        if (normalized.Count(c => c == '@') != 1)
+            throw new DomainException($"Email format is invalid: '{valor}'.");
+
         var atIndex = normalized.IndexOf('@');
         if (atIndex <= 0 || atIndex == normalized.Length - 1)
             throw new DomainException($"Email format is invalid: '{valor}'.");

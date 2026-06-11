@@ -36,8 +36,8 @@ public sealed class Dinero : ValueObject
 
     /// <summary>
     /// Returns a new <see cref="Dinero"/> with the difference.
-    /// The result is clamped to 0 to satisfy the non-negative invariant;
-    /// business rules that need to detect underflow should check before calling.
+    /// Throws <see cref="DomainException"/> if the result would be negative.
+    /// Callers must verify that <c>this.Monto &gt;= otro.Monto</c> before calling.
     /// </summary>
     public Dinero Restar(Dinero otro)
     {

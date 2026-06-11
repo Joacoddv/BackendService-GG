@@ -31,12 +31,18 @@ public class Direccion : Entity
             throw new DomainException("Direccion.Calle cannot be empty.");
         if (string.IsNullOrWhiteSpace(ciudad))
             throw new DomainException("Direccion.Ciudad cannot be empty.");
+        if (string.IsNullOrWhiteSpace(provincia))
+            throw new DomainException("Direccion.Provincia cannot be empty.");
+        if (string.IsNullOrWhiteSpace(codigoPostal))
+            throw new DomainException("Direccion.CodigoPostal cannot be empty.");
 
         Calle        = calle;
+        // Numero is optional — street numbers like "S/N" are valid in Argentine addresses.
         Numero       = numero;
         Ciudad       = ciudad;
         Provincia    = provincia;
         CodigoPostal = codigoPostal;
+        // Piso and Departamento are genuinely optional (not all addresses have them).
         Piso         = piso;
         Departamento = departamento;
     }

@@ -6,5 +6,5 @@ namespace GastroGestion.Domain.Common;
 /// </summary>
 public interface IDomainEvent
 {
-    DateTime OccurredOn { get; }
+    DateTime OccurredOnUtc { get; }
 }
