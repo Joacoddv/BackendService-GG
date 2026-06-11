@@ -52,7 +52,7 @@ Design sections: §1 (project layout), §2 (aggregates), §3 (VOs), §4 (Direcci
 
 ---
 
-### DP-01 — Zero-dependency .csproj gate (Slice 1) [ ]
+### DP-01 — Zero-dependency .csproj gate (Slice 1) [x]
 
 **Work unit:** Verification-only — no new source code.  
 **Conventional commit:** N/A — gate check before committing any source.
@@ -77,7 +77,7 @@ If any reference is found, stop immediately — do NOT proceed to DP-02 until th
 
 ---
 
-### DP-02 — Common kernel (Entity, AggregateRoot, ValueObject, IDomainEvent, DomainException) [ ]
+### DP-02 — Common kernel (Entity, AggregateRoot, ValueObject, IDomainEvent, DomainException) [x]
 
 **Work unit:** One commit — foundational abstractions only; no concrete types yet.  
 **Conventional commit:** `feat(domain): add Common kernel abstractions`
@@ -128,7 +128,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-03 — ValueObjects and Enums [ ]
+### DP-03 — ValueObjects and Enums [x]
 
 **Work unit:** One commit — all value objects and enums; no aggregate code yet.  
 **Conventional commit:** `feat(domain): add value objects and domain enums`
@@ -204,7 +204,7 @@ Select-String -Path "src/GastroGestion.Domain/GastroGestion.Domain.csproj" -Patt
 
 ---
 
-### DP-04 — Cliente aggregate + Direccion owned entity [ ]
+### DP-04 — Cliente aggregate + Direccion owned entity [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add Cliente aggregate with Direccion owned entity`
@@ -247,7 +247,7 @@ Select-String -Path "src/GastroGestion.Domain/GastroGestion.Domain.csproj" -Patt
 
 ---
 
-### DP-05 — Ingrediente aggregate [ ]
+### DP-05 — Ingrediente aggregate [x]
 
 **Work unit:** One commit — can be developed in parallel with DP-06 once DP-04 is committed.  
 **Conventional commit:** `feat(domain): add Ingrediente aggregate`
@@ -277,7 +277,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-06 — Plato aggregate + LineaReceta owned entity [ ]
+### DP-06 — Plato aggregate + LineaReceta owned entity [x]
 
 **Work unit:** One commit — can be developed in parallel with DP-05 once DP-04 is committed.  
 **Conventional commit:** `feat(domain): add Plato aggregate with LineaReceta recipe lines`
@@ -311,7 +311,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-07 — Menu aggregate + MenuItem owned entity [ ]
+### DP-07 — Menu aggregate + MenuItem owned entity [x]
 
 **Work unit:** One commit — depends on DP-06 (Plato exists for cross-ref).  
 **Conventional commit:** `feat(domain): add Menu aggregate with MenuItem owned entity`
@@ -342,7 +342,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-08 — Mesa aggregate [ ]
+### DP-08 — Mesa aggregate [x]
 
 **Work unit:** One commit — can be developed in parallel with DP-05/DP-06 once DP-04 is committed.  
 **Conventional commit:** `feat(domain): add Mesa aggregate`
@@ -375,7 +375,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-09 — Slice 1 domain tests (one xUnit class per aggregate) [ ]
+### DP-09 — Slice 1 domain tests (one xUnit class per aggregate) [x]
 
 **Work unit:** One commit — tests ship with the code they verify (work-unit-commits rule).  
 **Conventional commit:** `test(domain): add Slice 1 catalogue aggregate tests`
@@ -451,7 +451,7 @@ Select-String -Path "tests/GastroGestion.Domain.Tests/GastroGestion.Domain.Tests
 
 ---
 
-### DP-10 — Slice 1 build + test verification (no code changes) [ ]
+### DP-10 — Slice 1 build + test verification (no code changes) [x]
 
 **Work unit:** Verification-only — no commits. Confirms Slice 1 is shippable.
 
