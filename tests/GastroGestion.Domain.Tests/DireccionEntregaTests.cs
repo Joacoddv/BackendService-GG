@@ -35,6 +35,7 @@ public class DireccionEntregaTests
 
     [Theory]
     [InlineData("", "1", "Ciudad", "Prov", "1234", "*Calle*")]
+    [InlineData("Calle", "", "Ciudad", "Prov", "1234", "*Numero*")]
     [InlineData("Calle", "1", "", "Prov", "1234", "*Ciudad*")]
     [InlineData("Calle", "1", "Ciudad", "", "1234", "*Provincia*")]
     [InlineData("Calle", "1", "Ciudad", "Prov", "", "*CodigoPostal*")]

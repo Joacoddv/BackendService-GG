@@ -21,6 +21,13 @@ public class OrdenTrabajo : Entity
     /// <summary>Cross-boundary reference to the Plato being produced.</summary>
     public Guid PlatoId { get; private set; }
 
+    /// <summary>
+    /// Reference to the originating <see cref="LineaPedido.Id"/>.
+    /// One OT per line (REQ-10 / Scenario 10-B): two lines with the same PlatoId
+    /// are each allowed their own OT, keyed by this value.
+    /// </summary>
+    public Guid LineaPedidoId { get; private set; }
+
     /// <summary>Current OT state.</summary>
     public EstadoOT Estado { get; private set; }
 
@@ -39,9 +46,11 @@ public class OrdenTrabajo : Entity
     private OrdenTrabajo(
         Guid id,
         Guid platoId,
+        Guid lineaPedidoId,
         IReadOnlyList<LineaRecetaSnapshot> recetaSnapshot) : base(id)
     {
         PlatoId        = platoId;
+        LineaPedidoId  = lineaPedidoId;
         Estado         = EstadoOT.Creada;
         RecetaSnapshot = recetaSnapshot;
     }
@@ -54,14 +63,19 @@ public class OrdenTrabajo : Entity
     /// <summary>
     /// Creates a new OT in state Creada with the given recipe snapshot.
     /// </summary>
-    internal static OrdenTrabajo Crear(Guid platoId, IReadOnlyList<LineaRecetaSnapshot> recetaSnapshot)
+    internal static OrdenTrabajo Crear(
+        Guid platoId,
+        Guid lineaPedidoId,
+        IReadOnlyList<LineaRecetaSnapshot> recetaSnapshot)
     {
         if (platoId == Guid.Empty)
             throw new DomainException("OrdenTrabajo.PlatoId cannot be empty.");
+        if (lineaPedidoId == Guid.Empty)
+            throw new DomainException("OrdenTrabajo.LineaPedidoId cannot be empty.");
         if (recetaSnapshot is null || recetaSnapshot.Count == 0)
             throw new DomainException("OrdenTrabajo must have at least one recipe snapshot line.");
 
-        return new OrdenTrabajo(Guid.NewGuid(), platoId, recetaSnapshot);
+        return new OrdenTrabajo(Guid.NewGuid(), platoId, lineaPedidoId, recetaSnapshot);
     }
 
     /// <summary>
@@ -95,12 +109,18 @@ public class OrdenTrabajo : Entity
 
     /// <summary>
     /// Cancels this OT. Only the parent Pedido's cancel cascade calls this.
-    /// Valid from any non-terminal state.
+    /// <para>
+    /// Per REQ-11: OTs in Creada, Preparandose, or Lista all transition to Cancelada.
+    /// Only an already-Cancelada OT is treated as idempotent (no-op).
+    /// Stock restoration (<see cref="StockDebeRestaurarse"/>) is raised by the caller
+    /// only for OTs that were Creada — Preparandose/Lista stock is already consumed.
+    /// </para>
     /// </summary>
     internal void Cancelar()
     {
-        if (Estado == EstadoOT.Lista || Estado == EstadoOT.Cancelada)
-            return; // idempotent for terminal states
+        if (Estado == EstadoOT.Cancelada)
+            return; // idempotent — already cancelled
+
         Estado = EstadoOT.Cancelada;
     }
 }

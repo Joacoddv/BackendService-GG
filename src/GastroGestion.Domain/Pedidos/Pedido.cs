@@ -88,6 +88,7 @@ public class Pedido : AggregateRoot
 
     /// <summary>
     /// Creates a new Pedido, enforcing type invariants.
+    /// Raises <see cref="PedidoCreado"/> (REQ-15).
     /// </summary>
     /// <param name="tipo">Order channel.</param>
     /// <param name="mesaId">Required for Salon; null for counter/delivery.</param>
@@ -111,7 +112,9 @@ public class Pedido : AggregateRoot
         if (tipo != TipoPedido.Delivery && direccionEntrega is not null)
             throw new DomainException("DireccionEntrega is only valid for Delivery orders.");
 
-        return new Pedido(Guid.NewGuid(), tipo, mesaId, clienteId, direccionEntrega, creadoEnUtc);
+        var pedido = new Pedido(Guid.NewGuid(), tipo, mesaId, clienteId, direccionEntrega, creadoEnUtc);
+        pedido.AddDomainEvent(new PedidoCreado(pedido.Id, tipo, clienteId, creadoEnUtc));
+        return pedido;
     }
 
     // ── Lines ─────────────────────────────────────────────────────────────────
@@ -119,6 +122,7 @@ public class Pedido : AggregateRoot
     /// <summary>
     /// Adds a dish line to the order.
     /// Only valid while the order is in an editable state (not terminal).
+    /// Raises <see cref="LineaPedidoAgregada"/> (REQ-15).
     /// </summary>
     public LineaPedido AgregarLinea(Guid platoId, int cantidad, string? observaciones = null)
     {
@@ -126,15 +130,20 @@ public class Pedido : AggregateRoot
 
         var linea = LineaPedido.Crear(platoId, cantidad, observaciones);
         _lineas.Add(linea);
+
+        AddDomainEvent(new LineaPedidoAgregada(Id, linea.Id, platoId, cantidad, DateTime.UtcNow));
+
         return linea;
     }
 
     /// <summary>
     /// Returns whether a given line is editable (has no OT or its OT is still Creada).
+    /// Lookup uses <see cref="OrdenTrabajo.LineaPedidoId"/> for unambiguous one-OT-per-line
+    /// keying (REQ-10 / Scenario 10-B).
     /// </summary>
     public bool LineaEsEditable(Guid lineaId)
     {
-        var ot = _ordenesTrabajo.FirstOrDefault(o => _lineas.Any(l => l.Id == lineaId && l.PlatoId == o.PlatoId));
+        var ot = _ordenesTrabajo.FirstOrDefault(o => o.LineaPedidoId == lineaId);
         return ot is null || ot.Estado == EstadoOT.Creada;
     }
 
@@ -197,8 +206,18 @@ public class Pedido : AggregateRoot
 
     /// <summary>
     /// Generates one <see cref="OrdenTrabajo"/> per line in an all-or-nothing batch.
-    /// Validates that every line has a confirmed price (snapshot must exist before
-    /// stock moves are calculated) and blocks duplicate OT per Plato.
+    /// <para>
+    /// Validates (all-or-nothing — no OT is created if any check fails):
+    /// <list type="bullet">
+    ///   <item>Every targeted line must have a confirmed price snapshot (ConfirmarPrecio
+    ///   must have been called) — per REQ-10 / design §5c.</item>
+    ///   <item>Every targeted line must have a recipe snapshot in
+    ///   <paramref name="lineasConReceta"/>.</item>
+    ///   <item>No existing OT may be keyed to the same <see cref="LineaPedido.Id"/>
+    ///   (one OT per line — REQ-10 / Scenario 10-B). Two distinct lines ordering
+    ///   the same Plato are both permitted because they have different LineaPedidoIds.</item>
+    /// </list>
+    /// </para>
     /// Raises <see cref="OrdenTrabajoCreada"/> per new OT.
     /// </summary>
     /// <param name="lineasConReceta">
@@ -214,22 +233,28 @@ public class Pedido : AggregateRoot
         // All-or-nothing: validate all lines before creating any OT.
         foreach (var linea in _lineas)
         {
+            // Price-snapshot guard (REQ-10 / design §5c)
+            if (linea.PrecioUnitario is null)
+                throw new DomainException(
+                    $"LineaPedido {linea.Id} (PlatoId {linea.PlatoId}) has no confirmed price snapshot. " +
+                    "Call ConfirmarPrecio on every line before generating OTs.");
+
             if (!lineasConReceta.ContainsKey(linea.PlatoId))
                 throw new DomainException(
                     $"No recipe snapshot provided for PlatoId {linea.PlatoId}. " +
                     "All order lines must have a recipe to generate OTs.");
 
-            // Duplicate block
-            if (_ordenesTrabajo.Any(ot => ot.PlatoId == linea.PlatoId))
+            // Duplicate block — keyed by LineaPedidoId (one OT per line, not per Plato).
+            if (_ordenesTrabajo.Any(ot => ot.LineaPedidoId == linea.Id))
                 throw new DomainException(
-                    $"An OrdenTrabajo for PlatoId {linea.PlatoId} already exists on this Pedido.");
+                    $"An OrdenTrabajo for LineaPedidoId {linea.Id} already exists on this Pedido.");
         }
 
         // All checks passed — create all OTs.
         foreach (var linea in _lineas)
         {
             var snapshot = lineasConReceta[linea.PlatoId];
-            var ot = OrdenTrabajo.Crear(linea.PlatoId, snapshot);
+            var ot = OrdenTrabajo.Crear(linea.PlatoId, linea.Id, snapshot);
             _ordenesTrabajo.Add(ot);
 
             AddDomainEvent(new OrdenTrabajoCreada(Id, ot.Id, linea.PlatoId, DateTime.UtcNow));

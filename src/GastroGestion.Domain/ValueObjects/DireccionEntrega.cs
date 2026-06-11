@@ -29,6 +29,8 @@ public sealed class DireccionEntrega : ValueObject
     {
         if (string.IsNullOrWhiteSpace(calle))
             throw new DomainException("DireccionEntrega.Calle cannot be empty.");
+        if (string.IsNullOrWhiteSpace(numero))
+            throw new DomainException("DireccionEntrega.Numero cannot be empty. Use \"S/N\" when there is no street number.");
         if (string.IsNullOrWhiteSpace(ciudad))
             throw new DomainException("DireccionEntrega.Ciudad cannot be empty.");
         if (string.IsNullOrWhiteSpace(provincia))

@@ -21,12 +21,13 @@ public record PedidoTransicion(
 /// and illegal transitions are rejected in one place (design §5d).
 /// <para>
 /// <b>Salón path:</b>  Abierto → Cerrado | Cancelado<br/>
-/// <b>Counter/Delivery/TakeAway path:</b>
+/// <b>TakeAway path:</b>
 ///     Creado → Modificado | Preparandose | Cancelado<br/>
 ///     Modificado → Preparandose | Cancelado<br/>
 ///     Preparandose → ListoParaEntregar | Cancelado<br/>
 ///     ListoParaEntregar → Entregado<br/>
-/// TakeAway reuses Mostrador rows (design §5d).
+/// <b>Delivery path:</b> same logical flow as TakeAway.<br/>
+/// TakeAway is its own counter channel with its own registry rows (no aliasing).
 /// </para>
 /// </summary>
 public static class PedidoTransicionRegistry
@@ -38,13 +39,13 @@ public static class PedidoTransicionRegistry
 
     /// <summary>
     /// Returns the matching transition row, or null when no such transition exists.
+    /// TakeAway is its own counter channel with its own rows in the registry —
+    /// no aliasing to Mostrador/Delivery is applied.
     /// </summary>
     public static PedidoTransicion? Buscar(TipoPedido tipo, EstadoPedido desde, EstadoPedido hasta)
     {
-        // TakeAway shares the Mostrador rows.
-        var tipoEfectivo = tipo == TipoPedido.TakeAway ? TipoPedido.TakeAway : tipo;
         return _transiciones.FirstOrDefault(t =>
-            t.Tipo == tipoEfectivo && t.EstadoDesde == desde && t.EstadoHasta == hasta);
+            t.Tipo == tipo && t.EstadoDesde == desde && t.EstadoHasta == hasta);
     }
 
     private static List<PedidoTransicion> BuildRegistry()

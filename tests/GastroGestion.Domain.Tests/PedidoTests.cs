@@ -8,9 +8,9 @@ using GastroGestion.Domain.ValueObjects;
 namespace GastroGestion.Domain.Tests;
 
 /// <summary>
-/// Covers spec REQ-07 through REQ-11: Pedido creation invariants,
+/// Covers spec REQ-07 through REQ-11 and REQ-15: Pedido creation invariants,
 /// DireccionEntrega, PedidoTransicionRegistry, LineaPedido, OrdenTrabajo,
-/// and cancellation cascade.
+/// cancellation cascade, and domain events.
 /// </summary>
 public class PedidoTests
 {
@@ -33,6 +33,17 @@ public class PedidoTests
 
     private static Pedido PedidoSalon() =>
         Pedido.Crear(TipoPedido.Salon, Guid.NewGuid(), null, null, DateTime.UtcNow);
+
+    /// <summary>
+    /// Adds a line to <paramref name="pedido"/> and immediately confirms its price.
+    /// Returns the confirmed <see cref="LineaPedido"/> so tests can reference it.
+    /// </summary>
+    private static LineaPedido AgregarLineaConPrecio(Pedido pedido, Guid platoId, int cantidad = 1)
+    {
+        var linea = pedido.AgregarLinea(platoId, cantidad);
+        linea.ConfirmarPrecio(Precio100(), Iva21());
+        return linea;
+    }
 
     // ── REQ-07: Pedido creation invariants ───────────────────────────────────
 
@@ -92,6 +103,36 @@ public class PedidoTests
     {
         var act = () => Pedido.Crear(TipoPedido.TakeAway, null, null, ValidDireccion(), DateTime.UtcNow);
         act.Should().Throw<DomainException>().WithMessage("*DireccionEntrega*Delivery*");
+    }
+
+    // ── REQ-15: PedidoCreado and LineaPedidoAgregada events ──────────────────
+
+    [Fact]
+    public void Crear_RaisesPedidoCreadoEvent()
+    {
+        var pedido = PedidoTakeAway();
+
+        pedido.DomainEvents.OfType<PedidoCreado>().Should().HaveCount(1);
+        var evt = pedido.DomainEvents.OfType<PedidoCreado>().Single();
+        evt.PedidoId.Should().Be(pedido.Id);
+        evt.Tipo.Should().Be(TipoPedido.TakeAway);
+    }
+
+    [Fact]
+    public void AgregarLinea_RaisesLineaPedidoAgregadaEvent()
+    {
+        var pedido = PedidoTakeAway();
+        var platoId = Guid.NewGuid();
+        pedido.ClearDomainEvents();
+
+        var linea = pedido.AgregarLinea(platoId, 2);
+
+        var evt = pedido.DomainEvents.OfType<LineaPedidoAgregada>().SingleOrDefault();
+        evt.Should().NotBeNull();
+        evt!.PedidoId.Should().Be(pedido.Id);
+        evt.LineaPedidoId.Should().Be(linea.Id);
+        evt.PlatoId.Should().Be(platoId);
+        evt.Cantidad.Should().Be(2);
     }
 
     // ── DireccionEntrega immutability (REQ-07) ────────────────────────────────
@@ -163,7 +204,7 @@ public class PedidoTests
         pedido.TransicionarEstado(EstadoPedido.Modificado, RolUsuario.Cajero);
 
         pedido.Estado.Should().Be(EstadoPedido.Modificado);
-        pedido.DomainEvents.Should().ContainSingle(e => e is PedidoEstadoCambiado);
+        pedido.DomainEvents.Should().Contain(e => e is PedidoEstadoCambiado);
         var evt = (PedidoEstadoCambiado)pedido.DomainEvents.Single(e => e is PedidoEstadoCambiado);
         evt.EstadoAnterior.Should().Be(EstadoPedido.Creado);
         evt.EstadoNuevo.Should().Be(EstadoPedido.Modificado);
@@ -181,14 +222,13 @@ public class PedidoTests
     [Fact]
     public void TransicionarEstado_WrongRole_ThrowsDomainException()
     {
+        // A TakeAway order in Preparandose: only Cocinero/Administrador may advance it to
+        // ListoParaEntregar (registry row). A Cajero/Ventas role must be rejected.
         var pedido = PedidoTakeAway();
-        // Advance to Preparandose first
         pedido.TransicionarEstado(EstadoPedido.Preparandose, RolUsuario.Cajero);
 
-        // Only Cocinero can advance to ListoParaEntregar — Cajero should fail
-        // But wait: we need to allow the OT logic. Let's test with Mozo on a Salon transition.
-        var salon = PedidoSalon();
-        var act = () => salon.TransicionarEstado(EstadoPedido.Cerrado, RolUsuario.Cocinero);
+        // Cajero is NOT in the Cocinero-only gate for Preparandose → ListoParaEntregar.
+        var act = () => pedido.TransicionarEstado(EstadoPedido.ListoParaEntregar, RolUsuario.Cajero);
         act.Should().Throw<DomainException>().WithMessage("*not authorised*");
     }
 
@@ -266,8 +306,8 @@ public class PedidoTests
         var pedido = PedidoTakeAway();
         var platoId1 = Guid.NewGuid();
         var platoId2 = Guid.NewGuid();
-        pedido.AgregarLinea(platoId1, 1);
-        pedido.AgregarLinea(platoId2, 2);
+        AgregarLineaConPrecio(pedido, platoId1);
+        AgregarLineaConPrecio(pedido, platoId2, 2);
 
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId1, platoId2));
 
@@ -281,7 +321,7 @@ public class PedidoTests
     {
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
 
         var emptyMap = new Dictionary<Guid, IReadOnlyList<LineaRecetaSnapshot>>();
         var act = () => pedido.GenerarOrdenesTrabajo(emptyMap);
@@ -293,14 +333,45 @@ public class PedidoTests
     [Fact]
     public void GenerarOTs_DuplicateOT_ThrowsDomainException()
     {
+        // Duplicate is per LineaPedidoId — same line attempted twice.
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
-        // Attempt to generate again for the same plato
+        // Attempt to generate again for the same line
         var act = () => pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
         act.Should().Throw<DomainException>().WithMessage("*already exists*");
+    }
+
+    [Fact]
+    public void GenerarOTs_TwoLinesWithSamePlato_CreatesTwoOTs()
+    {
+        // REQ-10 / Scenario 10-B: two distinct lines ordering the same Plato must
+        // each produce their own OT — the duplicate check is per LineaPedidoId, not PlatoId.
+        var pedido = PedidoTakeAway();
+        var platoId = Guid.NewGuid();
+        AgregarLineaConPrecio(pedido, platoId);       // line 1 for platoId
+        AgregarLineaConPrecio(pedido, platoId, 2);    // line 2 for the same platoId
+
+        var act = () => pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
+        act.Should().NotThrow();
+
+        pedido.OrdenesTrabajo.Should().HaveCount(2);
+        pedido.OrdenesTrabajo.All(ot => ot.PlatoId == platoId).Should().BeTrue();
+    }
+
+    [Fact]
+    public void GenerarOTs_LineWithoutConfirmedPrice_ThrowsDomainException()
+    {
+        // WARNING 6: GenerarOrdenesTrabajo must enforce that every line has a confirmed price.
+        var pedido = PedidoTakeAway();
+        var platoId = Guid.NewGuid();
+        pedido.AgregarLinea(platoId, 1); // price NOT confirmed
+
+        var act = () => pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
+        act.Should().Throw<DomainException>().WithMessage("*confirmed price*");
+        pedido.OrdenesTrabajo.Should().BeEmpty(); // all-or-nothing
     }
 
     [Fact]
@@ -308,7 +379,7 @@ public class PedidoTests
     {
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
         pedido.TransicionarEstado(EstadoPedido.Preparandose, RolUsuario.Cajero);
 
@@ -325,8 +396,8 @@ public class PedidoTests
         var pedido = PedidoTakeAway();
         var plato1 = Guid.NewGuid();
         var plato2 = Guid.NewGuid();
-        pedido.AgregarLinea(plato1, 1);
-        pedido.AgregarLinea(plato2, 1);
+        AgregarLineaConPrecio(pedido, plato1);
+        AgregarLineaConPrecio(pedido, plato2);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(plato1, plato2));
         pedido.TransicionarEstado(EstadoPedido.Preparandose, RolUsuario.Cajero);
 
@@ -343,7 +414,7 @@ public class PedidoTests
     {
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
         var ot = pedido.OrdenesTrabajo.Single();
@@ -358,7 +429,7 @@ public class PedidoTests
     {
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
         var ot = pedido.OrdenesTrabajo.Single();
@@ -375,7 +446,7 @@ public class PedidoTests
     {
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
         pedido.ClearDomainEvents();
 
@@ -390,7 +461,7 @@ public class PedidoTests
     {
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
         var ot = pedido.OrdenesTrabajo.Single();
@@ -402,6 +473,48 @@ public class PedidoTests
         pedido.DomainEvents.OfType<StockDebeRestaurarse>().Should().BeEmpty();
         pedido.DomainEvents.OfType<PedidoCancelado>().Should().HaveCount(1);
         pedido.OrdenesTrabajo.Single().Estado.Should().Be(EstadoOT.Cancelada);
+    }
+
+    [Fact]
+    public void Cancelar_WithListaOT_TransitionsOTToCancelada_AndDoesNotRaiseStockRestoreForIt()
+    {
+        // BLOCKER 1 fix: an OT in Lista must also become Cancelada on Pedido cancel.
+        // No stock restoration event is raised for the Lista OT — stock is already consumed.
+        // Setup: one OT advances to Lista, one stays Creada (prevents auto-advance so the
+        // Pedido remains in Preparandose and can still be cancelled via that path).
+        // After cancel: ot1 (Lista→Cancelada, no restore), ot2 (Creada→Cancelada, restore raised).
+        var pedido = PedidoTakeAway();
+        var plato1 = Guid.NewGuid();
+        var plato2 = Guid.NewGuid();
+        AgregarLineaConPrecio(pedido, plato1);
+        AgregarLineaConPrecio(pedido, plato2);
+        pedido.GenerarOrdenesTrabajo(BuildRecetaMap(plato1, plato2));
+        pedido.TransicionarEstado(EstadoPedido.Preparandose, RolUsuario.Cajero);
+
+        var ot1 = pedido.OrdenesTrabajo.First();
+        var ot2 = pedido.OrdenesTrabajo.Last();
+
+        // Advance ot1 to Lista; ot2 stays Creada so Pedido doesn't auto-advance.
+        ot1.AsignarCocinero(new LegajoId(Guid.NewGuid())); // ot1 → Preparandose
+        pedido.MarcarOrdenTrabajoLista(ot1.Id, RolUsuario.Cocinero); // ot1 → Lista
+
+        ot1.Estado.Should().Be(EstadoOT.Lista);        // pre-condition
+        ot2.Estado.Should().Be(EstadoOT.Creada);       // pre-condition
+        pedido.Estado.Should().Be(EstadoPedido.Preparandose); // not auto-advanced
+
+        pedido.ClearDomainEvents();
+        pedido.TransicionarEstado(EstadoPedido.Cancelado, RolUsuario.Cajero);
+
+        // Both OTs are now Cancelada.
+        ot1.Estado.Should().Be(EstadoOT.Cancelada);
+        ot2.Estado.Should().Be(EstadoOT.Cancelada);
+
+        // Only ot2 (was Creada) raised StockDebeRestaurarse — ot1 (was Lista) did not.
+        var restoreEvents = pedido.DomainEvents.OfType<StockDebeRestaurarse>().ToList();
+        restoreEvents.Should().HaveCount(1);
+        restoreEvents[0].OrdenTrabajoId.Should().Be(ot2.Id);
+
+        pedido.DomainEvents.OfType<PedidoCancelado>().Should().HaveCount(1);
     }
 
     [Fact]
@@ -422,8 +535,8 @@ public class PedidoTests
         var pedido = PedidoTakeAway();
         var plato1 = Guid.NewGuid();
         var plato2 = Guid.NewGuid();
-        pedido.AgregarLinea(plato1, 1);
-        pedido.AgregarLinea(plato2, 1);
+        AgregarLineaConPrecio(pedido, plato1);
+        AgregarLineaConPrecio(pedido, plato2);
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(plato1, plato2));
 
         pedido.TransicionarEstado(EstadoPedido.Cancelado, RolUsuario.Cajero);
@@ -449,7 +562,7 @@ public class PedidoTests
         var pedido = PedidoTakeAway();
         var platoId = Guid.NewGuid();
         var ingredienteId = Guid.NewGuid();
-        pedido.AgregarLinea(platoId, 1);
+        AgregarLineaConPrecio(pedido, platoId);
 
         var snapshot = new List<LineaRecetaSnapshot>
         {
@@ -465,6 +578,22 @@ public class PedidoTests
         ot.RecetaSnapshot.Should().HaveCount(1);
         ot.RecetaSnapshot[0].IngredienteId.Should().Be(ingredienteId);
         ot.RecetaSnapshot[0].Cantidad.Valor.Should().Be(250m);
+    }
+
+    // ── OT LineaPedidoId keying ───────────────────────────────────────────────
+
+    [Fact]
+    public void GenerarOTs_OT_HasCorrectLineaPedidoId()
+    {
+        // The OT must carry the LineaPedidoId of the originating line.
+        var pedido = PedidoTakeAway();
+        var platoId = Guid.NewGuid();
+        var linea = AgregarLineaConPrecio(pedido, platoId);
+
+        pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
+
+        var ot = pedido.OrdenesTrabajo.Single();
+        ot.LineaPedidoId.Should().Be(linea.Id);
     }
 
     // ── Salon auto-advance guard (Salon does NOT auto-advance to ListoParaEntregar) ─
