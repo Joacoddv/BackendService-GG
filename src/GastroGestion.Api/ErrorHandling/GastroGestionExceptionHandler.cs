@@ -1,3 +1,4 @@
+using System.Text.Json;
 using GastroGestion.Application.Common.Exceptions;
 using GastroGestion.Domain.Common;
 using Microsoft.AspNetCore.Diagnostics;
@@ -48,8 +49,12 @@ internal sealed class GastroGestionExceptionHandler : IExceptionHandler
             Detail = detail
         };
 
-        httpContext.Response.StatusCode = statusCode;
-        await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);
+        // Set status code and RFC 7807-compliant Content-Type BEFORE writing the body.
+        // WriteAsJsonAsync would default to application/json, so we write manually instead.
+        httpContext.Response.StatusCode  = statusCode;
+        httpContext.Response.ContentType = "application/problem+json";
+        var json = JsonSerializer.Serialize(problem);
+        await httpContext.Response.WriteAsync(json, cancellationToken);
 
         return true;
     }
