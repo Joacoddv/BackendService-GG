@@ -7,7 +7,7 @@ namespace GastroGestion.Infrastructure.Events;
 /// No-op dispatcher used at design time (IDesignTimeDbContextFactory).
 /// Never dispatches events; exists solely so the factory can construct a valid DbContext.
 /// </summary>
-internal sealed class NullDomainEventDispatcher : IDomainEventDispatcher
+public sealed class NullDomainEventDispatcher : IDomainEventDispatcher
 {
     public Task DispatchAsync(IReadOnlyList<IDomainEvent> events, CancellationToken ct = default)
         => Task.CompletedTask;
