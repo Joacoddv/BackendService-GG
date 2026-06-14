@@ -31,6 +31,9 @@ public static class DependencyInjection
         services.AddScoped<IPedidoRepository, PedidoRepository>();
         services.AddScoped<IMovimientoStockRepository, MovimientoStockRepository>();
 
+        // Repositories — Slice C (fiscal)
+        services.AddScoped<IFacturaRepository, FacturaRepository>();
+
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
