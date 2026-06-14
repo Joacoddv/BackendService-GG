@@ -1,5 +1,7 @@
 using GastroGestion.Application;
 using GastroGestion.Infrastructure;
+using GastroGestion.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,7 @@ builder.Host.UseSerilog((context, config) =>
 
 // --- Application and Infrastructure layers ---
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // --- Health checks ---
 builder.Services.AddHealthChecks();
@@ -30,6 +32,14 @@ if (string.IsNullOrWhiteSpace(jwtSigningKey))
 }
 
 var app = builder.Build();
+
+// --- Auto-migrate on startup in Development ---
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<GastroGestionDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // --- Middleware pipeline ---
 if (app.Environment.IsDevelopment())
