@@ -725,7 +725,7 @@ Design sections: §2 (Factura TPH, MovimientoStock), §5a (polymorphic Comproban
 
 ---
 
-### DP-18 — Zero-dependency .csproj gate (Slice 3 checkpoint) [ ]
+### DP-18 — Zero-dependency .csproj gate (Slice 3 checkpoint) [x]
 
 **Work unit:** Verification-only gate.  
 **Conventional commit:** N/A
@@ -738,7 +738,7 @@ Repeat DP-01 verification. Block if any dependency was accidentally added.
 
 ---
 
-### DP-19 — MovimientoStock ledger aggregate [ ]
+### DP-19 — MovimientoStock ledger aggregate [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add MovimientoStock append-only ledger aggregate`
@@ -774,7 +774,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-20 — Factura aggregate (TPH) + FacturaLinea + Pago owned entities [ ]
+### DP-20 — Factura aggregate (TPH) + FacturaLinea + Pago owned entities [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add Factura TPH aggregate with FacturaLinea and Pago`
@@ -825,7 +825,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-21 — ICalculadorFactura contract + FacturaNecesitaCAE event [ ]
+### DP-21 — ICalculadorFactura contract + FacturaNecesitaCAE event [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `feat(domain): add ICalculadorFactura contract and FacturaNecesitaCAE event`
@@ -859,7 +859,7 @@ dotnet build src/GastroGestion.Domain/GastroGestion.Domain.csproj
 
 ---
 
-### DP-22 — Slice 3 domain tests [ ]
+### DP-22 — Slice 3 domain tests [x]
 
 **Work unit:** One commit.  
 **Conventional commit:** `test(domain): add Slice 3 fiscal aggregate tests`
@@ -902,7 +902,7 @@ dotnet test tests/GastroGestion.Domain.Tests/GastroGestion.Domain.Tests.csproj
 
 ---
 
-### DP-23 — Slice 3 build + test verification (no code changes) [ ]
+### DP-23 — Slice 3 build + test verification (no code changes) [x]
 
 **Work unit:** Verification-only — final gate. Slice is shippable when this passes.
 
