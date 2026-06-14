@@ -627,7 +627,7 @@ Design sections: §3.6 (Pedido config — highest complexity), §3.7 (Movimiento
 
 ---
 
-### PE-12 — Domain change: expose `internal bool PrecioConfirmado` on LineaPedido
+### PE-12 — Domain change: expose `internal bool PrecioConfirmado` on LineaPedido [x]
 
 **Work unit:** Single-line additive change to the Domain project — the ONLY domain change in Phase 3.
 **Conventional commit:** `feat(domain): expose internal PrecioConfirmado on LineaPedido for EF persistence`
@@ -680,7 +680,7 @@ dotnet test tests/GastroGestion.Domain.Tests/ `
 
 ---
 
-### PE-13 — PedidoConfiguration (highest mapping complexity)
+### PE-13 — PedidoConfiguration (highest mapping complexity) [x]
 
 **Work unit:** One large configuration class covering all owned types, JSON column, nullable address, RowVersion.
 **Conventional commit:** `feat(infra): add EF Core config for Pedido aggregate with full owned graph`
@@ -795,7 +795,7 @@ dotnet build src/GastroGestion.Infrastructure/GastroGestion.Infrastructure.cspro
 
 ---
 
-### PE-14 — MovimientoStockConfiguration + append-only guard
+### PE-14 — MovimientoStockConfiguration + append-only guard [x]
 
 **Work unit:** Config + the SaveChanges guard (already wired in DbContext skeleton from PE-02; verify it targets `MovimientoStock`).
 **Conventional commit:** `feat(infra): add EF Core config for MovimientoStock with append-only SaveChanges guard`
@@ -837,7 +837,7 @@ dotnet build src/GastroGestion.Infrastructure/GastroGestion.Infrastructure.cspro
 
 ---
 
-### PE-15 — IDomainEventDispatcher + InProcessDomainEventDispatcher
+### PE-15 — IDomainEventDispatcher + InProcessDomainEventDispatcher [x]
 
 **Work unit:** Application port + Infrastructure implementation for post-commit event dispatch.
 **Conventional commit:** `feat(app+infra): add IDomainEventDispatcher and in-process post-commit implementation`
@@ -884,7 +884,7 @@ dotnet build src/GastroGestion.Infrastructure/GastroGestion.Infrastructure.cspro
 
 ---
 
-### PE-16 — IPedidoRepository + IMovimientoStockRepository implementations
+### PE-16 — IPedidoRepository + IMovimientoStockRepository implementations [x]
 
 **Work unit:** Two repository implementations for Slice B aggregates.
 **Conventional commit:** `feat(infra): add PedidoRepository and MovimientoStockRepository implementations`
@@ -917,7 +917,7 @@ dotnet build src/GastroGestion.Infrastructure/GastroGestion.Infrastructure.cspro
 
 ---
 
-### PE-17 — AddPedidoAndStock migration
+### PE-17 — AddPedidoAndStock migration [x]
 
 **Work unit:** Generate and apply second migration covering Pedido + MovimientoStock tables.
 **Conventional commit:** `feat(infra): add AddPedidoAndStock EF Core migration`
@@ -965,7 +965,7 @@ dotnet ef database update `
 
 ---
 
-### PE-18 — Transactional round-trip + guard + dispatch + RowVersion integration tests
+### PE-18 — Transactional round-trip + guard + dispatch + RowVersion integration tests [x]
 
 **Work unit:** Full Slice B integration test coverage.
 **Conventional commit:** `test(infra): add Slice B transactional round-trip, guard, dispatch, and concurrency tests`
@@ -1013,7 +1013,7 @@ dotnet test tests/GastroGestion.Infrastructure.Tests/ `
 
 ---
 
-### PE-19 — Slice B build + test verification gate
+### PE-19 — Slice B build + test verification gate [x]
 
 **Work unit:** Verification-only — no code commits. Confirms Slice B is shippable as PR #2.
 

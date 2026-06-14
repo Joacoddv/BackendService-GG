@@ -27,6 +27,10 @@ public static class DependencyInjection
         services.AddScoped<IMenuRepository, MenuRepository>();
         services.AddScoped<IMesaRepository, MesaRepository>();
 
+        // Repositories — Slice B (transactional)
+        services.AddScoped<IPedidoRepository, PedidoRepository>();
+        services.AddScoped<IMovimientoStockRepository, MovimientoStockRepository>();
+
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

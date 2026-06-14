@@ -37,7 +37,9 @@ public class LineaPedido : Entity
     /// </summary>
     public PorcentajeIVA? IVA { get; private set; }
 
-    private bool _precioConfirmado;
+    // Exposed as internal so EF Core can map it as a column without adding a framework
+    // dependency to the Domain project. The set-once invariant is enforced by ConfirmarPrecio.
+    internal bool PrecioConfirmado { get; private set; }
 
     // ── Computed totals (only valid after ConfirmarPrecio) ───────────────────
 
@@ -92,7 +94,7 @@ public class LineaPedido : Entity
     /// <param name="iva">IVA rate for this line.</param>
     public void ConfirmarPrecio(Dinero precio, PorcentajeIVA iva)
     {
-        if (_precioConfirmado)
+        if (PrecioConfirmado)
             throw new DomainException(
                 "Price has already been confirmed for this LineaPedido. ConfirmarPrecio is set-once.");
         if (precio is null)
@@ -102,7 +104,7 @@ public class LineaPedido : Entity
 
         PrecioUnitario  = precio;
         IVA             = iva;
-        _precioConfirmado = true;
+        PrecioConfirmado = true;
     }
 
     /// <summary>
