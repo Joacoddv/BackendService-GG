@@ -9,9 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GastroGestion.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// EF Core configuration for Pedido aggregate. Full mapping: Slice B.
-/// This Slice A stub declares the minimum needed so that EF model creation
-/// succeeds before PedidoLineas / PedidoOrdenesTrabajo tables are added.
+/// EF Core configuration for Pedido aggregate. Full mapping (Slice B).
+/// Owned graph: LineaPedido, OrdenTrabajo with JSON RecetaSnapshot, nullable DireccionEntrega, RowVersion.
 /// </summary>
 internal sealed class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
 {
@@ -65,6 +64,11 @@ internal sealed class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
                     p => p == null ? (int?)null : (int)p.Alicuota,
                     i => i == null ? null : new PorcentajeIVA((AlicuotaIVA)i))
                 .HasColumnName("IVA_Alicuota");
+
+            // Set-once flag — internal bool on LineaPedido (PE-12). Mapped by name because
+            // the internal visibility is not accessible to the Infrastructure assembly at
+            // compile time. EF Core reflects on non-public members by CLR name at runtime.
+            l.Property<bool>("PrecioConfirmado").HasColumnName("PrecioConfirmado");
 
             // Computed getters must be Ignored
             l.Ignore(x => x.SubtotalLinea);
