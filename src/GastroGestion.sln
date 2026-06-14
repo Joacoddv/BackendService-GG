@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Application.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Infrastructure.Tests", "..\tests\GastroGestion.Infrastructure.Tests\GastroGestion.Infrastructure.Tests.csproj", "{13E5589A-AC68-4F28-9745-910F12B21512}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroGestion.Api.Tests", "..\tests\GastroGestion.Api.Tests\GastroGestion.Api.Tests.csproj", "{0CDA63A7-EC2A-4792-9842-852A48A15B79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{13E5589A-AC68-4F28-9745-910F12B21512}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13E5589A-AC68-4F28-9745-910F12B21512}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13E5589A-AC68-4F28-9745-910F12B21512}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CDA63A7-EC2A-4792-9842-852A48A15B79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CDA63A7-EC2A-4792-9842-852A48A15B79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CDA63A7-EC2A-4792-9842-852A48A15B79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CDA63A7-EC2A-4792-9842-852A48A15B79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
