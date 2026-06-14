@@ -15,4 +15,12 @@ internal sealed class MenuRepository : IMenuRepository
 
     public async Task AddAsync(Menu menu, CancellationToken ct = default)
         => await _ctx.Menus.AddAsync(menu, ct);
+
+    public async Task<IReadOnlyList<Menu>> GetActivosByFechaAsync(DateOnly fecha, CancellationToken ct = default)
+    {
+        var result = await _ctx.Menus
+            .Where(m => m.Activo && m.FechaVigencia >= fecha)
+            .ToListAsync(ct);
+        return result.AsReadOnly();
+    }
 }

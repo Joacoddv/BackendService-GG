@@ -1050,7 +1050,7 @@ Design sections: §3.9 (Factura config), §4 (IFacturaRepository), §5 (domain s
 
 ---
 
-### PE-20 — FacturaConfiguration
+### PE-20 — FacturaConfiguration [x]
 
 **Work unit:** One configuration class — flat table, discriminator column, nullable CAE, JSON PedidosFacturados, owned FacturaLinea/Pago.
 **Conventional commit:** `feat(infra): add EF Core config for Factura aggregate (flat table, discriminator, JSON)`
@@ -1137,7 +1137,7 @@ dotnet build src/GastroGestion.Infrastructure/GastroGestion.Infrastructure.cspro
 
 ---
 
-### PE-21 — IFacturaRepository implementation
+### PE-21 — IFacturaRepository implementation [x]
 
 **Work unit:** One repository implementation.
 **Conventional commit:** `feat(infra): add FacturaRepository implementation`
@@ -1164,7 +1164,7 @@ dotnet build src/GastroGestion.Infrastructure/GastroGestion.Infrastructure.cspro
 
 ---
 
-### PE-22 — EfectivoPrecioService + CalculadorFactura (Application)
+### PE-22 — EfectivoPrecioService + CalculadorFactura (Application) [x]
 
 **Work unit:** Two Application service implementations required by `CrearFactura`.
 **Conventional commit:** `feat(app): add EfectivoPrecioService and CalculadorFactura implementations`
@@ -1197,7 +1197,7 @@ dotnet build src/GastroGestion.Application/GastroGestion.Application.csproj
 
 ---
 
-### PE-23 — CrearFactura use case + ConflictException + TipoComprobanteSolicitado
+### PE-23 — CrearFactura use case + ConflictException + TipoComprobanteSolicitado [x]
 
 **Work unit:** The one Application use case that closes REQ-11/REQ-13-G.
 **Conventional commit:** `feat(app): add CrearFactura use case with multi-client ConflictException guard`
@@ -1259,7 +1259,7 @@ dotnet build src/GastroGestion.Application/GastroGestion.Application.csproj
 
 ---
 
-### PE-24 — AddFactura migration
+### PE-24 — AddFactura migration [x]
 
 **Work unit:** Generate and apply third migration covering Factura, FacturaLineas, FacturaPagos tables.
 **Conventional commit:** `feat(infra): add AddFactura EF Core migration`
@@ -1305,7 +1305,7 @@ dotnet ef database update `
 
 ---
 
-### PE-25 — Factura round-trip + CrearFactura integration tests
+### PE-25 — Factura round-trip + CrearFactura integration tests [x]
 
 **Work unit:** Full Slice C integration test coverage.
 **Conventional commit:** `test(infra): add Slice C Factura round-trip and CrearFactura use case tests`
@@ -1343,7 +1343,7 @@ dotnet test tests/GastroGestion.Infrastructure.Tests/ `
 
 ---
 
-### PE-26 — Slice C build + test verification gate
+### PE-26 — Slice C build + test verification gate [x]
 
 **Work unit:** Verification-only — no code commits. Confirms Slice C is shippable as PR #3.
 
