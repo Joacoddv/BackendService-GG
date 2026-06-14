@@ -12,7 +12,8 @@ namespace GastroGestion.Api.Tests;
 /// All tests tagged [Trait("Category","Integration")] — requires LocalDB.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class SmokeTests : IClassFixture<ApiFactory>
+[Collection(IntegrationTestCollection.CollectionName)]
+public sealed class SmokeTests
 {
     private readonly ApiFactory _factory;
     private readonly HttpClient _client;
