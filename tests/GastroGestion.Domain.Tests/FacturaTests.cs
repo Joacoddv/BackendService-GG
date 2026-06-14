@@ -133,6 +133,23 @@ public class FacturaTests
     }
 
     [Fact]
+    public void RegistrarPago_PartialPayment_StateRemainsCreada()
+    {
+        // REQ-13 Scenario 13-D: a single partial payment must NOT advance state to Pagada
+        var lineas = new List<FacturaLinea>
+        {
+            new(Guid.NewGuid(), Guid.NewGuid(), new Dinero(1000m), PorcentajeIVA.Cero, 1)
+        };
+        var factura = Factura.CrearTicket(ClienteId, UnPedido(), lineas);
+        // Total = 1000m; pay only 400m (less than total)
+
+        factura.RegistrarPago(new Dinero(400m), MetodoPago.Efectivo, DateTime.UtcNow);
+
+        factura.Estado.Should().Be(EstadoFactura.Creada);
+        factura.EstaPagada.Should().BeFalse();
+    }
+
+    [Fact]
     public void RegistrarPago_WhenCancelada_ThrowsDomainException()
     {
         // REQ-13: payment on cancelled invoice is rejected
