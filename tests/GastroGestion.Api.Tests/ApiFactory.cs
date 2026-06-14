@@ -13,7 +13,7 @@ namespace GastroGestion.Api.Tests;
 /// - Dedicated LocalDB test database (isolated from the dev database).
 /// - Inline JWT signing key that satisfies the startup guard.
 /// </summary>
-public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private const string TestConnectionString =
         "Server=(localdb)\\mssqllocaldb;Database=GastroGestion_ApiTests;Trusted_Connection=True;TrustServerCertificate=True";
