@@ -1,27 +1,37 @@
+using FluentValidation;
+using GastroGestion.Api.ErrorHandling;
 using GastroGestion.Application;
+using GastroGestion.Contracts.Clientes;
 using GastroGestion.Infrastructure;
 using GastroGestion.Infrastructure.Persistence;
+using GastroGestion.Infrastructure.Persistence.Seed;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Serilog ---
+// 1. Serilog
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration));
 
-// --- Application and Infrastructure layers ---
+// 2. Application and Infrastructure layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// --- Health checks ---
+// 3. Health checks
 builder.Services.AddHealthChecks();
 
-// --- Swagger / OpenAPI ---
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// 4. RFC 7807 ProblemDetails + exception handler
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GastroGestionExceptionHandler>();
 
-// --- Startup guard: JWT signing key must be configured ---
+// 5. FluentValidation — scan the Contracts assembly
+builder.Services.AddValidatorsFromAssemblyContaining<CrearClienteRequest>();
+
+// 6. JWT authentication + authorization
 var jwtSigningKey = builder.Configuration["Jwt:SigningKey"];
 if (string.IsNullOrWhiteSpace(jwtSigningKey))
 {
@@ -31,25 +41,98 @@ if (string.IsNullOrWhiteSpace(jwtSigningKey))
         "Set it via user-secrets (dev) or the Jwt__SigningKey environment variable (CI/prod).");
 }
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
+            ValidAudience            = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey         = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSigningKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// 7. Swagger / OpenAPI (Swashbuckle only — Microsoft.AspNetCore.OpenApi removed)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer {token}'",
+        Name        = "Authorization",
+        In          = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type        = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme      = "Bearer"
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id   = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 var app = builder.Build();
 
-// --- Auto-migrate on startup in Development ---
+// Middleware pipeline:
+
+// 1. Exception handler MUST be first so it wraps the entire pipeline
+app.UseExceptionHandler();
+
+// 2. Dev-only: auto-migrate then seed
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<GastroGestionDbContext>();
     await db.Database.MigrateAsync();
+    await DevDataSeeder.SeedAsync(scope.ServiceProvider);
 }
 
-// --- Middleware pipeline ---
+// 3. Dev-only: Swagger UI
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// 4. Request logging
 app.UseSerilogRequestLogging();
 
+// 5. Authentication + authorization
+app.UseAuthentication();
+app.UseAuthorization();
+
+// 6. Health endpoint
 app.MapHealthChecks("/health");
 
+// 7. Endpoint groups (placeholders for PR 2 and PR 3)
+// PR 2: app.MapClienteEndpoints();
+// PR 2: app.MapIngredienteEndpoints();
+// PR 2: app.MapPlatoEndpoints();
+// PR 2: app.MapMenuEndpoints();
+// PR 2: app.MapMesaEndpoints();
+// PR 3: app.MapPedidoEndpoints();
+// PR 3: app.MapFacturaEndpoints();
+// PR 3: app.MapStockEndpoints();
+
+// 8. Run
 app.Run();
+
+// Expose Program class for WebApplicationFactory<Program> in test projects.
+public partial class Program { }
