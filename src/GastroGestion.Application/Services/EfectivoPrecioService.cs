@@ -24,20 +24,15 @@ internal sealed class EfectivoPrecioService : IEfectivoPrecioService
     }
 
     /// <inheritdoc />
-    /// <remarks>
-    /// Note: the domain interface is synchronous. This implementation uses synchronous
-    /// repository access via blocking calls. Phase 4 will introduce async use-case orchestration
-    /// that pre-loads the required data before calling this service.
-    /// </remarks>
-    public (Dinero Precio, PorcentajeIVA IVA) ResolverPrecioEfectivo(Guid platoId, DateOnly fecha)
+    public async Task<(Dinero Precio, PorcentajeIVA IVA)> ResolverPrecioEfectivoAsync(
+        Guid platoId, DateOnly fecha, CancellationToken ct = default)
     {
-        var plato = _platos.GetByIdAsync(platoId).GetAwaiter().GetResult()
+        var plato = await _platos.GetByIdAsync(platoId, ct)
             ?? throw new InvalidOperationException($"Plato {platoId} not found.");
 
         var iva = new PorcentajeIVA(plato.AlicuotaIVA);
 
-        // Check for a menu price override on the given date.
-        var menus = _menus.GetActivosByFechaAsync(fecha).GetAwaiter().GetResult();
+        var menus = await _menus.GetActivosByFechaAsync(fecha, ct);
         var overridePrice = menus
             .SelectMany(m => m.Items)
             .Where(it => it.PlatoId == platoId && it.PrecioOverride is not null)
