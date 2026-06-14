@@ -15,4 +15,7 @@ internal sealed class IngredienteRepository : IIngredienteRepository
 
     public async Task AddAsync(Ingrediente ingrediente, CancellationToken ct = default)
         => await _ctx.Ingredientes.AddAsync(ingrediente, ct);
+
+    public async Task<IReadOnlyList<Ingrediente>> GetAllAsync(CancellationToken ct = default)
+        => (await _ctx.Ingredientes.ToListAsync(ct)).AsReadOnly();
 }

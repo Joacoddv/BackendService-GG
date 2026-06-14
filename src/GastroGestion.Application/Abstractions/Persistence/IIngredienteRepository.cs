@@ -6,4 +6,5 @@ public interface IIngredienteRepository
 {
     Task<Ingrediente?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Ingrediente ingrediente, CancellationToken ct = default);
+    Task<IReadOnlyList<Ingrediente>> GetAllAsync(CancellationToken ct = default);
 }

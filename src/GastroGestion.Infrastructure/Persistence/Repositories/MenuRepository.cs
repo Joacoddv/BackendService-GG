@@ -23,4 +23,7 @@ internal sealed class MenuRepository : IMenuRepository
             .ToListAsync(ct);
         return result.AsReadOnly();
     }
+
+    public async Task<IReadOnlyList<Menu>> GetAllAsync(CancellationToken ct = default)
+        => (await _ctx.Menus.ToListAsync(ct)).AsReadOnly();
 }

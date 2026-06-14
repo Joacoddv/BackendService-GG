@@ -12,9 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Domain reference: Contracts DTOs use domain enums (CondicionIVA, etc.).
-         Full Contracts → Application reference is added in WA-13 (PR 2). -->
-    <ProjectReference Include="..\GastroGestion.Domain\GastroGestion.Domain.csproj" />
+    <!-- Application reference: Contracts mapping extensions construct Application commands
+         and read domain enums/VOs. Domain is included transitively via Application.
+         Contracts is a leaf — only Api references Contracts, so no cycle. -->
+    <ProjectReference Include="..\GastroGestion.Application\GastroGestion.Application.csproj" />
   </ItemGroup>
 
 </Project>

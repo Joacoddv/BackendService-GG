@@ -15,4 +15,7 @@ internal sealed class MesaRepository : IMesaRepository
 
     public async Task AddAsync(Mesa mesa, CancellationToken ct = default)
         => await _ctx.Mesas.AddAsync(mesa, ct);
+
+    public async Task<IReadOnlyList<Mesa>> GetAllAsync(CancellationToken ct = default)
+        => (await _ctx.Mesas.ToListAsync(ct)).AsReadOnly();
 }

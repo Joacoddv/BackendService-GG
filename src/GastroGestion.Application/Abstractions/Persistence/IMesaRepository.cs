@@ -6,4 +6,5 @@ public interface IMesaRepository
 {
     Task<Mesa?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Mesa mesa, CancellationToken ct = default);
+    Task<IReadOnlyList<Mesa>> GetAllAsync(CancellationToken ct = default);
 }
