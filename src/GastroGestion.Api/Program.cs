@@ -128,9 +128,9 @@ app.MapIngredienteEndpoints();
 app.MapPlatoEndpoints();
 app.MapMenuEndpoints();
 app.MapMesaEndpoints();
-// PR 3: app.MapPedidoEndpoints();
-// PR 3: app.MapFacturaEndpoints();
-// PR 3: app.MapStockEndpoints();
+app.MapPedidoEndpoints();
+app.MapFacturaEndpoints();
+app.MapStockEndpoints();
 
 // 8. Run
 app.Run();
