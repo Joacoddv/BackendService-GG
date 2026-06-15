@@ -55,16 +55,16 @@ PR 2 — Catalogue Endpoints + Use Cases  (WA-11 must pass first)  ✅ COMPLETE
                             └── WA-20 (Catalogue endpoint tests: happy + error paths per group) ✅
                                   └── WA-21 (Slice B/PR 2 build + test verification gate) ✅
 
-PR 3 — Transactional + Fiscal + Stock  (WA-21 must pass first)
-  WA-22 (Pedido DTOs + validators + mapping)
-    └── WA-23 (CrearPedidoHandler + AgregarLineaHandler + endpoints)
-          └── WA-24 (ConfirmarPrecioLineaHandler — live W-01 path)
-                └── WA-25 (TransicionarEstadoPedidoHandler + PHASE-5 seam markers)
-                      └── WA-26 (Factura DTOs + mapping + RegistrarPagoHandler + GetFacturaByIdHandler + endpoints)
-                            └── WA-27 (Stock DTOs + mapping + RegistrarMovimientoStockHandler + GetBalanceStockHandler + endpoints)
-                                  └── WA-28 (Register all transactional + fiscal + stock handlers in DI)
-                                        └── WA-29 (Transactional + fiscal + stock endpoint tests)
-                                              └── WA-30 (Slice C/PR 3 build + test verification gate)
+PR 3 — Transactional + Fiscal + Stock  (WA-21 must pass first)  ✅ COMPLETE
+  WA-22 (Pedido DTOs + validators + mapping) ✅
+    └── WA-23 (CrearPedidoHandler + AgregarLineaHandler + endpoints) ✅
+          └── WA-24 (ConfirmarPrecioLineaHandler — live W-01 path) ✅
+                └── WA-25 (TransicionarEstadoPedidoHandler + PHASE-5 seam markers) ✅
+                      └── WA-26 (Factura DTOs + mapping + RegistrarPagoHandler + GetFacturaByIdHandler + endpoints) ✅
+                            └── WA-27 (Stock DTOs + mapping + RegistrarMovimientoStockHandler + GetBalanceStockHandler + endpoints) ✅
+                                  └── WA-28 (Register all transactional + fiscal + stock handlers in DI) ✅
+                                        └── WA-29 (Transactional + fiscal + stock endpoint tests) ✅
+                                              └── WA-30 (Slice C/PR 3 build + test verification gate) ✅
 ```
 
 Within PR 2: WA-14 through WA-18 (one per catalogue aggregate) are independent of each other and can be developed in parallel once WA-12 and WA-13 land. All other tasks within a slice are sequential. PR 1 → PR 2 → PR 3 are strictly ordered.
