@@ -6,4 +6,5 @@ public interface IClienteRepository
 {
     Task<Cliente?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Cliente cliente, CancellationToken ct = default);
+    Task<IReadOnlyList<Cliente>> GetAllAsync(CancellationToken ct = default);
 }

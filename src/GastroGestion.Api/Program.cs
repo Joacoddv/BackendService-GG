@@ -1,4 +1,5 @@
 using FluentValidation;
+using GastroGestion.Api.Endpoints;
 using GastroGestion.Api.ErrorHandling;
 using GastroGestion.Application;
 using GastroGestion.Contracts.Clientes;
@@ -121,12 +122,12 @@ app.UseAuthorization();
 // 6. Health endpoint
 app.MapHealthChecks("/health");
 
-// 7. Endpoint groups (placeholders for PR 2 and PR 3)
-// PR 2: app.MapClienteEndpoints();
-// PR 2: app.MapIngredienteEndpoints();
-// PR 2: app.MapPlatoEndpoints();
-// PR 2: app.MapMenuEndpoints();
-// PR 2: app.MapMesaEndpoints();
+// 7. Endpoint groups
+app.MapClienteEndpoints();
+app.MapIngredienteEndpoints();
+app.MapPlatoEndpoints();
+app.MapMenuEndpoints();
+app.MapMesaEndpoints();
 // PR 3: app.MapPedidoEndpoints();
 // PR 3: app.MapFacturaEndpoints();
 // PR 3: app.MapStockEndpoints();

@@ -15,4 +15,7 @@ internal sealed class ClienteRepository : IClienteRepository
 
     public async Task AddAsync(Cliente cliente, CancellationToken ct = default)
         => await _ctx.Clientes.AddAsync(cliente, ct);
+
+    public async Task<IReadOnlyList<Cliente>> GetAllAsync(CancellationToken ct = default)
+        => (await _ctx.Clientes.ToListAsync(ct)).AsReadOnly();
 }

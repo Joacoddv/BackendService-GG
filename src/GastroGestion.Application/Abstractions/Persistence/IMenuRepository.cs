@@ -12,4 +12,6 @@ public interface IMenuRepository
     /// Used by <c>EfectivoPrecioService</c> to resolve menu price overrides for a given date.
     /// </summary>
     Task<IReadOnlyList<Menu>> GetActivosByFechaAsync(DateOnly fecha, CancellationToken ct = default);
+
+    Task<IReadOnlyList<Menu>> GetAllAsync(CancellationToken ct = default);
 }
