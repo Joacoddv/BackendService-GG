@@ -32,6 +32,10 @@ builder.Services.AddExceptionHandler<GastroGestionExceptionHandler>();
 // 5. FluentValidation — scan the Contracts assembly
 builder.Services.AddValidatorsFromAssemblyContaining<CrearClienteRequest>();
 
+// 5b. Serialize enums as strings globally (W-03 — better Swagger DX; still accepts integers on input)
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
+
 // 6. JWT authentication + authorization
 var jwtSigningKey = builder.Configuration["Jwt:SigningKey"];
 if (string.IsNullOrWhiteSpace(jwtSigningKey))
@@ -128,9 +132,9 @@ app.MapIngredienteEndpoints();
 app.MapPlatoEndpoints();
 app.MapMenuEndpoints();
 app.MapMesaEndpoints();
-// PR 3: app.MapPedidoEndpoints();
-// PR 3: app.MapFacturaEndpoints();
-// PR 3: app.MapStockEndpoints();
+app.MapPedidoEndpoints();
+app.MapFacturaEndpoints();
+app.MapStockEndpoints();
 
 // 8. Run
 app.Run();
