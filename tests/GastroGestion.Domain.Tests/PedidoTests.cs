@@ -384,7 +384,7 @@ public class PedidoTests
         pedido.TransicionarEstado(EstadoPedido.Preparandose, RolUsuario.Cajero);
 
         var ot = pedido.OrdenesTrabajo.Single();
-        ot.AsignarCocinero(new LegajoId(Guid.NewGuid())); // → Preparandose
+        pedido.AsignarCocineroAOT(ot.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero); // → Preparandose
         pedido.MarcarOrdenTrabajoLista(ot.Id, RolUsuario.Cocinero);
 
         pedido.Estado.Should().Be(EstadoPedido.ListoParaEntregar);
@@ -402,7 +402,7 @@ public class PedidoTests
         pedido.TransicionarEstado(EstadoPedido.Preparandose, RolUsuario.Cajero);
 
         var ot1 = pedido.OrdenesTrabajo.First();
-        ot1.AsignarCocinero(new LegajoId(Guid.NewGuid()));
+        pedido.AsignarCocineroAOT(ot1.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero);
         pedido.MarcarOrdenTrabajoLista(ot1.Id, RolUsuario.Cocinero);
 
         // Only one of two OTs is Lista → should NOT advance
@@ -418,7 +418,7 @@ public class PedidoTests
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
         var ot = pedido.OrdenesTrabajo.Single();
-        ot.AsignarCocinero(new LegajoId(Guid.NewGuid()));
+        pedido.AsignarCocineroAOT(ot.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero);
 
         ot.Estado.Should().Be(EstadoOT.Preparandose);
         ot.CocineroAsignado.Should().NotBeNull();
@@ -433,9 +433,9 @@ public class PedidoTests
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
         var ot = pedido.OrdenesTrabajo.Single();
-        ot.AsignarCocinero(new LegajoId(Guid.NewGuid())); // now Preparandose
+        pedido.AsignarCocineroAOT(ot.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero); // now Preparandose
 
-        var act = () => ot.AsignarCocinero(new LegajoId(Guid.NewGuid()));
+        var act = () => pedido.AsignarCocineroAOT(ot.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero);
         act.Should().Throw<DomainException>().WithMessage("*Creada*");
     }
 
@@ -465,7 +465,7 @@ public class PedidoTests
         pedido.GenerarOrdenesTrabajo(BuildRecetaMap(platoId));
 
         var ot = pedido.OrdenesTrabajo.Single();
-        ot.AsignarCocinero(new LegajoId(Guid.NewGuid())); // OT → Preparandose
+        pedido.AsignarCocineroAOT(ot.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero); // OT → Preparandose
         pedido.ClearDomainEvents();
 
         pedido.TransicionarEstado(EstadoPedido.Cancelado, RolUsuario.Cajero);
@@ -495,7 +495,7 @@ public class PedidoTests
         var ot2 = pedido.OrdenesTrabajo.Last();
 
         // Advance ot1 to Lista; ot2 stays Creada so Pedido doesn't auto-advance.
-        ot1.AsignarCocinero(new LegajoId(Guid.NewGuid())); // ot1 → Preparandose
+        pedido.AsignarCocineroAOT(ot1.Id, new LegajoId(Guid.NewGuid()), RolUsuario.Cocinero); // ot1 → Preparandose
         pedido.MarcarOrdenTrabajoLista(ot1.Id, RolUsuario.Cocinero); // ot1 → Lista
 
         ot1.Estado.Should().Be(EstadoOT.Lista);        // pre-condition

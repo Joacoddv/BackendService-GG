@@ -14,10 +14,14 @@ using GastroGestion.Application.Menus.GetMenuById;
 using GastroGestion.Application.Mesas.CrearMesa;
 using GastroGestion.Application.Mesas.GetAllMesas;
 using GastroGestion.Application.Mesas.GetMesaById;
+using GastroGestion.Application.Pedidos.AsignarCocinero;
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.ConfirmarPrecioLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
+using GastroGestion.Application.Pedidos.GenerarOrdenesTrabajo;
+using GastroGestion.Application.Pedidos.GetOrdenesByEstado;
 using GastroGestion.Application.Pedidos.GetPedidoById;
+using GastroGestion.Application.Pedidos.MarcarOrdenTrabajoLista;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
 using GastroGestion.Application.Platos.CrearPlato;
 using GastroGestion.Application.Platos.GetAllPlatos;
@@ -79,6 +83,12 @@ public static class DependencyInjection
         // Use cases — Slice C (Stock)
         services.AddScoped<RegistrarMovimientoStockHandler>();
         services.AddScoped<GetBalanceStockHandler>();
+
+        // Use cases — Slice D: Kitchen (Phase 6)
+        services.AddScoped<GenerarOrdenesTrabajoHandler>();
+        services.AddScoped<AsignarCocineroHandler>();
+        services.AddScoped<MarcarOrdenTrabajoListaHandler>();
+        services.AddScoped<GetOrdenesByEstadoHandler>();
 
         return services;
     }
