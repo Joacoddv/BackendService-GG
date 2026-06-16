@@ -25,6 +25,9 @@ internal sealed class GastroGestionExceptionHandler : IExceptionHandler
     {
         var (statusCode, title, detail) = exception switch
         {
+            AuthenticationFailedException => (StatusCodes.Status401Unauthorized,
+                                               "Authentication failed",
+                                               "Invalid credentials."),
             ConflictException ex  => (StatusCodes.Status409Conflict,
                                       "Business rule conflict",
                                       ex.Message),
