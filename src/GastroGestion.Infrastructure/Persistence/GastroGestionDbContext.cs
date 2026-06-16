@@ -8,6 +8,7 @@ using GastroGestion.Domain.Menus;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Domain.Platos;
 using GastroGestion.Domain.Stock;
+using GastroGestion.Domain.Usuarios;
 using Microsoft.EntityFrameworkCore;
 
 namespace GastroGestion.Infrastructure.Persistence;
@@ -34,6 +35,7 @@ public sealed class GastroGestionDbContext : DbContext
     public DbSet<Pedido>          Pedidos          => Set<Pedido>();
     public DbSet<MovimientoStock> MovimientosStock => Set<MovimientoStock>();
     public DbSet<Factura>         Facturas         => Set<Factura>();
+    public DbSet<Usuario>         Usuarios         => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.ApplyConfigurationsFromAssembly(typeof(GastroGestionDbContext).Assembly);

@@ -127,6 +127,7 @@ app.UseAuthorization();
 app.MapHealthChecks("/health");
 
 // 7. Endpoint groups
+app.MapAuthEndpoints();
 app.MapClienteEndpoints();
 app.MapIngredienteEndpoints();
 app.MapPlatoEndpoints();

@@ -1,4 +1,5 @@
 using GastroGestion.Application.Abstractions.Persistence;
+using GastroGestion.Application.Abstractions.Security;
 using GastroGestion.Domain.Clientes;
 using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Facturacion;
@@ -8,8 +9,10 @@ using GastroGestion.Domain.Menus;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Domain.Platos;
 using GastroGestion.Domain.Services;
+using GastroGestion.Domain.Usuarios;
 using GastroGestion.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GastroGestion.Infrastructure.Persistence.Seed;
@@ -25,6 +28,7 @@ public static class DevDataSeeder
     public static async Task SeedAsync(IServiceProvider sp, CancellationToken ct = default)
     {
         var db             = sp.GetRequiredService<GastroGestionDbContext>();
+        var config         = sp.GetRequiredService<IConfiguration>();
         var clienteRepo    = sp.GetRequiredService<IClienteRepository>();
         var ingredienteRepo= sp.GetRequiredService<IIngredienteRepository>();
         var platoRepo      = sp.GetRequiredService<IPlatoRepository>();
@@ -35,7 +39,12 @@ public static class DevDataSeeder
         var uow            = sp.GetRequiredService<IUnitOfWork>();
         var precioService  = sp.GetRequiredService<IEfectivoPrecioService>();
 
-        // Idempotency guard: skip if already seeded
+        // Admin user seed — independent of catalogue seed; guarded by its own AnyAsync (ADR-9).
+        // Credentials read from configuration; fall back to documented dev constants when absent.
+        // Dev fallback: admin@gastrogestion.local / Admin1234!  (documented in appsettings.Development.json)
+        await SeedAdminUsuarioAsync(db, config, sp, ct);
+
+        // Idempotency guard: skip catalogue seed if already seeded
         if (await db.Clientes.AnyAsync(ct))
             return;
 
@@ -183,5 +192,36 @@ public static class DevDataSeeder
 
         await facturaRepo.AddAsync(factura, ct);
         await uow.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Seeds the initial admin user if no Usuario rows exist (AUTH-08).
+    /// Credentials are read from Seed:AdminEmail / Seed:AdminPassword in configuration.
+    /// Dev fallback (documented): admin@gastrogestion.local / Admin1234!
+    /// </summary>
+    private static async Task SeedAdminUsuarioAsync(
+        GastroGestionDbContext db,
+        IConfiguration config,
+        IServiceProvider sp,
+        CancellationToken ct)
+    {
+        var usuarioRepo = sp.GetRequiredService<IUsuarioRepository>();
+        var hasher      = sp.GetRequiredService<IPasswordHasher>();
+
+        // Idempotency guard: return early if any user already exists (AUTH-08.3)
+        if (await usuarioRepo.AnyAsync(ct))
+            return;
+
+        // Credentials from configuration; documented dev fallback when keys are absent (ADR-9)
+        var adminEmail    = config["Seed:AdminEmail"]    ?? "admin@gastrogestion.local";
+        var adminPassword = config["Seed:AdminPassword"] ?? "Admin1234!";
+
+        var usuario = Usuario.Crear(adminEmail, "Admin", RolUsuario.Administrador, "placeholder");
+        var hash    = hasher.Hash(usuario, adminPassword);
+
+        // Re-create with the real hash — factory validates all fields including hash (non-empty)
+        var adminUsuario = Usuario.Crear(adminEmail, "Admin", RolUsuario.Administrador, hash);
+        await usuarioRepo.AddAsync(adminUsuario, ct);
+        await db.SaveChangesAsync(ct);
     }
 }

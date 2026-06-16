@@ -1,3 +1,4 @@
+using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Clientes.CrearCliente;
 using GastroGestion.Application.Clientes.GetAllClientes;
 using GastroGestion.Application.Clientes.GetClienteById;
@@ -33,6 +34,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        // Use cases — Auth (Phase 5)
+        services.AddScoped<LoginHandler>();
+
         // Domain services — Application implementations
         services.AddScoped<IEfectivoPrecioService, EfectivoPrecioService>();
         services.AddScoped<ICalculadorFactura, CalculadorFactura>();
