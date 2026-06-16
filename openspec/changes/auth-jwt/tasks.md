@@ -1,7 +1,7 @@
 # Tasks: auth-jwt (Phase 5 of 7)
 
 **Last updated:** 2026-06-16
-**Status:** PR1 COMPLETE — PR2 PENDING
+**Status:** PR1 COMPLETE — PR2 COMPLETE (pending merge)
 **Delivery strategy:** Chained PRs — Stacked to main (2 PRs)
 **Spec:** openspec/changes/auth-jwt/spec.md
 **Design:** openspec/changes/auth-jwt/design.md
@@ -261,7 +261,7 @@ Create `src/GastroGestion.Api/Endpoints/AuthEndpoints.cs`:
 
 *PR2 must not be opened until PR1 is merged to main.*
 
-### AJ-14 · Api · PR2
+### [x] AJ-14 · Api · PR2
 **Group-level `.RequireAuthorization()` — 8 endpoint files**
 
 For each of the 8 business endpoint files (ClienteEndpoints, IngredienteEndpoints, PlatoEndpoints, MenuEndpoints, MesaEndpoints, PedidoEndpoints, FacturaEndpoints, StockEndpoints):
@@ -276,7 +276,7 @@ Do NOT touch `Program.cs:MapHealthChecks` (stays anonymous) and do NOT touch `Au
 
 ---
 
-### AJ-15 · Contracts · PR2
+### [x] AJ-15 · Contracts · PR2
 **Drop `Rol` from `TransicionarEstadoRequest` (PHASE-5 seam 1)**
 
 In `src/GastroGestion.Contracts/Pedidos/PedidoRequests.cs` (line 26):
@@ -289,7 +289,7 @@ In `src/GastroGestion.Contracts/Pedidos/PedidoRequests.cs` (line 26):
 
 ---
 
-### AJ-16 · Contracts · PR2
+### [x] AJ-16 · Contracts · PR2
 **Update `PedidoMappings` — role as parameter (PHASE-5 seam 2 prep)**
 
 In `src/GastroGestion.Contracts/Pedidos/PedidoMappings.cs` (line ~29-30):
@@ -303,7 +303,7 @@ In `src/GastroGestion.Contracts/Pedidos/PedidoMappings.cs` (line ~29-30):
 
 ---
 
-### AJ-17 · Api · PR2
+### [x] AJ-17 · Api · PR2
 **Pedido transition: role-from-claim extraction (PHASE-5 seam 2 complete)**
 
 In `src/GastroGestion.Api/Endpoints/PedidoEndpoints.cs` (line ~54–66):
@@ -320,7 +320,7 @@ In `src/GastroGestion.Api/Endpoints/PedidoEndpoints.cs` (line ~54–66):
 
 ---
 
-### AJ-18 · Tests · PR2
+### [x] AJ-18 · Tests · PR2
 **`ApiFactory` — `GenerateTestToken` + `CreateAuthenticatedClient` helpers**
 
 In `tests/GastroGestion.Api.Tests/ApiFactory.cs`:
@@ -340,7 +340,7 @@ In `tests/GastroGestion.Api.Tests/ApiFactory.cs`:
 
 ---
 
-### AJ-19 · Tests · PR2
+### [x] AJ-19 · Tests · PR2
 **Migrate `CatalogueEndpointTests` to authenticated client**
 
 In `tests/GastroGestion.Api.Tests/CatalogueEndpointTests.cs` (line ~35):
@@ -354,7 +354,7 @@ In `tests/GastroGestion.Api.Tests/CatalogueEndpointTests.cs` (line ~35):
 
 ---
 
-### AJ-20 · Tests · PR2
+### [x] AJ-20 · Tests · PR2
 **Migrate `TransactionalEndpointTests` to authenticated client + fix Pedido seam tests**
 
 In `tests/GastroGestion.Api.Tests/TransactionalEndpointTests.cs`:
@@ -369,7 +369,7 @@ In `tests/GastroGestion.Api.Tests/TransactionalEndpointTests.cs`:
 
 ---
 
-### AJ-21 · Tests · PR2
+### [x] AJ-21 · Tests · PR2
 **Verify `SmokeTests` remain anonymous (no change — verification step)**
 
 Confirm `tests/GastroGestion.Api.Tests/SmokeTests.cs`:
@@ -384,7 +384,7 @@ Confirm `tests/GastroGestion.Api.Tests/SmokeTests.cs`:
 
 ---
 
-### AJ-22 · Tests · PR2
+### [x] AJ-22 · Tests · PR2
 **Full test suite green — `dotnet test` validation**
 
 Run `dotnet test` and confirm:
