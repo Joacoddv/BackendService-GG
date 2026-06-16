@@ -1,16 +1,16 @@
 # Web API Specification — GastroGestion
 
-**Last updated:** 2026-06-14  
-**Phase:** 4 of 7 in the .NET 8 strangler roadmap  
-**Scope:** GastroGestion Web API layer — .NET 8 Minimal API endpoints, request/response contracts, middleware, authentication shape.
+**Last updated:** 2026-06-15  
+**Phase:** 4–5 of 7 in the .NET 8 strangler roadmap  
+**Scope:** GastroGestion Web API layer — .NET 8 Minimal API endpoints, request/response contracts, middleware, authentication shape, JWT token issuance, authorization enforcement.
 
 ---
 
 ## Overview
 
-The Web API layer exposes the persisted Phase-3 domain and completed application use cases over HTTP via ASP.NET Core Minimal APIs. The contract is REST + RFC 7807 problem details; all endpoints operate on DTOs (never domain aggregates); authentication is wired (all Phase-4 endpoints are `[AllowAnonymous]` pending Phase-5 login). Error handling is centralized via `IExceptionHandler` + `AddProblemDetails()`.
+The Web API layer exposes the persisted Phase-3 domain and completed application use cases over HTTP via ASP.NET Core Minimal APIs. The contract is REST + RFC 7807 problem details; all endpoints operate on DTOs (never domain aggregates). Authentication is now fully active (Phase 5): JWT tokens are issued by `POST /auth/login`, most endpoints require `[Authorize]`, and role information is extracted from the JWT claim for authorization decisions. Error handling is centralized via `IExceptionHandler` + `AddProblemDetails()`.
 
-**Status:** Phase 4 complete — 3 slices (Foundation, Catalogue, Transactional+Fiscal+Stock) delivered via PRs #9, #10, #11 to main. All 30 tasks (WA-01..WA-30) complete. Test suite: 222 tests green. Verification: 0 CRITICAL, 3 WARNINGS, 2 SUGGESTIONS (all documented as acceptable deviations). Phase-5 follow-ups captured below.
+**Status:** Phase 4 complete — 3 slices (Foundation, Catalogue, Transactional+Fiscal+Stock) delivered via PRs #9, #10, #11 to main. Phase 5 (auth-jwt) complete — 2 stacked PRs (PR #12, PR #13) merged to main. All 30 Phase-4 tasks (WA-01..WA-30) + 22 Phase-5 tasks (AJ-01..AJ-22) complete. Test suite: 245 tests green (160 domain + 6 app + 33 infra + 46 api). Verification: Phase 5 PASS WITH WARNINGS (401→403 adjudication resolved to 403, spec corrected, test gaps noted for future). Phase-6 follow-ups captured below.
 
 ---
 
@@ -197,30 +197,134 @@ All tests are tagged `[Trait("Category","Integration")]` and pass with `dotnet t
 
 ---
 
-## Known Open Items / Phase-5 Follow-ups (CARRY FORWARD — DO NOT DROP)
+## PHASE-5 Requirements Catalog — AUTH-01 to AUTH-09
 
-### 1. RolUsuario from request body (TEMPORARY SECURITY SEAM)
+### AUTH-01 — `Usuario` Aggregate (Domain Layer)
 
-**Issue:** Pedido state-transition endpoints accept `RolUsuario` from the request body instead of a JWT claim. There are 3 `// PHASE-5` markers in code:
-- `PedidoEndpoints.cs:61` (endpoint delegate)
-- `TransicionarEstadoPedidoHandler.cs:22` (handler)
-- `PedidoRequests.cs:26` (request DTO field)
+The `Usuario` class is a first-class aggregate root in `GastroGestion.Domain`. It carries private setters on all properties and a parameterless `private Usuario()` constructor for EF Core.
 
-All endpoints are currently `[AllowAnonymous]`.
+| Property | Type | Constraint |
+|---|---|---|
+| `Email` | `string` | Unique per business rule; stored as-is |
+| `NombreCompleto` | `string` | Non-empty |
+| `Rol` | `RolUsuario` | Existing enum (`Administrador`, `Cajero`, `Mozo`, `Cocinero`) |
+| `PasswordHash` | `string` | Opaque Base64 string; Domain treats as a black box |
+| `Activo` | `bool` | Active/inactive flag |
 
-**Phase 5 remediation (mandatory):** Add a Usuario aggregate + login/token endpoint, remove `[AllowAnonymous]` from all endpoints, and replace body `RolUsuario` with JWT claim extraction. **Security risk**: accepting role from the body is an authorization bypass until Phase 5 resolves this.
+`GastroGestion.Domain.csproj` retains zero `<PackageReference>` elements. The aggregate exposes a static factory `Crear(email, nombreCompleto, rol, passwordHash)` that validates email (non-empty, contains `@` with non-empty parts), `nombreCompleto` (non-empty), and `passwordHash` (non-empty). Returns a valid instance with `Activo = true` and a new `Guid` id on success; throws `DomainException` on validation failure.
 
 ---
 
-### 2. ConfirmarPrecioLinea returns 204 (decision)
+### AUTH-02 — Password Hashing Port and Infrastructure Implementation
+
+An `IPasswordHasher` port exists in `GastroGestion.Application` (e.g., `Application/Abstractions/Security/`). It exposes:
+- `string Hash(Usuario usuario, string plainPassword)` — hash a plain-text password.
+- `bool Verify(Usuario usuario, string hashedPassword, string providedPassword)` — verify a plain-text password against a stored hash.
+
+No type from `Microsoft.AspNetCore.Identity` or any Infrastructure namespace appears in the port definition. The concrete implementation in `GastroGestion.Infrastructure` is backed by `Microsoft.AspNetCore.Identity.PasswordHasher<Usuario>` (PBKDF2-SHA256). It is registered in `Infrastructure/DependencyInjection.cs` so the application-layer port resolves at runtime. Zero references to `Microsoft.AspNetCore.Identity` appear in `GastroGestion.Domain.csproj` or `GastroGestion.Application.csproj`.
+
+---
+
+### AUTH-03 — Login Use Case (Application Layer)
+
+`IUsuarioRepository` exists in `GastroGestion.Application/Abstractions/Persistence/` and exposes:
+- `Task<Usuario?> GetByEmailAsync(string email, CancellationToken ct = default)` — returns `null` when no user with that email exists.
+- `Task<bool> AnyAsync(CancellationToken ct = default)` — returns true if any usuario exists.
+- `Task AddAsync(Usuario usuario, CancellationToken ct = default)` — adds a usuario.
+
+`ITokenService` exists in `GastroGestion.Application` (e.g., `Application/Abstractions/Security/`) and exposes a method that accepts a `Usuario` and returns a signed token string plus its expiry instant (e.g., as a `(string Token, DateTime ExpiresAt)` tuple or equivalent record). No type from `System.IdentityModel.Tokens.Jwt` or any Infrastructure namespace appears in the port definition.
+
+A `LoginHandler` class in `GastroGestion.Application` accepts a `LoginCommand` (carrying `Email` and `Password`), injects `IUsuarioRepository`, `ITokenService`, and `IPasswordHasher` via the constructor, and:
+- Calls `IUsuarioRepository.GetByEmailAsync(email)`.
+- On user not found: returns a generic auth-failure result without revealing the email was not found.
+- On user found but `Activo == false`: returns the same generic auth-failure result without revealing the account is inactive.
+- On user found, active, but password verification fails: returns the same generic auth-failure result without revealing which part was wrong.
+- On user found, active, and password verified: calls `ITokenService` and returns the token + expiry + minimal user info.
+
+The handler does NOT throw an exception for failed credentials; it returns a discriminated result that the Api layer translates to HTTP 401.
+
+---
+
+### AUTH-04 — JWT Token Issuance (Infrastructure Layer)
+
+The `ITokenService` implementation exists in `GastroGestion.Infrastructure` and uses `JwtSecurityTokenHandler` (NOT `JsonWebTokenHandler`) to sign tokens. Every issued token carries exactly these claims:
+
+| Claim | Value |
+|---|---|
+| `sub` | `Usuario.Id.ToString()` |
+| `email` | `Usuario.Email` |
+| `ClaimTypes.Role` | `Usuario.Rol` enum name as a string (e.g., `"Administrador"`) |
+| `iss` | Value of `Jwt:Issuer` from configuration |
+| `aud` | Value of `Jwt:Audience` from configuration |
+| `exp` | Issued time + **8 hours** (not 1 hour, not 24 hours) |
+
+The token is signed with the `SymmetricSecurityKey` derived from `Jwt:SigningKey` in configuration — the same key the existing `TokenValidationParameters` in `Program.cs` already uses. No new configuration keys are introduced for signing. The implementation is registered in `Infrastructure/DependencyInjection.cs`.
+
+---
+
+### AUTH-05 — Login Endpoint (Api Layer)
+
+`POST /auth/login` exists as a Minimal API endpoint, marked `[AllowAnonymous]` so it is reachable without a token. On valid credentials, the endpoint returns HTTP 200 with a body matching `LoginResponse` (token, expiry, user id, role) in `application/json` format. On invalid credentials (any of the three failure cases), the endpoint returns HTTP 401 with no body field that reveals which part of the credentials was wrong. A standard RFC 7807 `ProblemDetails` body is acceptable as long as the `detail` field is generic (e.g., `"Invalid credentials."`).
+
+The endpoint applies the `WithValidation<LoginRequest>()` filter. A request with a missing `Email` or missing `Password` field returns 400 before reaching the handler. `LoginHandler` is injected directly into the endpoint delegate via DI, consistent with REQ-19. No mediator is used.
+
+---
+
+### AUTH-06 — Endpoint Protection (Api Layer)
+
+Every endpoint from Phase-4 (all routes under `/clientes`, `/ingredientes`, `/platos`, `/menus`, `/mesas`, `/pedidos`, `/facturas`, and `/stock`) requires a valid JWT bearer token after this change. Each `[AllowAnonymous]` attribute on those endpoints is replaced with `[Authorize]` (or the group-level equivalent without an explicit `Roles=` parameter, except where AUTH-07 specifies otherwise). `GET /health` remains reachable without a bearer token (response HTTP 200). `POST /auth/login` remains reachable without a bearer token. A request that supplies a valid bearer token receives the same response (status code and body shape) as it did when endpoints were `[AllowAnonymous]`. The `[AllowAnonymous]` → `[Authorize]` swap does NOT alter the functional behavior of any endpoint for authenticated requests.
+
+---
+
+### AUTH-07 — Role Extraction from JWT Claim — Pedido State Transition (Api Layer)
+
+The `POST /pedidos/{id}/transicion` endpoint reads `RolUsuario` from `HttpContext.User` via `ClaimTypes.Role`, NOT from the request body. `TransicionarEstadoRequest` in `GastroGestion.Contracts` does NOT contain a `Rol` field after this change; it carries only `EstadoNuevo`.
+
+The endpoint delegate:
+1. Extracts the `ClaimTypes.Role` claim value from `HttpContext.User.FindFirst(ClaimTypes.Role)`.
+2. Attempts to parse it to `RolUsuario` via `Enum.TryParse<RolUsuario>`.
+3. If the claim is absent or unparseable: returns HTTP **403** (`Forbidden`). (The request passed `[Authorize]` bearer validation, so the user IS authenticated — identity is established via the `sub` claim. A missing or corrupt role claim means the authenticated principal lacks a valid authorization attribute for this endpoint — per RFC 7231 §6.5.3, 403 Forbidden is the correct response when the server understood the request but refuses to authorize it.)
+4. On successful parse: builds the existing `TransicionarEstadoPedidoCommand` with the parsed role and passes it to `TransicionarEstadoPedidoHandler`.
+
+`TransicionarEstadoPedidoHandler` and the `Pedido.TransicionarEstado(EstadoPedido, RolUsuario)` domain method do NOT change. Domain-level role validation (invalid transition for role) continues to return 422 via `DomainException`. A request body `{ "estadoNuevo": 1, "rol": 0 }` has the `rol` field silently ignored because the DTO no longer declares that field; role comes from the JWT claim only.
+
+---
+
+### AUTH-08 — Initial Admin Seeding (Infrastructure + Api Layers)
+
+When the application starts in Development mode and the `Usuarios` table contains zero rows, the system inserts exactly one `Usuario` with `Rol = RolUsuario.Administrador` and `Activo = true`. The seeded admin credentials (email and plain-text password) are documented in `appsettings.Development.json` under `Seed:AdminEmail` / `Seed:AdminPassword`. The plain-text password is hashed via the `IPasswordHasher` Infrastructure implementation before storage; it is NOT stored as plain text in the database.
+
+The seeder checks `Usuarios.AnyAsync()` before inserting. If any `Usuario` row already exists, the seeder returns without inserting, regardless of how many times it runs. Duplicate seeded admins are impossible. The admin seeding integrates with the existing `DevDataSeeder` flow (per REQ-05) or is called from the same `IsDevelopment()` guard in `Program.cs`. The existing seeder's idempotency check (`Clientes.AnyAsync()`) is unaffected.
+
+---
+
+### AUTH-09 — Cross-Cutting: Round-Trip Validation (Api Layer / Infrastructure Layer)
+
+The existing `TokenValidationParameters` block in `Program.cs` (issuer validation, audience validation, lifetime validation, signing key validation) is NOT modified by this change. Tokens issued by the `ITokenService` implementation are accepted by the existing validation pipeline without any configuration change. After this change, zero references to `Microsoft.AspNetCore.Identity` (or any sub-namespace) appear in `GastroGestion.Domain.csproj` or `GastroGestion.Application.csproj` project files.
+
+`ApiFactory` exposes a `GenerateTestToken(RolUsuario role)` method that uses `JwtSecurityTokenHandler` with the test signing key (`"TestSigningKeyForApiTestsMinimumLength32Chars"`), the test issuer (`"GastroGestion"`), and the test audience (`"GastroGestion"`) already injected at factory startup. Tokens generated by this method pass the existing `TokenValidationParameters` used by the test host. All integration tests that call an endpoint now protected by `[Authorize]` attach a bearer token obtained from `ApiFactory.GenerateTestToken(...)`. Tests for the Pedido state-transition path do NOT send `Rol` in the request body.
+
+After this change, `dotnet test` passes with zero failures. The 222 tests that were green at the end of Phase 4 remain green (plus new tests added for auth total to 245).
+
+---
+
+## Known Open Items / Phase-6 Follow-ups (CARRY FORWARD — DO NOT DROP)
+
+### 1. Register / User CRUD endpoints (deferred to Phase 6)
+
+**Status:** Phase 5 introduced login and JWT issuance. Admin user is seeded in Development only.
+
+**Open work:** `POST /auth/register` endpoint for end-user self-registration and admin user-management surface (`POST /usuarios`, `DELETE /usuarios/{id}`, etc.) are out of scope for Phase 5. These will be added in Phase 6 when the `GastroGestion_Seguridad` dedicated catalog is introduced.
+
+### 3. ConfirmarPrecioLinea returns 204 (decision)
 
 **Issue:** Spec scenario 15-C originally said "200 with price body." Implementation returns 204 No Content (command pattern).
 
-**Canonical decision: 204 is correct.** Price is readable via separate GET. Phase 5 may revisit if UI needs the price inline.
+**Canonical decision: 204 is correct.** Price is readable via separate GET.
 
 ---
 
-### 3. Validator-vs-domain status codes
+### 4. Validator-vs-domain status codes (Phase-4 deferred)
 
 **Issue:** Some invalid inputs (negative price, past menu date, zero capacity, Salon without MesaId) return 400 via the FluentValidation layer rather than 422 from the domain.
 
@@ -228,7 +332,7 @@ All endpoints are currently `[AllowAnonymous]`.
 
 ---
 
-### 4. IngredienteValidator whitespace gap (W-2 from PR2 verify)
+### 5. IngredienteValidator whitespace gap (W-2 from Phase-4 PR2 verify)
 
 **Issue:** `NotEmpty()` allows whitespace-only names through to the domain (→ 422). 
 
@@ -236,7 +340,7 @@ All endpoints are currently `[AllowAnonymous]`.
 
 ---
 
-### 5. EF MultipleCollectionInclude on PedidoRepository.GetByIdAsync (S-01 from PR3)
+### 6. EF MultipleCollectionInclude on PedidoRepository.GetByIdAsync (S-01 from Phase-4 PR3)
 
 **Issue:** EF Core logs a warning at runtime: "Compiling a query which loads related collections for more than one collection navigation... no QuerySplittingBehavior has been configured."
 
@@ -254,55 +358,62 @@ All endpoints are currently `[AllowAnonymous]`.
 
 ## Endpoint Signatures (TypedResults summary)
 
-| Route | Verb | Request DTO | Response Type | Status codes |
-|-------|------|-------------|---------------|--------------|
-| `/clientes` | POST | `CrearClienteRequest` | Created`<Guid>` | 201, 400, 409, 422 |
-| `/clientes/{id:guid}` | GET | — | `Ok<ClienteResponse>` | 200, 404 |
-| `/clientes` | GET | — | `Ok<List<ClienteResponse>>` | 200 |
-| `/ingredientes` | POST | `CrearIngredienteRequest` | `Created<Guid>` | 201, 400, 422 |
-| `/ingredientes/{id:guid}` | GET | — | `Ok<IngredienteResponse>` | 200, 404 |
-| `/ingredientes` | GET | — | `Ok<List<IngredienteResponse>>` | 200 |
-| `/platos` | POST | `CrearPlatoRequest` | `Created<Guid>` | 201, 400, 422 |
-| `/platos/{id:guid}` | GET | — | `Ok<PlatoResponse>` | 200, 404 |
-| `/platos` | GET | — | `Ok<List<PlatoResponse>>` | 200 |
-| `/menus` | POST | `CrearMenuRequest` | `Created<Guid>` | 201, 400, 422 |
-| `/menus/{id:guid}` | GET | — | `Ok<MenuResponse>` | 200, 404 |
-| `/menus` | GET | — | `Ok<List<MenuResponse>>` | 200 |
-| `/mesas` | POST | `CrearMesaRequest` | `Created<Guid>` | 201, 400, 422 |
-| `/mesas/{id:guid}` | GET | — | `Ok<MesaResponse>` | 200, 404 |
-| `/mesas` | GET | — | `Ok<List<MesaResponse>>` | 200 |
-| `/pedidos` | POST | `CrearPedidoRequest` | `Created<Guid>` | 201, 400, 404, 422 |
-| `/pedidos/{id:guid}/lineas` | POST | `AgregarLineaRequest` | `Created<Guid>` | 201, 400, 404, 422 |
-| `/pedidos/{id:guid}/lineas/{lineaId:guid}/confirmar-precio` | POST | — | `NoContent` | 204, 404, 422 |
-| `/pedidos/{id:guid}/transicion` | POST | `TransicionarEstadoRequest` | `Ok<PedidoResponse>` | 200, 404, 422 |
-| `/pedidos/{id:guid}` | GET | — | `Ok<PedidoResponse>` | 200, 404 |
-| `/facturas` | POST | `CrearFacturaRequest` | `Created<Guid>` | 201, 409 |
-| `/facturas/{id:guid}/pagos` | POST | `RegistrarPagoRequest` | `Ok<FacturaResponse>` | 200, 404, 422 |
-| `/facturas/{id:guid}` | GET | — | `Ok<FacturaResponse>` | 200, 404 |
-| `/stock/movimientos` | POST | `RegistrarMovimientoStockRequest` | `Created<Guid>` | 201, 400, 422 |
-| `/stock/balance/{ingredienteId:guid}` | GET | — | `Ok<BalanceStockResponse>` | 200 |
-| `/health` | GET | — | 200 OK | 200 |
+| Route | Verb | Request DTO | Response Type | Status codes | Auth |
+|-------|------|-------------|---------------|--------------|------|
+| `/auth/login` | POST | `LoginRequest` | `Ok<LoginResponse>` | 200, 400, 401 | Anonymous |
+| `/clientes` | POST | `CrearClienteRequest` | `Created<Guid>` | 201, 400, 409, 422 | Required |
+| `/clientes/{id:guid}` | GET | — | `Ok<ClienteResponse>` | 200, 401, 404 | Required |
+| `/clientes` | GET | — | `Ok<List<ClienteResponse>>` | 200, 401 | Required |
+| `/ingredientes` | POST | `CrearIngredienteRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
+| `/ingredientes/{id:guid}` | GET | — | `Ok<IngredienteResponse>` | 200, 401, 404 | Required |
+| `/ingredientes` | GET | — | `Ok<List<IngredienteResponse>>` | 200, 401 | Required |
+| `/platos` | POST | `CrearPlatoRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
+| `/platos/{id:guid}` | GET | — | `Ok<PlatoResponse>` | 200, 401, 404 | Required |
+| `/platos` | GET | — | `Ok<List<PlatoResponse>>` | 200, 401 | Required |
+| `/menus` | POST | `CrearMenuRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
+| `/menus/{id:guid}` | GET | — | `Ok<MenuResponse>` | 200, 401, 404 | Required |
+| `/menus` | GET | — | `Ok<List<MenuResponse>>` | 200, 401 | Required |
+| `/mesas` | POST | `CrearMesaRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
+| `/mesas/{id:guid}` | GET | — | `Ok<MesaResponse>` | 200, 401, 404 | Required |
+| `/mesas` | GET | — | `Ok<List<MesaResponse>>` | 200, 401 | Required |
+| `/pedidos` | POST | `CrearPedidoRequest` | `Created<Guid>` | 201, 400, 401, 404, 422 | Required |
+| `/pedidos/{id:guid}/lineas` | POST | `AgregarLineaRequest` | `Created<Guid>` | 201, 400, 401, 404, 422 | Required |
+| `/pedidos/{id:guid}/lineas/{lineaId:guid}/confirmar-precio` | POST | — | `NoContent` | 204, 401, 404, 422 | Required |
+| `/pedidos/{id:guid}/transicion` | POST | `TransicionarEstadoRequest` | `Ok<PedidoResponse>` | 200, 401, 403, 404, 422 | Required |
+| `/pedidos/{id:guid}` | GET | — | `Ok<PedidoResponse>` | 200, 401, 404 | Required |
+| `/facturas` | POST | `CrearFacturaRequest` | `Created<Guid>` | 201, 401, 409 | Required |
+| `/facturas/{id:guid}/pagos` | POST | `RegistrarPagoRequest` | `Ok<FacturaResponse>` | 200, 401, 404, 422 | Required |
+| `/facturas/{id:guid}` | GET | — | `Ok<FacturaResponse>` | 200, 401, 404 | Required |
+| `/stock/movimientos` | POST | `RegistrarMovimientoStockRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
+| `/stock/balance/{ingredienteId:guid}` | GET | — | `Ok<BalanceStockResponse>` | 200, 401 | Required |
+| `/health` | GET | — | 200 OK | 200 | Anonymous |
 
 ---
 
 ## Development vs Production
 
-- **Development:** Seeder runs; Swagger UI enabled; health endpoint returns 200.
-- **Production:** Seeder does not run; Swagger UI disabled; all `[AllowAnonymous]` endpoints become protected once Phase 5 adds login and removes the attribute.
+- **Development:** DevDataSeeder runs (creating Clientes, Ingredientes, etc.); admin Usuario is seeded; Swagger UI enabled; `/health` and `/auth/login` reachable without token; other endpoints require bearer token.
+- **Production:** Seeder does not run; Swagger UI disabled; all protected endpoints require a valid JWT bearer token; `/health` and `/auth/login` remain anonymous; no token refresh or revocation (8-hour tokens only).
 
 ---
 
 ## Delivery Status
 
 **Phase 4 complete:** WA-01 through WA-30 all [x] marked complete.
-- **PR #9** (Slice 1 — Foundation): merged to main.
+- **PR #9** (Slice 1 — Foundation): merged to main @ commit fd44ab6.
 - **PR #10** (Slice 2 — Catalogue): merged to main.
 - **PR #11** (Slice 3 — Transactional+Fiscal+Stock): merged to main.
 - **Test suite:** 222 integration tests passing (0 failures).
-- **Verification:** PASS WITH WARNINGS — 0 CRITICAL, 3 documented deviations (204 response, validator vs domain status codes, enum integers), 2 suggestions (JsonStringEnumConverter, MultipleCollectionInclude).
+- **Verification:** Phase 4 PASS WITH WARNINGS — 0 CRITICAL, 3 documented deviations (204 response, validator vs domain status codes, enum integers), 2 suggestions (JsonStringEnumConverter, MultipleCollectionInclude).
+
+**Phase 5 complete:** AJ-01 through AJ-22 all [x] marked complete.
+- **PR #12** (PR1 — Additive Auth Foundation): merged to main @ commit 9e4835b.
+- **PR #13** (PR2 — Lockdown + Test Migration): merged to main @ commit f7724c8.
+- **Test suite:** 245 integration tests passing (0 failures, +23 new tests from Phase 5).
+- **Verification:** Phase 5 PASS WITH WARNINGS — AUTH-07.3 adjudication resolved (401→403 corrected in this spec), role-claim test gaps deferred to Phase 6, login endpoint test gaps deferred to Phase 6.
 
 ---
 
 ## Next Phase
 
-Phase 5 will add the Usuario aggregate, login endpoint, remove `[AllowAnonymous]` from protected endpoints, and replace request-body `RolUsuario` with JWT claim extraction.
+Phase 6 will separate the `Usuarios` table into a dedicated `GastroGestion_Seguridad` catalog and `GastroGestion_SeguridadDbContext`, introduce refresh tokens and token revocation, add a user registration endpoint (`POST /auth/register`), and implement admin user-management endpoints. Test gaps from Phase 5 (AUTH-05.6 and AUTH-07-B/C HTTP integration tests) will also be addressed in Phase 6.
