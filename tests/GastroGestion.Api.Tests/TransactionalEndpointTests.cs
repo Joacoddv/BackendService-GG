@@ -23,6 +23,7 @@ namespace GastroGestion.Api.Tests;
 public sealed class TransactionalEndpointTests
 {
     private readonly HttpClient _client;
+    private readonly ApiFactory _factory;
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -32,7 +33,8 @@ public sealed class TransactionalEndpointTests
 
     public TransactionalEndpointTests(ApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _factory = factory;
+        _client  = factory.CreateAuthenticatedClient(RolUsuario.Administrador);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -166,15 +168,16 @@ public sealed class TransactionalEndpointTests
     public async Task POST_Pedidos_Transicion_WrongRole_Returns422()
     {
         // TakeAway: Creado → Preparandose requires Cajero or Administrador.
-        // Using Cocinero (wrong role) → domain DomainException → 422.
+        // Authenticating as Cocinero (wrong role) → domain DomainException → 422.
         var platoId = await CreatePlatoAsync("PlatoTransicion");
         var pedidoId = await CreateMostradorPedidoAsync();
         var lineaId = await AddLineaAsync(pedidoId, platoId);
         await ConfirmarPrecioAsync(pedidoId, lineaId);
 
-        // PHASE-5 seam: Rol from body
-        var request = new TransicionarEstadoRequest(EstadoPedido.Preparandose, RolUsuario.Cocinero);
-        var response = await _client.PostAsJsonAsync(
+        // Role travels in the JWT claim; body carries only EstadoNuevo.
+        using var cocineroClient = _factory.CreateAuthenticatedClient(RolUsuario.Cocinero);
+        var request  = new TransicionarEstadoRequest(EstadoPedido.Preparandose);
+        var response = await cocineroClient.PostAsJsonAsync(
             $"/pedidos/{pedidoId}/transicion", request);
 
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
@@ -191,9 +194,10 @@ public sealed class TransactionalEndpointTests
         var lineaId = await AddLineaAsync(pedidoId, platoId);
         await ConfirmarPrecioAsync(pedidoId, lineaId);
 
-        // PHASE-5 seam: Rol from body
-        var request = new TransicionarEstadoRequest(EstadoPedido.Preparandose, RolUsuario.Cajero);
-        var response = await _client.PostAsJsonAsync(
+        // Role travels in the JWT claim; body carries only EstadoNuevo.
+        using var cajeroClient = _factory.CreateAuthenticatedClient(RolUsuario.Cajero);
+        var request  = new TransicionarEstadoRequest(EstadoPedido.Preparandose);
+        var response = await cajeroClient.PostAsJsonAsync(
             $"/pedidos/{pedidoId}/transicion", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

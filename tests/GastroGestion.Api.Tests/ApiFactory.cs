@@ -1,8 +1,14 @@
+using GastroGestion.Domain.Enums;
 using GastroGestion.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text;
 using Xunit;
 
 namespace GastroGestion.Api.Tests;
@@ -47,5 +53,38 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         var db = scope.ServiceProvider.GetRequiredService<GastroGestionDbContext>();
         await db.Database.EnsureDeletedAsync();
         await base.DisposeAsync();
+    }
+
+    /// <summary>
+    /// Issues a signed JWT using the same signing key, issuer, and audience injected at factory
+    /// startup. The token passes the test host's TokenValidationParameters.
+    /// </summary>
+    public string GenerateTestToken(RolUsuario role)
+    {
+        var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestJwtSigningKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken(
+            issuer:   "GastroGestion",
+            audience: "GastroGestion",
+            claims: new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, role.ToString())
+            },
+            expires:            DateTime.UtcNow.AddHours(8),
+            signingCredentials: creds);
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    /// <summary>
+    /// Creates an <see cref="HttpClient"/> pre-configured with a Bearer token for the given role.
+    /// Defaults to <see cref="RolUsuario.Administrador"/> when no role is specified.
+    /// </summary>
+    public HttpClient CreateAuthenticatedClient(RolUsuario role = RolUsuario.Administrador)
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", GenerateTestToken(role));
+        return client;
     }
 }

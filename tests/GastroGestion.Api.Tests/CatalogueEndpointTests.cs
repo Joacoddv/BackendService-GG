@@ -32,7 +32,7 @@ public sealed class CatalogueEndpointTests
 
     public CatalogueEndpointTests(ApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateAuthenticatedClient(RolUsuario.Administrador);
     }
 
     // ── Cliente ──────────────────────────────────────────────────────────────
