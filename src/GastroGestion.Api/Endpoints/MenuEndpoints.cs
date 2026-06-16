@@ -3,7 +3,6 @@ using GastroGestion.Application.Menus.CrearMenu;
 using GastroGestion.Application.Menus.GetAllMenus;
 using GastroGestion.Application.Menus.GetMenuById;
 using GastroGestion.Contracts.Menus;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -12,9 +11,9 @@ public static class MenuEndpoints
 {
     public static WebApplication MapMenuEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/menus").WithTags("Menus");
+        var group = app.MapGroup("/menus").WithTags("Menus").RequireAuthorization();
 
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearMenuRequest request,
             CrearMenuHandler handler,
             CancellationToken ct) =>
@@ -24,7 +23,7 @@ public static class MenuEndpoints
         })
         .WithValidation<CrearMenuRequest>();
 
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetMenuByIdHandler handler,
             CancellationToken ct) =>
@@ -35,7 +34,7 @@ public static class MenuEndpoints
                 : Results.Ok(menu.ToResponse());
         });
 
-        group.MapGet("/", [AllowAnonymous] async (
+        group.MapGet("/", async (
             GetAllMenusHandler handler,
             CancellationToken ct) =>
         {

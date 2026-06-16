@@ -3,7 +3,6 @@ using GastroGestion.Application.Platos.CrearPlato;
 using GastroGestion.Application.Platos.GetAllPlatos;
 using GastroGestion.Application.Platos.GetPlatoById;
 using GastroGestion.Contracts.Platos;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -12,9 +11,9 @@ public static class PlatoEndpoints
 {
     public static WebApplication MapPlatoEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/platos").WithTags("Platos");
+        var group = app.MapGroup("/platos").WithTags("Platos").RequireAuthorization();
 
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearPlatoRequest request,
             CrearPlatoHandler handler,
             CancellationToken ct) =>
@@ -24,7 +23,7 @@ public static class PlatoEndpoints
         })
         .WithValidation<CrearPlatoRequest>();
 
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetPlatoByIdHandler handler,
             CancellationToken ct) =>
@@ -35,7 +34,7 @@ public static class PlatoEndpoints
                 : Results.Ok(plato.ToResponse());
         });
 
-        group.MapGet("/", [AllowAnonymous] async (
+        group.MapGet("/", async (
             GetAllPlatosHandler handler,
             CancellationToken ct) =>
         {

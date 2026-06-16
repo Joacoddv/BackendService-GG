@@ -3,7 +3,6 @@ using GastroGestion.Application.Ingredientes.CrearIngrediente;
 using GastroGestion.Application.Ingredientes.GetAllIngredientes;
 using GastroGestion.Application.Ingredientes.GetIngredienteById;
 using GastroGestion.Contracts.Ingredientes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -12,9 +11,9 @@ public static class IngredienteEndpoints
 {
     public static WebApplication MapIngredienteEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/ingredientes").WithTags("Ingredientes");
+        var group = app.MapGroup("/ingredientes").WithTags("Ingredientes").RequireAuthorization();
 
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearIngredienteRequest request,
             CrearIngredienteHandler handler,
             CancellationToken ct) =>
@@ -24,7 +23,7 @@ public static class IngredienteEndpoints
         })
         .WithValidation<CrearIngredienteRequest>();
 
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetIngredienteByIdHandler handler,
             CancellationToken ct) =>
@@ -35,7 +34,7 @@ public static class IngredienteEndpoints
                 : Results.Ok(ingrediente.ToResponse());
         });
 
-        group.MapGet("/", [AllowAnonymous] async (
+        group.MapGet("/", async (
             GetAllIngredientesHandler handler,
             CancellationToken ct) =>
         {

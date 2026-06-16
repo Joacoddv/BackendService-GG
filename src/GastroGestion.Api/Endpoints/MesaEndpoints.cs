@@ -3,7 +3,6 @@ using GastroGestion.Application.Mesas.CrearMesa;
 using GastroGestion.Application.Mesas.GetAllMesas;
 using GastroGestion.Application.Mesas.GetMesaById;
 using GastroGestion.Contracts.Mesas;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -12,9 +11,9 @@ public static class MesaEndpoints
 {
     public static WebApplication MapMesaEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/mesas").WithTags("Mesas");
+        var group = app.MapGroup("/mesas").WithTags("Mesas").RequireAuthorization();
 
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearMesaRequest request,
             CrearMesaHandler handler,
             CancellationToken ct) =>
@@ -24,7 +23,7 @@ public static class MesaEndpoints
         })
         .WithValidation<CrearMesaRequest>();
 
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetMesaByIdHandler handler,
             CancellationToken ct) =>
@@ -35,7 +34,7 @@ public static class MesaEndpoints
                 : Results.Ok(mesa.ToResponse());
         });
 
-        group.MapGet("/", [AllowAnonymous] async (
+        group.MapGet("/", async (
             GetAllMesasHandler handler,
             CancellationToken ct) =>
         {
