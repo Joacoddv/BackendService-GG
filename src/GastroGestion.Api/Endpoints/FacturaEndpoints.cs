@@ -3,7 +3,6 @@ using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
 using GastroGestion.Application.Facturacion.RegistrarPago;
 using GastroGestion.Contracts.Facturacion;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -12,10 +11,10 @@ public static class FacturaEndpoints
 {
     public static WebApplication MapFacturaEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/facturas").WithTags("Facturas");
+        var group = app.MapGroup("/facturas").WithTags("Facturas").RequireAuthorization();
 
         // POST /facturas — create invoice from confirmed pedidos
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearFacturaRequest request,
             CrearFacturaHandler handler,
             CancellationToken ct) =>
@@ -26,7 +25,7 @@ public static class FacturaEndpoints
         .WithValidation<CrearFacturaRequest>();
 
         // POST /facturas/{id}/pagos — register a payment
-        group.MapPost("/{id:guid}/pagos", [AllowAnonymous] async (
+        group.MapPost("/{id:guid}/pagos", async (
             Guid id,
             [FromBody] RegistrarPagoRequest request,
             RegistrarPagoHandler handler,
@@ -38,7 +37,7 @@ public static class FacturaEndpoints
         .WithValidation<RegistrarPagoRequest>();
 
         // GET /facturas/{id} — get invoice by id
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetFacturaByIdHandler handler,
             CancellationToken ct) =>

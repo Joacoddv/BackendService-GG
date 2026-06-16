@@ -3,7 +3,6 @@ using GastroGestion.Application.Clientes.CrearCliente;
 using GastroGestion.Application.Clientes.GetAllClientes;
 using GastroGestion.Application.Clientes.GetClienteById;
 using GastroGestion.Contracts.Clientes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -12,9 +11,9 @@ public static class ClienteEndpoints
 {
     public static WebApplication MapClienteEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/clientes").WithTags("Clientes");
+        var group = app.MapGroup("/clientes").WithTags("Clientes").RequireAuthorization();
 
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearClienteRequest request,
             CrearClienteHandler handler,
             CancellationToken ct) =>
@@ -24,7 +23,7 @@ public static class ClienteEndpoints
         })
         .WithValidation<CrearClienteRequest>();
 
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetClienteByIdHandler handler,
             CancellationToken ct) =>
@@ -35,7 +34,7 @@ public static class ClienteEndpoints
                 : Results.Ok(cliente.ToResponse());
         });
 
-        group.MapGet("/", [AllowAnonymous] async (
+        group.MapGet("/", async (
             GetAllClientesHandler handler,
             CancellationToken ct) =>
         {
