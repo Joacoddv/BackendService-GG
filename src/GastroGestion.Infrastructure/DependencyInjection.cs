@@ -1,8 +1,10 @@
 using GastroGestion.Application.Abstractions.Events;
 using GastroGestion.Application.Abstractions.Persistence;
+using GastroGestion.Application.Abstractions.Security;
 using GastroGestion.Infrastructure.Events;
 using GastroGestion.Infrastructure.Persistence;
 using GastroGestion.Infrastructure.Persistence.Repositories;
+using GastroGestion.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,11 +36,18 @@ public static class DependencyInjection
         // Repositories — Slice C (fiscal)
         services.AddScoped<IFacturaRepository, FacturaRepository>();
 
+        // Repositories — Auth (Phase 5)
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Domain event dispatcher
         services.AddScoped<IDomainEventDispatcher, InProcessDomainEventDispatcher>();
+
+        // Security — Auth (Phase 5)
+        services.AddScoped<IPasswordHasher, PasswordHasherAdapter>();
+        services.AddScoped<ITokenIssuer, JwtTokenIssuer>();
 
         return services;
     }
