@@ -1,6 +1,7 @@
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
+using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Domain.ValueObjects;
 
@@ -26,8 +27,8 @@ public static class PedidoMappings
     public static AgregarLineaCommand ToCommand(this AgregarLineaRequest request, Guid pedidoId)
         => new(pedidoId, request.PlatoId, request.Cantidad, request.Observaciones);
 
-    public static TransicionarEstadoPedidoCommand ToCommand(this TransicionarEstadoRequest request, Guid pedidoId)
-        => new(pedidoId, request.EstadoNuevo, request.Rol);
+    public static TransicionarEstadoPedidoCommand ToCommand(this TransicionarEstadoRequest request, Guid pedidoId, RolUsuario rol)
+        => new(pedidoId, request.EstadoNuevo, rol);
 
     public static PedidoResponse ToResponse(this Pedido pedido)
         => new(

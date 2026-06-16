@@ -5,7 +5,8 @@ using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.GetPedidoById;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
 using GastroGestion.Contracts.Pedidos;
-using Microsoft.AspNetCore.Authorization;
+using GastroGestion.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -14,10 +15,10 @@ public static class PedidoEndpoints
 {
     public static WebApplication MapPedidoEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/pedidos").WithTags("Pedidos");
+        var group = app.MapGroup("/pedidos").WithTags("Pedidos").RequireAuthorization();
 
         // POST /pedidos — create a new order
-        group.MapPost("/", [AllowAnonymous] async (
+        group.MapPost("/", async (
             [FromBody] CrearPedidoRequest request,
             CrearPedidoHandler handler,
             CancellationToken ct) =>
@@ -28,7 +29,7 @@ public static class PedidoEndpoints
         .WithValidation<CrearPedidoRequest>();
 
         // POST /pedidos/{id}/lineas — add a line to an order
-        group.MapPost("/{id:guid}/lineas", [AllowAnonymous] async (
+        group.MapPost("/{id:guid}/lineas", async (
             Guid id,
             [FromBody] AgregarLineaRequest request,
             AgregarLineaHandler handler,
@@ -40,7 +41,7 @@ public static class PedidoEndpoints
         .WithValidation<AgregarLineaRequest>();
 
         // POST /pedidos/{id}/lineas/{lineaId}/confirmar-precio — confirm price snapshot (W-01 live path)
-        group.MapPost("/{id:guid}/lineas/{lineaId:guid}/confirmar-precio", [AllowAnonymous] async (
+        group.MapPost("/{id:guid}/lineas/{lineaId:guid}/confirmar-precio", async (
             Guid id,
             Guid lineaId,
             ConfirmarPrecioLineaHandler handler,
@@ -50,23 +51,29 @@ public static class PedidoEndpoints
             return Results.NoContent();
         });
 
-        // POST /pedidos/{id}/transicion — transition order state
-        group.MapPost("/{id:guid}/transicion", [AllowAnonymous] async (
+        // POST /pedidos/{id}/transicion — transition order state; role comes from JWT claim
+        group.MapPost("/{id:guid}/transicion", async (
             Guid id,
             [FromBody] TransicionarEstadoRequest request,
+            HttpContext http,
             TransicionarEstadoPedidoHandler handler,
             GetPedidoByIdHandler getHandler,
             CancellationToken ct) =>
         {
-            // PHASE-5: replace body-supplied Rol with JWT claim (User.FindFirst(ClaimTypes.Role))
-            await handler.Handle(request.ToCommand(id), ct);
+            var rolClaim = http.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
+                return Results.Problem(
+                    title: "Invalid or missing role claim.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
+            await handler.Handle(request.ToCommand(id, rol), ct);
 
             var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
             return Results.Ok(pedido!.ToResponse());
         });
 
         // GET /pedidos/{id} — get order by id
-        group.MapGet("/{id:guid}", [AllowAnonymous] async (
+        group.MapGet("/{id:guid}", async (
             Guid id,
             GetPedidoByIdHandler handler,
             CancellationToken ct) =>

@@ -23,9 +23,6 @@ public sealed record AgregarLineaRequest(
     string? Observaciones);
 
 /// <summary>
-/// PHASE-5 seam: Rol is supplied from the request body.
-/// In Phase 5, this will be replaced by a JWT claim.
+/// PHASE-5: Rol is sourced from the JWT ClaimTypes.Role claim, not the request body.
 /// </summary>
-public sealed record TransicionarEstadoRequest(
-    EstadoPedido EstadoNuevo,
-    RolUsuario Rol);
+public sealed record TransicionarEstadoRequest(EstadoPedido EstadoNuevo);
