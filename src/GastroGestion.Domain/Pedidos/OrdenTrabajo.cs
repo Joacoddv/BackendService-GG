@@ -82,7 +82,7 @@ public class OrdenTrabajo : Entity
     /// Assigns a cook and transitions the OT to Preparandose.
     /// Throws if the OT is not in state Creada.
     /// </summary>
-    public void AsignarCocinero(LegajoId cocinero)
+    internal void AsignarCocinero(LegajoId cocinero)
     {
         if (cocinero is null)
             throw new DomainException("CocineroAsignado cannot be null.");
