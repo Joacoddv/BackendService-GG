@@ -93,12 +93,24 @@ public static class OrdenTrabajoEndpoints
             .WithTags("OrdenesTrabajo")
             .RequireAuthorization();
 
-        // GET /ordenes-trabajo?estado={EstadoOT?} — any authenticated role
+        // GET /ordenes-trabajo?estado={EstadoOT?} — Cocinero + Administrador only (OT-04-C)
         board.MapGet("/", async (
             [FromQuery] string? estado,
+            HttpContext http,
             GetOrdenesByEstadoHandler handler,
             CancellationToken ct) =>
         {
+            var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
+            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
+                return Results.Problem(
+                    title: "Invalid or missing role claim.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
+            if (rol is not (RolUsuario.Cocinero or RolUsuario.Administrador))
+                return Results.Problem(
+                    title: "Access denied. Required role: Cocinero or Administrador.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
             EstadoOT? estadoFilter = null;
             if (estado is not null)
             {

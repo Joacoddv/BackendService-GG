@@ -470,6 +470,37 @@ public sealed class KitchenEndpointTests
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
+    /// <summary>
+    /// OT-03-D: OT not in Preparandose (still in Creada) → HTTP 422 ProblemDetails.
+    /// Domain MarcarLista() throws DomainException when Estado != Preparandose.
+    /// </summary>
+    [Fact]
+    public async Task POST_MarcarLista_OtNotInPreparandose_Returns422()
+    {
+        var platoId        = await CreatePlatoWithRecipeAsync("PlatoMarcarListaNotPrep");
+        var (pedidoId, _) = await CreatePedidoWithPricedLineAsync(platoId);
+        (await GenerarOTsAsync(pedidoId)).EnsureSuccessStatusCode();
+        var otId           = await GetFirstOtIdAsync(pedidoId);
+
+        // OT is in Creada — no cook assigned, so Estado == Creada, not Preparandose
+        var response = await _cocineroClient.PostAsync(
+            $"/pedidos/{pedidoId}/ordenes-trabajo/{otId}/marcar-lista", null);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    /// <summary>
+    /// OT-03-E: Pedido not found → HTTP 404.
+    /// </summary>
+    [Fact]
+    public async Task POST_MarcarLista_PedidoNotFound_Returns404()
+    {
+        var response = await _cocineroClient.PostAsync(
+            $"/pedidos/{Guid.NewGuid()}/ordenes-trabajo/{Guid.NewGuid()}/marcar-lista", null);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     // ── Board GET ─────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -492,17 +523,41 @@ public sealed class KitchenEndpointTests
     }
 
     /// <summary>
-    /// OT-04-B: GET /ordenes-trabajo with no filter returns 200 with a list (may include all states).
+    /// OT-04-B: GET /ordenes-trabajo with no filter returns 200 with a list, and Cancelada OTs
+    /// (from a cancelled Pedido) are excluded from the result.
+    /// PedidoRepository.GetAllOrdenesTrabajoAsync filters Estado != Cancelada when no estado is given.
     /// </summary>
     [Fact]
-    public async Task GET_OrdenesTrabajo_NoFilter_Returns200()
+    public async Task GET_OrdenesTrabajo_NoFilter_Returns200_ExcludesCancelada()
     {
-        var response = await _adminClient.GetAsync("/ordenes-trabajo");
+        // Arrange — create a Pedido, generate OTs, then cancel the Pedido (cascades OTs to Cancelada)
+        var platoId           = await CreatePlatoWithRecipeAsync("PlatoCancelBoard");
+        var (pedidoId, _)    = await CreatePedidoWithPricedLineAsync(platoId);
+        (await GenerarOTsAsync(pedidoId)).EnsureSuccessStatusCode();
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var items = await response.Content
+        // Verify the OT is visible before cancellation
+        var before = await _adminClient.GetAsync("/ordenes-trabajo");
+        Assert.Equal(HttpStatusCode.OK, before.StatusCode);
+        var beforeItems = await before.Content
             .ReadFromJsonAsync<List<OrdenTrabajoBoardResponse>>(JsonOpts);
-        Assert.NotNull(items);
+        Assert.NotNull(beforeItems);
+        Assert.Contains(beforeItems!, i => i.PedidoId == pedidoId);
+
+        // Cancel the Pedido — cascades all OTs to Cancelada (Administrador can cancel from Creado)
+        var cancelResponse = await _adminClient.PostAsJsonAsync(
+            $"/pedidos/{pedidoId}/transicion",
+            new TransicionarEstadoRequest(EstadoPedido.Cancelado));
+        cancelResponse.EnsureSuccessStatusCode();
+
+        // Act — board GET without filter
+        var after = await _adminClient.GetAsync("/ordenes-trabajo");
+        Assert.Equal(HttpStatusCode.OK, after.StatusCode);
+        var afterItems = await after.Content
+            .ReadFromJsonAsync<List<OrdenTrabajoBoardResponse>>(JsonOpts);
+        Assert.NotNull(afterItems);
+
+        // Assert — OTs from the cancelled Pedido must be absent (Cancelada filtered out)
+        Assert.DoesNotContain(afterItems!, i => i.PedidoId == pedidoId);
     }
 
     /// <summary>
@@ -516,6 +571,18 @@ public sealed class KitchenEndpointTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("BogusEstado", body);
+    }
+
+    /// <summary>
+    /// OT-04-C (role gate): GET /ordenes-trabajo with Mozo role → 403 Forbidden.
+    /// The board endpoint is restricted to COCINERO or ADMINISTRADOR (spec OT-04-C).
+    /// </summary>
+    [Fact]
+    public async Task GET_OrdenesTrabajo_WrongRole_Returns403()
+    {
+        var response = await _mozoClient.GetAsync("/ordenes-trabajo");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     /// <summary>
