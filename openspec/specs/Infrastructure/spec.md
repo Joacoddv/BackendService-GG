@@ -424,9 +424,53 @@ These are implementation deviations from the design doc's original API choice. S
 
 ---
 
+## PHASE-6 Additions — OrdenTrabajo Workflow
+
+### REQ-14 — `IPedidoRepository` flat board projection
+
+`IPedidoRepository` exposes an additional method:
+
+```csharp
+Task<IReadOnlyList<OrdenTrabajoBoardItem>> GetAllOrdenesTrabajoAsync(
+    EstadoOT? estado, CancellationToken ct = default);
+```
+
+The EF Core implementation uses a `SelectMany` projection off the owned `PedidoOrdenesTrabajo` set without loading full `Pedido` aggregates. When `estado` is non-null, only OTs with that `EstadoOT` are returned. When `estado` is null, all non-`Cancelada` OTs are returned.
+
+The projection NEVER loads `RecetaSnapshot` (JSON column) — the board does not need it.
+
+#### Scenario 14-A — Board projection returns flat items without loading Pedido aggregates
+
+- GIVEN multiple `OrdenesTrabajo` across multiple `Pedidos`
+- WHEN `GetAllOrdenesTrabajoAsync(EstadoOT.Creada, ct)` is called
+- THEN the returned list contains only `OrdenTrabajoBoardItem` records with `Estado = Creada`
+- AND no full `Pedido` aggregate is materialized in memory
+
+#### Scenario 14-B — Null estado returns all non-Cancelada OTs
+
+- GIVEN OTs in states `Creada`, `Preparandose`, `Lista`, and `Cancelada`
+- WHEN `GetAllOrdenesTrabajoAsync(null, ct)` is called
+- THEN the result excludes all `Cancelada` OTs and includes all others
+
+---
+
+### REQ-15 — `IPlatoRepository` batch load
+
+`IPlatoRepository` exposes an additional method:
+
+```csharp
+Task<IReadOnlyList<Plato>> GetByIdsAsync(
+    IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
+```
+
+The implementation uses a single `WHERE Id IN (...)` query. This method is used by `GenerarOrdenesTrabajoHandler` to resolve recipe snapshots for all distinct `PlatoId` values in a `Pedido` without N+1 queries.
+
+---
+
 ## Archive Info
 
 **Archived:** 2026-06-14 (Phase 3 of 7 complete)
 **Change folder archive:** `openspec/changes/archive/2026-06-14-persistence-ef-core/` (proposal, spec, design, tasks)
 **Verify reports:** engram `sdd/persistence-ef-core/verify-report-slice-a` (#53), `-slice-b` (#55), `-slice-c` (#57)
-**Next phase:** Phase 4 — Application layer (full CQRS/use-case layer, API+security scaffolding)
+**Phase 6 infrastructure additions:** REQ-14 and REQ-15 added — `GetAllOrdenesTrabajoAsync` flat projection on `IPedidoRepository`, `GetByIdsAsync` on `IPlatoRepository`. See `openspec/changes/archive/2026-06-17-ordentrabajo-workflow/` for full design.
+**Next phase:** Phase 7 — Blazor frontend

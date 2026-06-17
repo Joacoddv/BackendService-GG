@@ -513,45 +513,66 @@ Then   a DomainException is thrown indicating the state is terminal
 **What must be true:**
 
 - `OrdenTrabajo` is an owned entity of `Pedido` with `Guid Id`, `int NumeroOrden`, `Guid LineaPedidoId`, `Guid PlatoId` (snapshot), `int Cantidad`, nullable `LegajoId CocinaLegajo`, `EstadoOT Estado` (Creada / Preparandose / Lista / Cancelada), and `IReadOnlyList<LineaRecetaSnapshot> RecetaSnapshot` (recipe as it was at OT creation).
-- OT generation is all-or-nothing: `pedido.GenerarOrdenesDeTrabajo()` validates stock availability for ALL lines before creating any OT; if any line fails, zero OTs are created and a `DomainException` is thrown.
+- OT generation is all-or-nothing: `pedido.GenerarOrdenesTrabajo(snapshotsByPlato)` validates that every `LineaPedido` has a confirmed price and that the caller supplies a non-empty recipe snapshot per `PlatoId`. If any line fails validation, zero OTs are created and a `DomainException` is thrown.
 - Duplicate OT (same `LineaPedidoId` already has an OT in a non-cancelled state) is rejected.
-- When **all** OTs of a Mostrador/Delivery Pedido reach state `Lista`, the Pedido auto-advances to `ListoParaEntregar` (domain invariant, enforced inside `pedido.MarcarOTLista(ordenId)`).
-- Optional cook assignment: `ordt.AsignarCocinero(LegajoId legajo)` sets `CocinaLegajo` and transitions OT to `Preparandose`.
+- When **all** OTs of a Mostrador/Delivery Pedido reach state `Lista`, the Pedido auto-advances to `ListoParaEntregar` (domain invariant, enforced inside `Pedido.MarcarOrdenTrabajoLista(otId, rol)`).
+- Cook assignment is routed through the aggregate root: `Pedido.AsignarCocineroAOT(Guid otId, LegajoId cocinero, RolUsuario rol)` finds the OT via `GetOrdenTrabajoOrThrow` and calls `ot.AsignarCocinero(cocinero)`. `OrdenTrabajo.AsignarCocinero` is `internal` — it cannot be called from outside the Domain assembly.
 - OTs are cancelled only via `pedido.Cancelar(...)` (never directly).
+- `EstadoOT` valid values: `Creada=0`, `Preparandose=1`, `Lista=2`, `Cancelada=3`.
 
-### Scenario 10-A — All-or-nothing OT creation: one unavailable line blocks all
+**Locked signatures (Phase 6):**
+
+```csharp
+// OrdenTrabajo.cs — visibility hardened in Phase 6 (body unchanged)
+internal void AsignarCocinero(LegajoId cocinero)
+
+// Pedido.cs — added in Phase 6 (after MarcarOrdenTrabajoLista)
+public void AsignarCocineroAOT(Guid otId, LegajoId cocinero, RolUsuario rol)
+```
+
+`rol` is accepted for signature symmetry and future domain-side gate extensibility; in v1 the role check lives at the Application layer only.
+
+### Scenario 10-A — All-or-nothing OT creation: empty recipe blocks all
 
 ```
 Given  a Pedido with two LineaPedido (Plato A and Plato B)
-And    stock is available for Plato A but not for Plato B
-When   pedido.GenerarOrdenesDeTrabajo(stockChecker) is called
+And    the caller provides an empty recipe snapshot for Plato B
+When   pedido.GenerarOrdenesTrabajo(snapshotsByPlato) is called
 Then   a DomainException is thrown
-And    pedido.OrdenesDeTrabajo is empty (zero OTs created)
+And    pedido.OrdenesTrabajo is empty (zero OTs created)
 ```
 
 ### Scenario 10-B — Duplicate OT rejected
 
 ```
 Given  a Pedido with an existing OrdenTrabajo for LineaPedidoId = X in state Creada
-When   pedido.GenerarOrdenesDeTrabajo() attempts to create another OT for X
+When   pedido.GenerarOrdenesTrabajo() attempts to create another OT for X
 Then   a DomainException is thrown indicating duplicate OT
 ```
 
-### Scenario 10-C — All OTs Lista triggers auto-advance
+### Scenario 10-C — All OTs Lista triggers auto-advance (non-Salon Pedido)
 
 ```
 Given  a Mostrador Pedido in state Preparandose with two OTs (both Creada)
-When   pedido.MarcarOTLista(ot1Id) and pedido.MarcarOTLista(ot2Id) are called
+When   pedido.MarcarOrdenTrabajoLista(ot1Id, rol) and pedido.MarcarOrdenTrabajoLista(ot2Id, rol) are called
 Then   after both calls pedido.Estado is ListoParaEntregar
 ```
 
-### Scenario 10-D — Cook assignment transitions OT to Preparandose
+### Scenario 10-C-bis — Salon Pedido does NOT auto-advance when all OTs are Lista
+
+```
+Given  a Salon Pedido with all OTs in state Lista
+When   the last OT is marked Lista via pedido.MarcarOrdenTrabajoLista(otId, rol)
+Then   pedido.Estado is NOT automatically advanced to ListoParaEntregar
+```
+
+### Scenario 10-D — Cook assignment routes through aggregate root
 
 ```
 Given  an OrdenTrabajo in state Creada
-When   pedido.AsignarCocineroAOT(ordenId, new LegajoId("L-42")) is called
+When   pedido.AsignarCocineroAOT(ordenId, new LegajoId(legajoGuid), rol) is called
 Then   the OT's Estado is Preparandose
-And    CocinaLegajo is LegajoId("L-42")
+And    CocinaLegajo is the supplied LegajoId
 ```
 
 ### Scenario 10-E — Recipe snapshot is independent of later Plato changes
@@ -944,4 +965,4 @@ REQ-18 (test coverage) ← depends on all of the above
 **Implementation details:** See `openspec/changes/archive/2026-06-14-domain-port/` for original proposal, design, and task records.  
 **Pull Requests:** Slice 1 (PR #2), Slice 2 (PR #3), Slice 3 (PR #5 — merged to main at fa8772d).  
 **Test coverage:** 147 tests passing; zero infrastructure dependencies.  
-**Status:** Ready for Phase 3 (Infrastructure + EF Core mapping).
+**Phase 6 domain changes:** REQ-10 updated — `OrdenTrabajo.AsignarCocinero` made `internal`; `Pedido.AsignarCocineroAOT` added. See `openspec/changes/archive/2026-06-17-ordentrabajo-workflow/` for full delta spec and design.

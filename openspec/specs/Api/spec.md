@@ -10,7 +10,7 @@
 
 The Web API layer exposes the persisted Phase-3 domain and completed application use cases over HTTP via ASP.NET Core Minimal APIs. The contract is REST + RFC 7807 problem details; all endpoints operate on DTOs (never domain aggregates). Authentication is now fully active (Phase 5): JWT tokens are issued by `POST /auth/login`, most endpoints require `[Authorize]`, and role information is extracted from the JWT claim for authorization decisions. Error handling is centralized via `IExceptionHandler` + `AddProblemDetails()`.
 
-**Status:** Phase 4 complete — 3 slices (Foundation, Catalogue, Transactional+Fiscal+Stock) delivered via PRs #9, #10, #11 to main. Phase 5 (auth-jwt) complete — 2 stacked PRs (PR #12, PR #13) merged to main. All 30 Phase-4 tasks (WA-01..WA-30) + 22 Phase-5 tasks (AJ-01..AJ-22) complete. Test suite: 245 tests green (160 domain + 6 app + 33 infra + 46 api). Verification: Phase 5 PASS WITH WARNINGS (401→403 adjudication resolved to 403, spec corrected, test gaps noted for future). Phase-6 follow-ups captured below.
+**Status:** Phase 4 complete — 3 slices (Foundation, Catalogue, Transactional+Fiscal+Stock) delivered via PRs #9, #10, #11 to main. Phase 5 (auth-jwt) complete — 2 stacked PRs (PR #12, PR #13) merged to main. Phase 6 (ordentrabajo-workflow) complete — 2 stacked PRs (PR #14, PR #15) merged to main. All 30 Phase-4 tasks (WA-01..WA-30) + 22 Phase-5 tasks (AJ-01..AJ-22) + 18 Phase-6 tasks (OW-01..OW-18) complete. Test suite: 270 tests green (160 domain + 6 app + 33 infra + 71 api). Verification: Phase 6 PR1 PASS (re-verify after remediation). Phase 6 PR2 PASS.
 
 ---
 
@@ -40,6 +40,8 @@ public interface IEfectivoPrecioService
 | `ConflictException` | 409 Conflict | "Business rule conflict" |
 | `NotFoundException` | 404 Not Found | "Resource not found" |
 | `DomainException` | 422 Unprocessable Entity | "Domain rule violation" |
+| `ValidationException` | 422 Unprocessable Entity | "Validation failed" |
+| `ForbiddenException` | 403 Forbidden | "Forbidden" |
 | Any other unhandled exception | 500 Internal Server Error | "An unexpected error occurred" |
 
 No endpoint contains a try/catch for these types. `app.UseExceptionHandler()` is registered first in the middleware pipeline.
@@ -308,13 +310,173 @@ After this change, `dotnet test` passes with zero failures. The 222 tests that w
 
 ---
 
-## Known Open Items / Phase-6 Follow-ups (CARRY FORWARD — DO NOT DROP)
+## PHASE-6 Requirements Catalog — OT-01 to OT-06 (OrdenTrabajo Workflow)
 
-### 1. Register / User CRUD endpoints (deferred to Phase 6)
+### OT-01 — Generate Work Orders `POST /pedidos/{pedidoId}/ordenes-trabajo`
 
-**Status:** Phase 5 introduced login and JWT issuance. Admin user is seeded in Development only.
+The system MUST expose a command that generates one `OrdenTrabajo` per `LineaPedido` for a given `Pedido`, all-or-nothing, as an explicit mozo action (not triggered automatically).
 
-**Open work:** `POST /auth/register` endpoint for end-user self-registration and admin user-management surface (`POST /usuarios`, `DELETE /usuarios/{id}`, etc.) are out of scope for Phase 5. These will be added in Phase 6 when the `GastroGestion_Seguridad` dedicated catalog is introduced.
+Access is restricted to users with role `Mozo` or `Administrador` (enforced at the Application layer via `ClaimTypes.Role`).
+
+The endpoint returns `204 NoContent` on success.
+
+**Error contracts:**
+- `404` — Pedido not found.
+- `409` — OrdenesTrabajo already exist for this Pedido.
+- `422` — Any `LineaPedido` has no confirmed price, OR any referenced `PlatoId` has an empty `LineasReceta` snapshot (early failure with `ProblemDetails` body naming the offending `PlatoId`).
+- `401` / `403` — Unauthenticated or unauthorized role.
+
+#### Scenario OT-01-A: Happy path — all lines priced, all recipes populated
+
+- GIVEN a `Pedido` with priced lines whose Platos have non-empty recipes
+- WHEN a mozo calls `POST /pedidos/{pedidoId}/ordenes-trabajo`
+- THEN one `OrdenTrabajo` per line is created with `Estado = Creada`
+- AND returns HTTP 204 NoContent
+
+#### Scenario OT-01-B: Failure — line without confirmed price
+
+- GIVEN a `Pedido` where at least one `LineaPedido` has no confirmed price
+- WHEN a mozo calls the endpoint
+- THEN the system returns HTTP 422 with a `ProblemDetails` body
+
+#### Scenario OT-01-C: Failure — Plato with empty recipe
+
+- GIVEN a `Pedido` where a referenced `PlatoId` has an empty `LineasReceta`
+- WHEN a mozo calls the endpoint
+- THEN the system returns HTTP 422 describing the offending `PlatoId`
+
+#### Scenario OT-01-D: Failure — Pedido not found
+
+- GIVEN a `pedidoId` that does not exist
+- THEN the system returns HTTP 404
+
+#### Scenario OT-01-E: Failure — OTs already generated
+
+- GIVEN a `Pedido` that already has `OrdenesTrabajo`
+- THEN the system returns HTTP 409
+
+---
+
+### OT-02 — Assign Cook `PATCH /pedidos/{pedidoId}/ordenes-trabajo/{otId}/asignar-cocinero`
+
+The system MUST allow users with role `COCINERO` or `ADMINISTRADOR` to assign a cook (`legajoId`) to an `OrdenTrabajo`, transitioning it from `Creada` to `Preparandose`.
+
+Role is read from `ClaimTypes.Role` at the Application layer. Users with any other role receive HTTP 403.
+
+Returns `200 Ok` with an `OrdenTrabajoResponse` body.
+
+**Error contracts:** `404` Pedido or OT not found; `422` OT not in `Creada`; `403` unauthorized role; `401` unauthenticated.
+
+#### Scenario OT-02-A: Happy path
+
+- GIVEN an `OrdenTrabajo` in state `Creada`
+- WHEN a `COCINERO` calls the assign endpoint with a valid `CocineroLegajoId`
+- THEN `Estado` transitions to `Preparandose`, `CocineroAsignado` is set
+- AND returns HTTP 200
+
+#### Scenario OT-02-B: Failure — wrong role
+
+- GIVEN an authenticated user with role `MOZO`
+- THEN the system returns HTTP 403
+
+#### Scenario OT-02-C: Failure — OT not in Creada
+
+- GIVEN an `OrdenTrabajo` in state `Preparandose` or `Lista`
+- THEN the system returns HTTP 422
+
+---
+
+### OT-03 — Mark Order Ready `PATCH /pedidos/{pedidoId}/ordenes-trabajo/{otId}/lista`
+
+The system MUST allow users with role `COCINERO` or `ADMINISTRADOR` to mark an `OrdenTrabajo` as ready, transitioning it from `Preparandose` to `Lista`.
+
+After the transition, if ALL `OrdenesTrabajo` for the owning `Pedido` are `Lista` AND the `Pedido` is NOT a Salon-type order, the system MUST automatically advance the `Pedido` to `ListoParaEntregar` (domain invariant).
+
+Returns `200 Ok` with an `OrdenTrabajoResponse` body.
+
+**Error contracts:** `404` Pedido or OT not found; `422` OT not in `Preparandose`; `403` unauthorized role; `401` unauthenticated.
+
+#### Scenario OT-03-A: Happy path — OT marked ready, Pedido not yet complete
+
+- GIVEN an `OrdenTrabajo` in state `Preparandose` and at least one sibling OT still in progress
+- WHEN a `COCINERO` calls the ready endpoint
+- THEN `Estado` transitions to `Lista` and the `Pedido` state is unchanged
+- AND returns HTTP 200
+
+#### Scenario OT-03-B: Happy path — last OT, Pedido auto-advances
+
+- GIVEN the last non-`Lista` OT for a non-Salon `Pedido`
+- WHEN a `COCINERO` calls the ready endpoint
+- THEN the OT transitions to `Lista` AND the `Pedido` transitions to `ListoParaEntregar`
+- AND returns HTTP 200
+
+---
+
+### OT-04 — Kitchen Board Read `GET /ordenes-trabajo?estado={EstadoOT?}`
+
+The system MUST expose a flat projection of all `OrdenesTrabajo` across all `Pedidos`.
+
+The `estado` query parameter is optional; when omitted, all non-`Cancelada` orders are returned.
+
+Access is restricted to users with role `COCINERO` or `ADMINISTRADOR`.
+
+The query projects directly from the `PedidoOrdenesTrabajo` table — it does NOT load full `Pedido` aggregates.
+
+The flat projection includes: `OtId`, `PedidoId`, `PedidoTipo`, `PlatoId`, `LineaPedidoId`, `Estado` (serialized as string per convention W-03), `CocineroAsignadoLegajoId`.
+
+Returns `200 Ok` with `IReadOnlyList<OrdenTrabajoBoardResponse>`.
+
+**Error contracts:** `401` unauthenticated; `403` unauthorized role; `400` invalid `?estado=` value.
+
+---
+
+### OT-05 — Realtime OT State Push (SignalR) `[PR2]`
+
+The system pushes real-time notifications to a `"kitchen"` SignalR group whenever an `OrdenTrabajo` changes state (assigned or ready). The hub is mapped at `/hubs/kitchen`.
+
+**Payload** (`OrdenTrabajoBoardResponse`): `OtId`, `PedidoId`, `PedidoTipo`, `PlatoId`, `LineaPedidoId`, `Estado` (string), `CocineroAsignadoLegajoId`.
+
+**Client method pushed:** `"OtChanged"`.
+
+The REST board endpoint (OT-04) remains unchanged and serves as the reconnection-recovery path for kitchen clients.
+
+**Layering:**
+- `IKitchenNotifier` port in the Application layer (`Application/Abstractions/Realtime/`).
+- `KitchenHub : Hub` in the API layer (`Api/Hubs/`).
+- `SignalRKitchenNotifier : IKitchenNotifier` adapter in the API layer (`Api/Realtime/`).
+- Mutation handlers (`AsignarCocineroHandler`, `MarcarOrdenTrabajoListaHandler`) call the port **after** `SaveChangesAsync`.
+
+#### Scenario OT-05-A: State change pushes delta to kitchen group
+
+- GIVEN a kitchen client connected to the hub
+- WHEN an OT transitions state via any OT mutation endpoint
+- THEN the hub broadcasts the state-change delta to the `"kitchen"` group
+
+#### Scenario OT-05-B: Client reconnect recovers via REST
+
+- GIVEN a kitchen client that reconnected after a hub disconnect
+- WHEN it calls `GET /ordenes-trabajo`
+- THEN it receives the current full board state
+
+---
+
+### OT-06 — Authentication and Role Enforcement (Cross-Cutting)
+
+All OT endpoints require a valid JWT bearer token. Unauthenticated requests return HTTP 401.
+
+Enum values in all OT responses are serialized as strings (project convention W-03 — global `JsonStringEnumConverter`). This applies to `EstadoOT` and `TipoPedido` in all OT response DTOs.
+
+`GET /pedidos/{id}` and `PedidoResponse` are byte-for-byte unchanged after this change.
+
+---
+
+## Known Open Items / Phase-7 Follow-ups (CARRY FORWARD — DO NOT DROP)
+
+### 1. Register / User CRUD endpoints (deferred to Phase 7)
+
+**Status:** Phase 5 introduced login and JWT issuance. Phase 6 (kitchen workflow) did not address user management. Admin user is seeded in Development only.
+
+**Open work:** `POST /auth/register` endpoint for end-user self-registration and admin user-management surface (`POST /usuarios`, `DELETE /usuarios/{id}`, etc.) remain out of scope. These will be added in Phase 7 (Blazor/backend completion) when the `GastroGestion_Seguridad` dedicated catalog is introduced.
 
 ### 3. ConfirmarPrecioLinea returns 204 (decision)
 
@@ -387,6 +549,11 @@ After this change, `dotnet test` passes with zero failures. The 222 tests that w
 | `/stock/movimientos` | POST | `RegistrarMovimientoStockRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
 | `/stock/balance/{ingredienteId:guid}` | GET | — | `Ok<BalanceStockResponse>` | 200, 401 | Required |
 | `/health` | GET | — | 200 OK | 200 | Anonymous |
+| `/pedidos/{pedidoId:guid}/ordenes-trabajo` | POST | — | `NoContent` | 204, 401, 403, 404, 409, 422 | Required (Mozo, Administrador) |
+| `/pedidos/{pedidoId:guid}/ordenes-trabajo/{otId:guid}/asignar-cocinero` | PATCH | `AsignarCocineroRequest` | `Ok<OrdenTrabajoResponse>` | 200, 401, 403, 404, 422 | Required (Cocinero, Administrador) |
+| `/pedidos/{pedidoId:guid}/ordenes-trabajo/{otId:guid}/lista` | PATCH | — | `Ok<OrdenTrabajoResponse>` | 200, 401, 403, 404, 422 | Required (Cocinero, Administrador) |
+| `/ordenes-trabajo` | GET | `?estado={EstadoOT?}` | `Ok<IReadOnlyList<OrdenTrabajoBoardResponse>>` | 200, 400, 401, 403 | Required (Cocinero, Administrador) |
+| `/hubs/kitchen` | SignalR | — | Server pushes `"OtChanged"` with `OrdenTrabajoBoardResponse` | — | Required |
 
 ---
 
@@ -412,8 +579,14 @@ After this change, `dotnet test` passes with zero failures. The 222 tests that w
 - **Test suite:** 245 integration tests passing (0 failures, +23 new tests from Phase 5).
 - **Verification:** Phase 5 PASS WITH WARNINGS — AUTH-07.3 adjudication resolved (401→403 corrected in this spec), role-claim test gaps deferred to Phase 6, login endpoint test gaps deferred to Phase 6.
 
+**Phase 6 complete:** OW-01 through OW-18 all [x] marked complete.
+- **PR #14** (PR1 — Core workflow + REST board): merged to main @ commit 3e2d533.
+- **PR #15** (PR2 — Realtime SignalR layer): merged to main.
+- **Test suite:** 270 tests passing (0 failures, +25 new tests from Phase 6).
+- **Verification:** Phase 6 PR1 PASS (re-verify after remediation). Phase 6 PR2 PASS.
+
 ---
 
 ## Next Phase
 
-Phase 6 will separate the `Usuarios` table into a dedicated `GastroGestion_Seguridad` catalog and `GastroGestion_SeguridadDbContext`, introduce refresh tokens and token revocation, add a user registration endpoint (`POST /auth/register`), and implement admin user-management endpoints. Test gaps from Phase 5 (AUTH-05.6 and AUTH-07-B/C HTTP integration tests) will also be addressed in Phase 6.
+Phase 7 (Blazor frontend) will build the kitchen dashboard UI, the order management screens, and the admin panel, consuming the REST API and the SignalR kitchen hub established in Phase 6.

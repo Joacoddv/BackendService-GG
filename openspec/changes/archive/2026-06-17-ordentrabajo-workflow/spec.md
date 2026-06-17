@@ -3,7 +3,7 @@
 **Change:** ordentrabajo-workflow
 **Date:** 2026-06-16
 **PR Slices:** PR1 — Core workflow | PR2 — Realtime layer (SignalR, additive)
-**Status:** DRAFT
+**Status:** RECONCILED
 
 ---
 
@@ -46,20 +46,20 @@ The system MUST NOT allow re-generation if `OrdenesTrabajo` already exist for th
 #### Scenario OT-01-C: Failure — Plato with empty recipe
 
 - GIVEN a `Pedido` where a referenced `PlatoId` has an empty `LineasReceta`
-- WHEN a mozo calls `POST /pedidos/{pedidoId}/ordenes-trabajo`
+- WHEN a mozo calls `POST /pedidos/{pedidoId}/ordenes-trabalho`
 - THEN the system returns HTTP 422 with a `ProblemDetails` body describing the offending `PlatoId`
 - AND no `OrdenTrabajo` is persisted
 
 #### Scenario OT-01-D: Failure — Pedido not found
 
 - GIVEN a `pedidoId` that does not exist
-- WHEN any authenticated user calls `POST /pedidos/{pedidoId}/ordenes-trabajo`
+- WHEN any authenticated user calls `POST /pedidos/{pedidoId}/ordenes-trabalho`
 - THEN the system returns HTTP 404
 
 #### Scenario OT-01-E: Failure — OTs already generated
 
 - GIVEN a `Pedido` that already has `OrdenesTrabajo`
-- WHEN a mozo calls `POST /pedidos/{pedidoId}/ordenes-trabajo`
+- WHEN a mozo calls `POST /pedidos/{pedidoId}/ordenes-trabalho`
 - THEN the system returns HTTP 409
 
 ---
@@ -77,7 +77,7 @@ The `OrdenTrabajo.AsignarCocinero` method MUST be made `internal`; all Applicati
 #### Scenario OT-02-A: Happy path
 
 - GIVEN an `OrdenTrabajo` in state `Creada`
-- WHEN a user with role `COCINERO` calls `PATCH /pedidos/{pedidoId}/ordenes-trabajo/{otId}/asignar-cocinero`
+- WHEN a user with role `COCINERO` calls `PATCH /pedidos/{pedidoId}/ordenes-trabalho/{otId}/asignar-cocinero`
 - THEN `Estado` transitions to `Preparandose`, `CocineroAsignado` is set
 - AND returns HTTP 200
 
@@ -114,7 +114,7 @@ Role enforcement follows the same pattern as OT-02 (`ClaimTypes.Role` from JWT, 
 #### Scenario OT-03-A: Happy path — OT marked ready, Pedido not yet complete
 
 - GIVEN an `OrdenTrabajo` in state `Preparandose` and at least one sibling OT still in progress
-- WHEN a user with role `COCINERO` calls `PATCH /pedidos/{pedidoId}/ordenes-trabajo/{otId}/lista`
+- WHEN a user with role `COCINERO` calls `PATCH /pedidos/{pedidoId}/ordenes-trabalho/{otId}/lista`
 - THEN `Estado` transitions to `Lista`
 - AND the `Pedido` state is unchanged
 - AND returns HTTP 200
@@ -150,7 +150,7 @@ Role enforcement follows the same pattern as OT-02 (`ClaimTypes.Role` from JWT, 
 
 **Layer:** Api + Infrastructure
 
-The system MUST expose `GET /ordenes-trabajo?estado={EstadoOT}` returning a flat projection of all `OrdenesTrabajo` across all `Pedidos`.
+The system MUST expose `GET /ordenes-trabalho?estado={EstadoOT}` returning a flat projection of all `OrdenesTrabajo` across all `Pedidos`.
 
 The flat projection MUST include: `Id`, `PlatoId`, `LineaPedidoId`, `PedidoId`, `Estado` (serialized as string per convention W-03), `CocineroAsignado`.
 
@@ -163,27 +163,27 @@ The query MUST NOT load full `Pedido` aggregates; it MUST project directly from 
 #### Scenario OT-04-A: Board read with estado filter
 
 - GIVEN multiple `OrdenesTrabajo` in various states across multiple `Pedidos`
-- WHEN a `COCINERO` calls `GET /ordenes-trabajo?estado=Creada`
+- WHEN a `COCINERO` calls `GET /ordenes-trabalho?estado=Creada`
 - THEN the response contains only `OrdenesTrabajo` with `Estado = "Creada"` as a flat list
 - AND returns HTTP 200
 
 #### Scenario OT-04-B: Board read without filter
 
 - GIVEN multiple `OrdenesTrabajo` in states `Creada`, `Preparandose`, `Lista`, and `Cancelada`
-- WHEN a `COCINERO` calls `GET /ordenes-trabajo`
+- WHEN a `COCINERO` calls `GET /ordenes-trabalho`
 - THEN the response contains all OTs with `Estado` NOT equal to `"Cancelada"`
 - AND returns HTTP 200
 
 #### Scenario OT-04-C: Failure — unauthorized role
 
 - GIVEN an authenticated user with role `MOZO`
-- WHEN they call `GET /ordenes-trabajo`
+- WHEN they call `GET /ordenes-trabalho`
 - THEN the system returns HTTP 403
 
 #### Scenario OT-04-D: Failure — unauthenticated
 
 - GIVEN a request with no JWT token
-- WHEN calling `GET /ordenes-trabajo`
+- WHEN calling `GET /ordenes-trabalho`
 - THEN the system returns HTTP 401
 
 ---
@@ -210,7 +210,7 @@ The REST board endpoint (OT-04) MUST remain unchanged and MUST serve as the reco
 #### Scenario OT-05-B: Client reconnect recovers via REST
 
 - GIVEN a kitchen client that reconnected after a hub disconnect
-- WHEN it calls `GET /ordenes-trabajo`
+- WHEN it calls `GET /ordenes-trabalho`
 - THEN it receives the current full board state, matching the authoritative database state
 
 ---
