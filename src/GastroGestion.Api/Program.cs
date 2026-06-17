@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,7 +67,11 @@ builder.Services
             ValidIssuer              = builder.Configuration["Jwt:Issuer"],
             ValidAudience            = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey         = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSigningKey))
+                Encoding.UTF8.GetBytes(jwtSigningKey)),
+            // Pin the role claim type explicitly. The token issuer (JwtTokenIssuer, ADR-4)
+            // writes roles as ClaimTypes.Role; making this explicit here keeps [Authorize(Roles=...)]
+            // and Hub role checks working independently of the framework's default claim mapping.
+            RoleClaimType            = ClaimTypes.Role
         };
 
         // SignalR: browsers cannot set Authorization header on WebSocket upgrade.
