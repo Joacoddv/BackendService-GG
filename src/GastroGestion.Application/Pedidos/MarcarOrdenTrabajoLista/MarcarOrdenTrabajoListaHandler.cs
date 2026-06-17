@@ -1,18 +1,25 @@
 using GastroGestion.Application.Abstractions.Persistence;
+using GastroGestion.Application.Abstractions.Realtime;
 using GastroGestion.Application.Common.Exceptions;
+using GastroGestion.Application.Pedidos.GetOrdenesByEstado;
 using GastroGestion.Domain.Enums;
 
 namespace GastroGestion.Application.Pedidos.MarcarOrdenTrabajoLista;
 
 public sealed class MarcarOrdenTrabajoListaHandler
 {
-    private readonly IPedidoRepository _pedidos;
-    private readonly IUnitOfWork       _uow;
+    private readonly IPedidoRepository  _pedidos;
+    private readonly IUnitOfWork        _uow;
+    private readonly IKitchenNotifier   _kitchenNotifier;
 
-    public MarcarOrdenTrabajoListaHandler(IPedidoRepository pedidos, IUnitOfWork uow)
+    public MarcarOrdenTrabajoListaHandler(
+        IPedidoRepository pedidos,
+        IUnitOfWork uow,
+        IKitchenNotifier kitchenNotifier)
     {
-        _pedidos = pedidos;
-        _uow     = uow;
+        _pedidos          = pedidos;
+        _uow              = uow;
+        _kitchenNotifier  = kitchenNotifier;
     }
 
     public async Task Handle(MarcarOrdenTrabajoListaCommand cmd, CancellationToken ct = default)
@@ -30,6 +37,16 @@ public sealed class MarcarOrdenTrabajoListaHandler
 
         await _uow.SaveChangesAsync(ct);
 
-        // TODO PR2: await _kitchenNotifier.NotifyOtChangedAsync(...)
+        // Post-commit realtime push (OT-05, ADR-003)
+        var ot = pedido.OrdenesTrabajo.First(o => o.Id == cmd.OtId);
+        var boardItem = new OrdenTrabajoBoardItem(
+            ot.Id,
+            pedido.Id,
+            pedido.Tipo,
+            ot.PlatoId,
+            ot.LineaPedidoId,
+            ot.Estado,
+            ot.CocineroAsignado?.Valor);
+        await _kitchenNotifier.NotifyOtChangedAsync(boardItem, ct);
     }
 }
