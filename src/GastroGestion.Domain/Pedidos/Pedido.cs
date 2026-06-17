@@ -281,6 +281,19 @@ public class Pedido : AggregateRoot
         }
     }
 
+    /// <summary>
+    /// Assigns a cook to a specific <see cref="OrdenTrabajo"/> via the aggregate root.
+    /// Routes through the root so that <see cref="OrdenTrabajo.AsignarCocinero"/> can remain
+    /// <c>internal</c>, enforcing the aggregate boundary (ADR-001).
+    /// The <paramref name="rol"/> parameter is accepted for signature symmetry with
+    /// <see cref="MarcarOrdenTrabajoLista"/>; role enforcement is at the Application layer.
+    /// </summary>
+    public void AsignarCocineroAOT(Guid otId, LegajoId cocinero, RolUsuario rol)
+    {
+        var ot = GetOrdenTrabajoOrThrow(otId);
+        ot.AsignarCocinero(cocinero); // internal — only Pedido can call
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void GuardarEstadoEditable(string accion)

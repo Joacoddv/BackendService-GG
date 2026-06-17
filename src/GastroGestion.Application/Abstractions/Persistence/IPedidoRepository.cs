@@ -1,3 +1,4 @@
+using GastroGestion.Application.Pedidos.GetOrdenesByEstado;
 using GastroGestion.Domain.Pedidos;
 
 namespace GastroGestion.Application.Abstractions.Persistence;
@@ -12,4 +13,8 @@ public interface IPedidoRepository
         CancellationToken ct = default);
 
     Task AddAsync(Pedido pedido, CancellationToken ct = default);
+
+    /// <summary>Flat board projection — never loads full Pedido aggregates (ADR-002).</summary>
+    Task<IReadOnlyList<OrdenTrabajoBoardItem>> GetAllOrdenesTrabajoAsync(
+        EstadoOT? estado, CancellationToken ct = default);
 }

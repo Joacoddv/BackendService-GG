@@ -134,6 +134,7 @@ app.MapPlatoEndpoints();
 app.MapMenuEndpoints();
 app.MapMesaEndpoints();
 app.MapPedidoEndpoints();
+app.MapOrdenTrabajoEndpoints();
 app.MapFacturaEndpoints();
 app.MapStockEndpoints();
 
