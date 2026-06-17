@@ -1,7 +1,10 @@
 using FluentValidation;
 using GastroGestion.Api.Endpoints;
 using GastroGestion.Api.ErrorHandling;
+using GastroGestion.Api.Hubs;
+using GastroGestion.Api.Realtime;
 using GastroGestion.Application;
+using GastroGestion.Application.Abstractions.Realtime;
 using GastroGestion.Contracts.Clientes;
 using GastroGestion.Infrastructure;
 using GastroGestion.Infrastructure.Persistence;
@@ -31,6 +34,10 @@ builder.Services.AddExceptionHandler<GastroGestionExceptionHandler>();
 
 // 5. FluentValidation — scan the Contracts assembly
 builder.Services.AddValidatorsFromAssemblyContaining<CrearClienteRequest>();
+
+// 5c. SignalR — realtime kitchen board (OT-05, ADR-003)
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IKitchenNotifier, SignalRKitchenNotifier>();
 
 // 5b. Serialize enums as strings globally (W-03 — better Swagger DX; still accepts integers on input)
 builder.Services.ConfigureHttpJsonOptions(o =>
@@ -135,6 +142,7 @@ app.MapMenuEndpoints();
 app.MapMesaEndpoints();
 app.MapPedidoEndpoints();
 app.MapOrdenTrabajoEndpoints();
+app.MapHub<KitchenHub>("/hubs/kitchen");
 app.MapFacturaEndpoints();
 app.MapStockEndpoints();
 
