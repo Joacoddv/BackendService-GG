@@ -93,6 +93,19 @@ builder.Services.AddAuthorization();
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
     .Get<string[]>() ?? Array.Empty<string>();
+
+// Fail fast in non-Development if no real (non-localhost) origin is configured.
+// Mirrors the Jwt:SigningKey guard above: a CORS policy holding only dev
+// placeholders would silently reject the real Blazor client domain in prod.
+if (!builder.Environment.IsDevelopment() &&
+    !allowedOrigins.Any(o => !o.Contains("localhost", StringComparison.OrdinalIgnoreCase)))
+{
+    throw new InvalidOperationException(
+        "Cors:AllowedOrigins has no non-localhost origin configured. " +
+        "Set the Blazor client origin(s) via the Cors__AllowedOrigins__0 environment " +
+        "variable (or user-secrets) in non-Development environments.");
+}
+
 builder.Services.AddCors(options =>
     options.AddPolicy("BlazorClient", policy =>
         policy
