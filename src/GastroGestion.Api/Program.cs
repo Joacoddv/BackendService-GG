@@ -68,9 +68,51 @@ builder.Services
             IssuerSigningKey         = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSigningKey))
         };
+
+        // SignalR: browsers cannot set Authorization header on WebSocket upgrade.
+        // The Blazor/JS SignalR client passes the token as ?access_token=... on the negotiate request.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                var accessToken = ctx.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    ctx.HttpContext.Request.Path.StartsWithSegments("/hubs/kitchen"))
+                {
+                    ctx.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
+
+// 6b. CORS — allow the Blazor WASM client (cross-origin SignalR + REST)
+// AllowCredentials() is required for SignalR auth; it mandates explicit origins (not AllowAnyOrigin).
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+// Fail fast in non-Development if no real (non-localhost) origin is configured.
+// Mirrors the Jwt:SigningKey guard above: a CORS policy holding only dev
+// placeholders would silently reject the real Blazor client domain in prod.
+if (!builder.Environment.IsDevelopment() &&
+    !allowedOrigins.Any(o => !o.Contains("localhost", StringComparison.OrdinalIgnoreCase)))
+{
+    throw new InvalidOperationException(
+        "Cors:AllowedOrigins has no non-localhost origin configured. " +
+        "Set the Blazor client origin(s) via the Cors__AllowedOrigins__0 environment " +
+        "variable (or user-secrets) in non-Development environments.");
+}
+
+builder.Services.AddCors(options =>
+    options.AddPolicy("BlazorClient", policy =>
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()));
 
 // 7. Swagger / OpenAPI (Swashbuckle only — Microsoft.AspNetCore.OpenApi removed)
 builder.Services.AddEndpointsApiExplorer();
@@ -125,6 +167,9 @@ if (app.Environment.IsDevelopment())
 
 // 4. Request logging
 app.UseSerilogRequestLogging();
+
+// 4b. CORS — must be after routing (implicit in minimal APIs) and before auth
+app.UseCors("BlazorClient");
 
 // 5. Authentication + authorization
 app.UseAuthentication();
