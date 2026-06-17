@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GastroGestion.Application.Abstractions.Persistence;
+using GastroGestion.Application.Abstractions.Realtime;
 using GastroGestion.Application.Common.Exceptions;
 using GastroGestion.Application.Pedidos.AsignarCocinero;
 using GastroGestion.Application.Pedidos.GenerarOrdenesTrabajo;
@@ -246,12 +247,13 @@ public class GenerarOrdenesTrabajoHandlerTests
 /// </summary>
 public class AsignarCocineroHandlerTests
 {
-    private readonly IPedidoRepository   _pedidos = Substitute.For<IPedidoRepository>();
-    private readonly IUnitOfWork         _uow     = Substitute.For<IUnitOfWork>();
+    private readonly IPedidoRepository   _pedidos         = Substitute.For<IPedidoRepository>();
+    private readonly IUnitOfWork         _uow             = Substitute.For<IUnitOfWork>();
+    private readonly IKitchenNotifier    _kitchenNotifier = Substitute.For<IKitchenNotifier>();
     private readonly AsignarCocineroHandler _sut;
 
     public AsignarCocineroHandlerTests()
-        => _sut = new AsignarCocineroHandler(_pedidos, _uow);
+        => _sut = new AsignarCocineroHandler(_pedidos, _uow, _kitchenNotifier);
 
     private static (Pedido pedido, Guid otId) SeedPedidoWithOT()
     {
@@ -325,12 +327,13 @@ public class AsignarCocineroHandlerTests
 /// </summary>
 public class MarcarOrdenTrabajoListaHandlerTests
 {
-    private readonly IPedidoRepository            _pedidos = Substitute.For<IPedidoRepository>();
-    private readonly IUnitOfWork                  _uow     = Substitute.For<IUnitOfWork>();
+    private readonly IPedidoRepository            _pedidos         = Substitute.For<IPedidoRepository>();
+    private readonly IUnitOfWork                  _uow             = Substitute.For<IUnitOfWork>();
+    private readonly IKitchenNotifier             _kitchenNotifier = Substitute.For<IKitchenNotifier>();
     private readonly MarcarOrdenTrabajoListaHandler _sut;
 
     public MarcarOrdenTrabajoListaHandlerTests()
-        => _sut = new MarcarOrdenTrabajoListaHandler(_pedidos, _uow);
+        => _sut = new MarcarOrdenTrabajoListaHandler(_pedidos, _uow, _kitchenNotifier);
 
     private static (Pedido pedido, Guid otId) SeedPreparandosePedido()
     {
