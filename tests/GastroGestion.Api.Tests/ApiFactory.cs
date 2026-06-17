@@ -36,6 +36,8 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Jwt:SigningKey",  TestJwtSigningKey);
         builder.UseSetting("Jwt:Issuer",      "GastroGestion");
         builder.UseSetting("Jwt:Audience",    "GastroGestion");
+        builder.UseSetting("Cors:AllowedOrigins:0", "https://localhost:7173");
+        builder.UseSetting("Cors:AllowedOrigins:1", "http://localhost:5173");
     }
 
     public async Task InitializeAsync()
