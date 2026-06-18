@@ -240,6 +240,41 @@ Then   cliente.Activo is false
 And    calling Desactivar() a second time does not throw (idempotent)
 ```
 
+### Scenario 03-F — ActualizarDatos updates editable fields (catalog-crud-and-cocineros)
+
+```
+Given  an existing Cliente with NumeroCliente = 42 and Activo = true
+When   cliente.ActualizarDatos(nombre, condicionIVA, cuit, email) is called with valid values
+Then   Nombre, CondicionIVA, Cuit, Email are updated
+And    NumeroCliente remains 42
+And    Activo remains true
+```
+
+**Locked signature (change catalog-crud-and-cocineros):**
+```csharp
+public void ActualizarDatos(string nombre, CondicionIVA condicionIVA, Cuit? cuit, Email? email)
+```
+- Throws `DomainException` when `nombre` is null or whitespace.
+- Throws `DomainException` when `condicionIVA == CondicionIVA.ResponsableInscripto && cuit is null`.
+- `NumeroCliente` and `Activo` are never touched by this method.
+- `Desactivar()` reused for soft-delete (idempotent, already existed).
+
+### Scenario 03-G — ActualizarDatos rejects ResponsableInscripto without Cuit
+
+```
+Given  condicionIVA = ResponsableInscripto and cuit = null
+When   cliente.ActualizarDatos(...) is called
+Then   a DomainException is thrown
+```
+
+### Scenario 03-H — ActualizarDatos rejects blank Nombre
+
+```
+Given  nombre = "" or whitespace
+When   cliente.ActualizarDatos(...) is called
+Then   a DomainException is thrown
+```
+
 ### Scenario 03-D — Address added to client
 
 ```
@@ -280,6 +315,31 @@ Then   an ArgumentException is thrown
 Given  an active Ingrediente
 When   ingrediente.Desactivar() is called
 Then   ingrediente.Activo is false
+```
+
+### Scenario 04-C — ActualizarNombre updates Nombre only (catalog-crud-and-cocineros)
+
+```
+Given  an existing Ingrediente with Nombre = "Harina" and UnidadBase = Kg
+When   ingrediente.ActualizarNombre("Harina 0000") is called
+Then   Nombre is "Harina 0000"
+And    UnidadBase remains Kg (immutable post-creation)
+```
+
+**Locked signature (change catalog-crud-and-cocineros):**
+```csharp
+public void ActualizarNombre(string nombre)
+```
+- Throws `DomainException` when `nombre` is null or whitespace.
+- `UnidadBase` is immutable — this method does not accept or touch it. `EditarIngredienteRequest` structurally omits `UnidadBase`, making it impossible to change via the API contract.
+- `Desactivar()` reused for soft-delete (idempotent, already existed).
+
+### Scenario 04-D — ActualizarNombre rejects blank Nombre
+
+```
+Given  nombre = "" or whitespace
+When   ingrediente.ActualizarNombre("") is called
+Then   a DomainException is thrown
 ```
 
 ---
@@ -966,3 +1026,4 @@ REQ-18 (test coverage) ← depends on all of the above
 **Pull Requests:** Slice 1 (PR #2), Slice 2 (PR #3), Slice 3 (PR #5 — merged to main at fa8772d).  
 **Test coverage:** 147 tests passing; zero infrastructure dependencies.  
 **Phase 6 domain changes:** REQ-10 updated — `OrdenTrabajo.AsignarCocinero` made `internal`; `Pedido.AsignarCocineroAOT` added. See `openspec/changes/archive/2026-06-17-ordentrabajo-workflow/` for full delta spec and design.
+**catalog-crud-and-cocineros domain changes (2026-06-17):** REQ-03 extended — `Cliente.ActualizarDatos(nombre, condicionIVA, cuit, email)` added (scenarios 03-F, 03-G, 03-H). REQ-04 extended — `Ingrediente.ActualizarNombre(nombre)` added (scenarios 04-C, 04-D); `UnidadBase` confirmed immutable post-creation. `Desactivar()` reused for both aggregates (no new method needed). See `openspec/changes/archive/2026-06-17-catalog-crud-and-cocineros/` for full spec, design, and tasks.

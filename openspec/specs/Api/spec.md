@@ -1,6 +1,6 @@
 # Web API Specification — GastroGestion
 
-**Last updated:** 2026-06-15  
+**Last updated:** 2026-06-17  
 **Phase:** 4–5 of 7 in the .NET 8 strangler roadmap  
 **Scope:** GastroGestion Web API layer — .NET 8 Minimal API endpoints, request/response contracts, middleware, authentication shape, JWT token issuance, authorization enforcement.
 
@@ -10,7 +10,7 @@
 
 The Web API layer exposes the persisted Phase-3 domain and completed application use cases over HTTP via ASP.NET Core Minimal APIs. The contract is REST + RFC 7807 problem details; all endpoints operate on DTOs (never domain aggregates). Authentication is now fully active (Phase 5): JWT tokens are issued by `POST /auth/login`, most endpoints require `[Authorize]`, and role information is extracted from the JWT claim for authorization decisions. Error handling is centralized via `IExceptionHandler` + `AddProblemDetails()`.
 
-**Status:** Phase 4 complete — 3 slices (Foundation, Catalogue, Transactional+Fiscal+Stock) delivered via PRs #9, #10, #11 to main. Phase 5 (auth-jwt) complete — 2 stacked PRs (PR #12, PR #13) merged to main. Phase 6 (ordentrabajo-workflow) complete — 2 stacked PRs (PR #14, PR #15) merged to main. All 30 Phase-4 tasks (WA-01..WA-30) + 22 Phase-5 tasks (AJ-01..AJ-22) + 18 Phase-6 tasks (OW-01..OW-18) complete. Test suite: 270 tests green (160 domain + 6 app + 33 infra + 71 api). Verification: Phase 6 PR1 PASS (re-verify after remediation). Phase 6 PR2 PASS.
+**Status:** Phase 4 complete — 3 slices (Foundation, Catalogue, Transactional+Fiscal+Stock) delivered via PRs #9, #10, #11 to main. Phase 5 (auth-jwt) complete — 2 stacked PRs (PR #12, PR #13) merged to main. Phase 6 (ordentrabajo-workflow) complete — 2 stacked PRs (PR #14, PR #15) merged to main. Catalog CRUD + Cocineros (catalog-crud-and-cocineros) complete — 3 stacked PRs (#19, #20, #21) merged to main. All 30 Phase-4 tasks + 22 Phase-5 tasks + 18 Phase-6 tasks + 52 catalog-crud tasks (CCC-T01..T52) complete. Test suite: 413 tests green (179 domain + 53 app + 46 infra + 135 api). Verification: all three PRs PASS/PASS-WITH-WARNINGS, 0 CRITICAL.
 
 ---
 
@@ -470,6 +470,149 @@ Enum values in all OT responses are serialized as strings (project convention W-
 
 ---
 
+## Catalog CRUD + Cocineros Requirements — CCC-A01, CCC-B01..B03, CCC-C01..C03
+
+> **Change:** `catalog-crud-and-cocineros` — 3 chained PRs (#19 commit 8251125, #20 commit 60bd611, #21 commit b3af61e) merged to main 2026-06-17.
+
+### Status code clarification (verified behavior, authoritative)
+
+- **401 Unauthorized**: returned by the ASP.NET Core auth middleware for requests that carry no valid JWT bearer token (before the endpoint handler runs). This is the actual behavior for all endpoints using `.RequireAuthorization()`.
+- **403 Forbidden**: returned by the manual `ClaimTypes.Role` gate inside the endpoint delegate for requests that ARE authenticated but whose role claim is missing, unparseable, or insufficient. The spec text for CCC-A01 originally said "unauthenticated → 403"; the implementation correctly returns 401 from the framework. 403 is reserved exclusively for role-gate failures on authenticated callers.
+- **400 Bad Request**: returned by the `WithValidation<T>()` FluentValidation endpoint filter for empty-field or format violations (fires before the handler).
+- **422 Unprocessable Entity**: returned by `GastroGestionExceptionHandler` for `DomainException` (domain-rule violations, e.g., `ResponsableInscripto` without CUIT) and `ValidationException`.
+
+---
+
+### CCC-A01 — List Active Cocineros
+
+The system MUST expose `GET /usuarios/cocineros` returning active users whose role is `Cocinero`. The response MUST include each user's `id` and `nombreCompleto`. Access is restricted to callers whose role is `Cocinero` or `Administrador`. Authenticated callers with any other role MUST receive `403`. Unauthenticated callers receive `401` from the framework auth middleware.
+
+#### Scenario: Admin or Cocinero retrieves cocinero list
+
+- GIVEN a valid `Administrador` or `Cocinero` token
+- WHEN `GET /usuarios/cocineros` is called
+- THEN response is `200 OK` with an array of `{ id, nombreCompleto }` for each active cocinero
+
+#### Scenario: Mozo, Cajero, missing role, or unparseable role is rejected
+
+- GIVEN an authenticated token with role `Mozo`, `Cajero`, no role claim, or an unparseable role claim
+- WHEN `GET /usuarios/cocineros` is called
+- THEN response is `403 Forbidden` with ProblemDetails body
+
+#### Scenario: Unauthenticated caller
+
+- GIVEN no Authorization header
+- WHEN `GET /usuarios/cocineros` is called
+- THEN response is `401 Unauthorized` (ASP.NET auth middleware, before role gate)
+
+#### Scenario: Inactive cocineros excluded
+
+- GIVEN a `Usuario` with `Rol == Cocinero` and `Activo == false`
+- WHEN `GET /usuarios/cocineros` is called with an `Administrador` token
+- THEN that user does NOT appear in the response array
+
+---
+
+### CCC-B01 — Edit Cliente
+
+The system MUST allow an `Administrador` to update a cliente's `Nombre`, `Email`, `Cuit`, and `CondicionIVA` via `PUT /clientes/{id}`. `NumeroCliente` MUST NOT change regardless of request content. A `Cuit` that conflicts with another cliente MUST produce `409`. Empty `Nombre` field returns `400` (FluentValidation filter). Domain-rule violations (e.g., `ResponsableInscripto` without `Cuit`) return `422`. Non-admin authenticated callers MUST receive `403`.
+
+#### Scenario: Admin edits valid cliente
+
+- GIVEN a cliente with `id=5` exists and the supplied `Cuit` is unique
+- WHEN `PUT /clientes/5` is called with an `Administrador` token and valid body
+- THEN response is `200 OK` with updated resource; `NumeroCliente` is unchanged
+
+#### Scenario: Cliente not found → 404
+
+#### Scenario: Cuit conflict with another cliente → 409
+
+#### Scenario: ResponsableInscripto without Cuit → 422 (DomainException)
+
+#### Scenario: Empty Nombre field → 400 (FluentValidation filter)
+
+#### Scenario: Non-admin caller → 403
+
+---
+
+### CCC-B02 — Soft-Delete Cliente
+
+The system MUST soft-delete a cliente via `DELETE /clientes/{id}`, setting `Activo = false` and returning `204`. The operation MUST be idempotent. Non-admin callers MUST receive `403`. A non-existent id MUST return `404`. After deletion the cliente MUST be hidden from default list results.
+
+#### Scenario: Admin soft-deletes active cliente → 204, Activo becomes false
+
+#### Scenario: Idempotent — already inactive → 204 (no error)
+
+#### Scenario: Not found → 404
+
+#### Scenario: Non-admin → 403
+
+---
+
+### CCC-B03 — Search/List Clientes
+
+The system MUST support `GET /clientes?nombre=&incluirInactivos=`. By default only active clientes are returned. When `?incluirInactivos=true` is supplied, inactive clientes are also returned. The `nombre` parameter applies a case-insensitive partial match. The endpoint requires authentication.
+
+**Routing note:** `GET /clientes` is backed by `BuscarClientesHandler` (not `GetAllClientesHandler`). `GetAllAsync` is left intact for backward compatibility; the list endpoint calls `SearchAsync` with default parameters.
+
+#### Scenario: Default list excludes inactive
+
+#### Scenario: incluirInactivos=true shows all
+
+#### Scenario: nombre filter applies case-insensitive partial match
+
+#### Scenario: Unauthenticated → 401
+
+---
+
+### CCC-C01 — Edit Ingrediente (Nombre Only)
+
+The system MUST allow an `Administrador` to update an ingrediente's `Nombre` via `PUT /ingredientes/{id}`. `UnidadBase` MUST NOT be changed — it is structurally absent from `EditarIngredienteRequest` (immutability by contract). A `Nombre` conflict with another ingrediente MUST produce `409`. Empty `Nombre` returns `400` (FluentValidation). Non-admin callers MUST receive `403`.
+
+#### Scenario: Admin edits Nombre → 200; UnidadBase unchanged (confirmed via GET after PUT)
+
+#### Scenario: UnidadBase cannot be supplied — structurally absent from request DTO
+
+#### Scenario: Ingrediente not found → 404
+
+#### Scenario: Nombre conflict → 409
+
+#### Scenario: Empty Nombre → 400 (FluentValidation filter)
+
+#### Scenario: Non-admin → 403
+
+---
+
+### CCC-C02 — Soft-Delete Ingrediente
+
+The system MUST soft-delete an ingrediente via `DELETE /ingredientes/{id}`, returning `204`. The operation MUST be idempotent. Non-admin callers MUST receive `403`. A non-existent id MUST return `404`.
+
+#### Scenario: Admin soft-deletes active ingrediente → 204
+
+#### Scenario: Idempotent — already inactive → 204
+
+#### Scenario: Not found → 404
+
+#### Scenario: Non-admin → 403
+
+---
+
+### CCC-C03 — Search/List Ingredientes
+
+The system MUST support `GET /ingredientes?nombre=&incluirInactivos=` with the same behavior as CCC-B03 applied to ingredientes.
+
+**Routing note:** `GET /ingredientes` is backed by `BuscarIngredientesHandler`. `GetAllAsync` is left intact.
+
+#### Scenario: Default list excludes inactive
+
+#### Scenario: incluirInactivos=true shows all
+
+#### Scenario: nombre partial filter applied
+
+#### Scenario: Unauthenticated → 401
+
+---
+
 ## Known Open Items / Phase-7 Follow-ups (CARRY FORWARD — DO NOT DROP)
 
 ### 1. Register / User CRUD endpoints (deferred to Phase 7)
@@ -525,10 +668,15 @@ Enum values in all OT responses are serialized as strings (project convention W-
 | `/auth/login` | POST | `LoginRequest` | `Ok<LoginResponse>` | 200, 400, 401 | Anonymous |
 | `/clientes` | POST | `CrearClienteRequest` | `Created<Guid>` | 201, 400, 409, 422 | Required |
 | `/clientes/{id:guid}` | GET | — | `Ok<ClienteResponse>` | 200, 401, 404 | Required |
-| `/clientes` | GET | — | `Ok<List<ClienteResponse>>` | 200, 401 | Required |
+| `/clientes` | GET | `?nombre=&incluirInactivos=` | `Ok<List<ClienteResponse>>` | 200, 401 | Required |
+| `/clientes/{id:guid}` | PUT | `EditarClienteRequest` | `Ok<ClienteResponse>` | 200, 400, 401, 403, 404, 409, 422 | Required (Administrador) |
+| `/clientes/{id:guid}` | DELETE | — | `NoContent` | 204, 401, 403, 404 | Required (Administrador) |
 | `/ingredientes` | POST | `CrearIngredienteRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
 | `/ingredientes/{id:guid}` | GET | — | `Ok<IngredienteResponse>` | 200, 401, 404 | Required |
-| `/ingredientes` | GET | — | `Ok<List<IngredienteResponse>>` | 200, 401 | Required |
+| `/ingredientes` | GET | `?nombre=&incluirInactivos=` | `Ok<List<IngredienteResponse>>` | 200, 401 | Required |
+| `/ingredientes/{id:guid}` | PUT | `EditarIngredienteRequest` | `Ok<IngredienteResponse>` | 200, 400, 401, 403, 404, 409, 422 | Required (Administrador) |
+| `/ingredientes/{id:guid}` | DELETE | — | `NoContent` | 204, 401, 403, 404 | Required (Administrador) |
+| `/usuarios/cocineros` | GET | — | `Ok<List<CocineroResponse>>` | 200, 401, 403 | Required (Cocinero, Administrador) |
 | `/platos` | POST | `CrearPlatoRequest` | `Created<Guid>` | 201, 400, 401, 422 | Required |
 | `/platos/{id:guid}` | GET | — | `Ok<PlatoResponse>` | 200, 401, 404 | Required |
 | `/platos` | GET | — | `Ok<List<PlatoResponse>>` | 200, 401 | Required |
@@ -585,8 +733,15 @@ Enum values in all OT responses are serialized as strings (project convention W-
 - **Test suite:** 270 tests passing (0 failures, +25 new tests from Phase 6).
 - **Verification:** Phase 6 PR1 PASS (re-verify after remediation). Phase 6 PR2 PASS.
 
+**Catalog CRUD + Cocineros complete:** CCC-T01 through CCC-T52 all [x] marked complete (52 tasks).
+- **PR #19** (PR A — Cocineros list): merged to main @ commit 8251125. Verdict: PASS WITH WARNINGS (W-01: anon→401 not 403, correct behavior; spec corrected here).
+- **PR #20** (PR B — Cliente CRUD): merged to main @ commit 60bd611. Verdict: PASS WITH WARNINGS (2 warnings: NumeroCliente not in response body; no anon test for PUT/DELETE).
+- **PR #21** (PR C — Ingrediente CRUD): merged to main @ commit b3af61e. Verdict: PASS — 0 CRITICAL, 1 WARNING (W-01: empty Nombre → 400 not 422; correct behavior per FluentValidation layer; spec corrected here).
+- **Test suite:** 413 tests passing (0 failures, +143 new tests across all three PRs).
+- **Spec corrections applied:** (1) unauthenticated callers → 401 (not 403) on all `.RequireAuthorization()` endpoints; 403 is exclusively for authenticated callers whose role is missing/wrong. (2) Empty-field validation → 400 from FluentValidation endpoint filter; 422 is reserved for DomainException/ValidationException domain-rule violations.
+
 ---
 
 ## Next Phase
 
-Phase 7 (Blazor frontend) will build the kitchen dashboard UI, the order management screens, and the admin panel, consuming the REST API and the SignalR kitchen hub established in Phase 6.
+Phase 7 (Blazor frontend) will build the kitchen dashboard UI, the order management screens, and the admin panel, consuming the REST API and the SignalR kitchen hub established in Phase 6. The catalog-crud-and-cocineros change UNBLOCKS the frontend wave: Slice C2 (asignar-cocinero picker consuming `GET /usuarios/cocineros`) and Client/Ingrediente CRUD UI screens.

@@ -467,10 +467,103 @@ The implementation uses a single `WHERE Id IN (...)` query. This method is used 
 
 ---
 
+---
+
+## CATALOG-CRUD-AND-COCINEROS Additions — Repository Ports and EF Implementations
+
+> **Change:** `catalog-crud-and-cocineros` — merged 2026-06-17 via 3 stacked PRs (#19, #20, #21).
+
+### REQ-16 — `IUsuarioRepository.GetByRolAsync`
+
+`IUsuarioRepository` (in `GastroGestion.Application/Abstractions/Persistence/`) exposes one additional method:
+
+```csharp
+Task<IReadOnlyList<Usuario>> GetByRolAsync(RolUsuario rol, CancellationToken ct = default);
+```
+
+The EF Core implementation (`UsuarioRepository`) filters `Where(u => u.Rol == rol && u.Activo)` at the database layer. Inactive users with the given role are excluded. The result is returned as a read-only list.
+
+#### Scenario 16-A — GetByRolAsync returns only active cocineros
+
+- GIVEN multiple `Usuario` rows with `Rol == Cocinero`, some `Activo == true`, some `Activo == false`
+- WHEN `GetByRolAsync(RolUsuario.Cocinero)` is called
+- THEN only rows with `Activo == true` are returned
+- AND rows with other roles are excluded
+
+---
+
+### REQ-17 — `IClienteRepository` search and uniqueness methods
+
+`IClienteRepository` exposes two additional methods:
+
+```csharp
+Task<IReadOnlyList<Cliente>> SearchAsync(string? nombre, bool incluirInactivos, CancellationToken ct = default);
+Task<bool> CuitExistsForOtherAsync(string cuit, Guid excludeId, CancellationToken ct = default);
+```
+
+`GetAllAsync` is left intact and unchanged. Default-active behavior lives in the new `SearchAsync`; the new `GET /clientes` endpoint calls `SearchAsync`, not `GetAllAsync`.
+
+`SearchAsync` implementation:
+- When `!incluirInactivos`: filters `Where(c => c.Activo)`.
+- When `nombre` is non-empty: filters `Where(c => EF.Functions.Like(c.Nombre, $"%{nombre}%"))` (case-insensitive on SQL Server default `CI_AS` collation).
+- When both are null/false: returns all active clientes (equivalent to `GetAllAsync` for active data only — seeded-list tests remain green).
+
+`CuitExistsForOtherAsync` uses `AnyAsync` with parameterized SQL, excluding the current record by id to allow a cliente to retain its own CUIT on update.
+
+#### Scenario 17-A — SearchAsync hides inactive by default
+
+- GIVEN active and inactive clientes exist
+- WHEN `SearchAsync(null, false)` is called
+- THEN only active clientes are returned
+
+#### Scenario 17-B — SearchAsync applies case-insensitive partial nombre filter
+
+- GIVEN clientes named "García SA" and "López SRL" (both active)
+- WHEN `SearchAsync("garc", false)` is called
+- THEN only "García SA" is returned
+
+#### Scenario 17-C — CuitExistsForOtherAsync semantics
+
+- GIVEN cliente A holds CUIT "20345678901" and cliente B holds a different CUIT
+- WHEN `CuitExistsForOtherAsync("20345678901", clienteBId)` is called
+- THEN returns `true` (another cliente holds that CUIT)
+- WHEN `CuitExistsForOtherAsync("20345678901", clienteAId)` is called
+- THEN returns `false` (same cliente — not a conflict)
+
+---
+
+### REQ-18 — `IIngredienteRepository` search and uniqueness methods
+
+`IIngredienteRepository` exposes two additional methods:
+
+```csharp
+Task<IReadOnlyList<Ingrediente>> SearchAsync(string? nombre, bool incluirInactivos, CancellationToken ct = default);
+Task<bool> NombreExistsForOtherAsync(string nombre, Guid excludeId, CancellationToken ct = default);
+```
+
+`GetAllAsync` is left intact. `SearchAsync` mirrors the shape of `ClienteRepository.SearchAsync`. `NombreExistsForOtherAsync` uses `AnyAsync(i => i.Id != excludeId && i.Nombre == nombre)` — plain string equality (SQL Server collation handles case-insensitivity for exact-match uniqueness check).
+
+#### Scenario 18-A — SearchAsync default-active behavior
+
+- GIVEN active and inactive ingredientes
+- WHEN `SearchAsync(null, false)` is called
+- THEN only active ingredientes are returned (seeded-list integration test remains green)
+
+#### Scenario 18-B — NombreExistsForOtherAsync semantics
+
+- GIVEN ingrediente A has `Nombre = "Harina"`
+- WHEN `NombreExistsForOtherAsync("Harina", ingredienteBId)` is called
+- THEN returns `true` (another ingrediente holds that name)
+- WHEN `NombreExistsForOtherAsync("Harina", ingredienteAId)` is called
+- THEN returns `false` (same ingrediente — not a conflict)
+
+---
+
 ## Archive Info
 
 **Archived:** 2026-06-14 (Phase 3 of 7 complete)
 **Change folder archive:** `openspec/changes/archive/2026-06-14-persistence-ef-core/` (proposal, spec, design, tasks)
 **Verify reports:** engram `sdd/persistence-ef-core/verify-report-slice-a` (#53), `-slice-b` (#55), `-slice-c` (#57)
 **Phase 6 infrastructure additions:** REQ-14 and REQ-15 added — `GetAllOrdenesTrabajoAsync` flat projection on `IPedidoRepository`, `GetByIdsAsync` on `IPlatoRepository`. See `openspec/changes/archive/2026-06-17-ordentrabajo-workflow/` for full design.
+**catalog-crud-and-cocineros infrastructure additions (2026-06-17):** REQ-16, REQ-17, REQ-18 added — `IUsuarioRepository.GetByRolAsync`, `IClienteRepository.SearchAsync + CuitExistsForOtherAsync`, `IIngredienteRepository.SearchAsync + NombreExistsForOtherAsync`. `GetAllAsync` left intact on all repos. See `openspec/changes/archive/2026-06-17-catalog-crud-and-cocineros/` for full spec, design, and tasks.
 **Next phase:** Phase 7 — Blazor frontend
