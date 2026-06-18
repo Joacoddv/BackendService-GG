@@ -34,6 +34,20 @@ public class Ingrediente : AggregateRoot
         return new Ingrediente(Guid.NewGuid(), nombre, unidadBase);
     }
 
+    /// <summary>
+    /// Updates the ingredient's display name.
+    /// UnidadBase is intentionally not a parameter — it is immutable after creation (ADR-CCC-1).
+    /// </summary>
+    /// <param name="nombre">New name — must be non-empty.</param>
+    /// <exception cref="DomainException">Thrown when <paramref name="nombre"/> is null or whitespace.</exception>
+    public void ActualizarNombre(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("Ingrediente.Nombre cannot be null or empty.");
+
+        Nombre = nombre;
+    }
+
     /// <summary>Soft-deletes this ingredient. Idempotent.</summary>
     public void Desactivar()
     {

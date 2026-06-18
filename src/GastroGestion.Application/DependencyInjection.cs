@@ -9,7 +9,10 @@ using GastroGestion.Application.Clientes.GetClienteById;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
 using GastroGestion.Application.Facturacion.RegistrarPago;
+using GastroGestion.Application.Ingredientes.BuscarIngredientes;
 using GastroGestion.Application.Ingredientes.CrearIngrediente;
+using GastroGestion.Application.Ingredientes.DesactivarIngrediente;
+using GastroGestion.Application.Ingredientes.EditarIngrediente;
 using GastroGestion.Application.Ingredientes.GetAllIngredientes;
 using GastroGestion.Application.Ingredientes.GetIngredienteById;
 using GastroGestion.Application.Menus.CrearMenu;
@@ -63,6 +66,9 @@ public static class DependencyInjection
         services.AddScoped<CrearIngredienteHandler>();
         services.AddScoped<GetIngredienteByIdHandler>();
         services.AddScoped<GetAllIngredientesHandler>();
+        services.AddScoped<EditarIngredienteHandler>();
+        services.AddScoped<DesactivarIngredienteHandler>();
+        services.AddScoped<BuscarIngredientesHandler>();
 
         services.AddScoped<CrearPlatoHandler>();
         services.AddScoped<GetPlatoByIdHandler>();
