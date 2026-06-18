@@ -1,3 +1,4 @@
+using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Usuarios;
 
 namespace GastroGestion.Application.Abstractions.Persistence;
@@ -15,4 +16,7 @@ public interface IUsuarioRepository
 
     /// <summary>Stages a new Usuario for insertion (persisted on next SaveChangesAsync).</summary>
     Task AddAsync(Usuario usuario, CancellationToken ct = default);
+
+    /// <summary>Returns all active users whose role matches <paramref name="rol"/> (CCC-A01).</summary>
+    Task<IReadOnlyList<Usuario>> GetByRolAsync(RolUsuario rol, CancellationToken ct = default);
 }

@@ -192,6 +192,7 @@ app.MapMenuEndpoints();
 app.MapMesaEndpoints();
 app.MapPedidoEndpoints();
 app.MapOrdenTrabajoEndpoints();
+app.MapUsuarioEndpoints();
 app.MapHub<KitchenHub>("/hubs/kitchen");
 app.MapFacturaEndpoints();
 app.MapStockEndpoints();
