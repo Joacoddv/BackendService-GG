@@ -14,3 +14,14 @@ public sealed class ClienteValidator : AbstractValidator<CrearClienteRequest>
         // This validator only checks format when a non-null CUIT is provided.
     }
 }
+
+public sealed class EditarClienteValidator : AbstractValidator<EditarClienteRequest>
+{
+    public EditarClienteValidator()
+    {
+        RuleFor(x => x.Nombre)
+            .NotEmpty().WithMessage("Nombre is required.");
+
+        // RI-requires-CUIT invariant is enforced by the domain (ActualizarDatos → DomainException → 422).
+    }
+}

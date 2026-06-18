@@ -111,4 +111,89 @@ public class ClienteTests
 
         cliente.Direcciones.Should().BeEmpty();
     }
+
+    // ── ActualizarDatos (CCC-T13, CCC-T27) ───────────────────────────────────
+
+    [Fact]
+    public void ActualizarDatos_WithValidData_UpdatesFields()
+    {
+        var cliente = Cliente.Crear("Original", CondicionIVA.ConsumidorFinal, null, null);
+        var cuit  = ValidCuit();
+        var email = ValidEmail();
+        var originalNumero = cliente.NumeroCliente;
+        var originalActivo = cliente.Activo;
+
+        cliente.ActualizarDatos("Updated Name", CondicionIVA.Monotributista, null, email);
+
+        cliente.Nombre.Should().Be("Updated Name");
+        cliente.CondicionIVA.Should().Be(CondicionIVA.Monotributista);
+        cliente.Email.Should().NotBeNull();
+        // NumeroCliente and Activo must remain unchanged
+        cliente.NumeroCliente.Should().Be(originalNumero);
+        cliente.Activo.Should().Be(originalActivo);
+    }
+
+    [Fact]
+    public void ActualizarDatos_UpdatesCuit_WhenProvided()
+    {
+        var cliente = Cliente.Crear("Empresa", CondicionIVA.ConsumidorFinal, null, null);
+        var cuit = ValidCuit();
+
+        cliente.ActualizarDatos("Empresa SA", CondicionIVA.ResponsableInscripto, cuit, null);
+
+        cliente.Cuit.Should().NotBeNull();
+        cliente.Cuit!.Valor.Should().Be(cuit.Valor);
+    }
+
+    [Fact]
+    public void ActualizarDatos_NumeroClienteIsImmutable()
+    {
+        var cliente = Cliente.Crear("Test", CondicionIVA.ConsumidorFinal, null, null);
+        var originalNumero = cliente.NumeroCliente;
+
+        cliente.ActualizarDatos("New Name", CondicionIVA.Monotributista, null, null);
+
+        cliente.NumeroCliente.Should().Be(originalNumero);
+    }
+
+    [Fact]
+    public void ActualizarDatos_ActivoIsUntouched()
+    {
+        var cliente = Cliente.Crear("Test", CondicionIVA.ConsumidorFinal, null, null);
+        cliente.Desactivar(); // inactive
+
+        cliente.ActualizarDatos("New Name", CondicionIVA.ConsumidorFinal, null, null);
+
+        cliente.Activo.Should().BeFalse(); // still inactive
+    }
+
+    [Fact]
+    public void ActualizarDatos_ResponsableInscripto_WithoutCuit_ThrowsDomainException()
+    {
+        var cliente = Cliente.Crear("Test", CondicionIVA.ConsumidorFinal, null, null);
+
+        var act = () => cliente.ActualizarDatos("Test", CondicionIVA.ResponsableInscripto, null, null);
+
+        act.Should().Throw<DomainException>().WithMessage("*CUIT*required*");
+    }
+
+    [Fact]
+    public void ActualizarDatos_EmptyNombre_ThrowsDomainException()
+    {
+        var cliente = Cliente.Crear("Test", CondicionIVA.ConsumidorFinal, null, null);
+
+        var act = () => cliente.ActualizarDatos("", CondicionIVA.ConsumidorFinal, null, null);
+
+        act.Should().Throw<DomainException>().WithMessage("*Nombre*");
+    }
+
+    [Fact]
+    public void ActualizarDatos_WhitespaceNombre_ThrowsDomainException()
+    {
+        var cliente = Cliente.Crear("Test", CondicionIVA.ConsumidorFinal, null, null);
+
+        var act = () => cliente.ActualizarDatos("   ", CondicionIVA.ConsumidorFinal, null, null);
+
+        act.Should().Throw<DomainException>().WithMessage("*Nombre*");
+    }
 }

@@ -89,6 +89,28 @@ public class Cliente : AggregateRoot
     }
 
     /// <summary>
+    /// Updates mutable profile data. NumeroCliente and Activo are intentionally left unchanged.
+    /// Enforces the same RI-requires-CUIT invariant as <see cref="Crear"/>.
+    /// </summary>
+    /// <param name="nombre">Required display name — must not be null or whitespace.</param>
+    /// <param name="condicionIVA">New fiscal condition.</param>
+    /// <param name="cuit">Required when <paramref name="condicionIVA"/> is <see cref="CondicionIVA.ResponsableInscripto"/>.</param>
+    /// <param name="email">Optional contact email.</param>
+    public void ActualizarDatos(string nombre, CondicionIVA condicionIVA, Cuit? cuit, Email? email)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("Cliente.Nombre cannot be null or empty.");
+
+        if (condicionIVA == CondicionIVA.ResponsableInscripto && cuit is null)
+            throw new DomainException("CUIT is required for a ResponsableInscripto client.");
+
+        Nombre       = nombre;
+        CondicionIVA = condicionIVA;
+        Cuit         = cuit;
+        Email        = email;
+    }
+
+    /// <summary>
     /// Soft-deletes this client. Idempotent: calling on an already-inactive client
     /// is a no-op (does not throw).
     /// </summary>
