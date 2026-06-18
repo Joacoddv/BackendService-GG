@@ -18,4 +18,24 @@ internal sealed class IngredienteRepository : IIngredienteRepository
 
     public async Task<IReadOnlyList<Ingrediente>> GetAllAsync(CancellationToken ct = default)
         => (await _ctx.Ingredientes.ToListAsync(ct)).AsReadOnly();
+
+    public async Task<IReadOnlyList<Ingrediente>> SearchAsync(
+        string? nombre,
+        bool incluirInactivos,
+        CancellationToken ct = default)
+    {
+        var query = _ctx.Ingredientes.AsQueryable();
+
+        if (!incluirInactivos)
+            query = query.Where(i => i.Activo);
+
+        if (!string.IsNullOrWhiteSpace(nombre))
+            query = query.Where(i => EF.Functions.Like(i.Nombre, $"%{nombre}%"));
+
+        return (await query.ToListAsync(ct)).AsReadOnly();
+    }
+
+    public Task<bool> NombreExistsForOtherAsync(string nombre, Guid excludeId, CancellationToken ct = default)
+        => _ctx.Ingredientes
+               .AnyAsync(i => i.Id != excludeId && i.Nombre == nombre, ct);
 }
