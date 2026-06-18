@@ -1,5 +1,6 @@
 using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Clientes.CrearCliente;
+using GastroGestion.Application.Usuarios.GetCocineros;
 using GastroGestion.Application.Clientes.GetAllClientes;
 using GastroGestion.Application.Clientes.GetClienteById;
 using GastroGestion.Application.Facturacion.CrearFactura;
@@ -89,6 +90,9 @@ public static class DependencyInjection
         services.AddScoped<AsignarCocineroHandler>();
         services.AddScoped<MarcarOrdenTrabajoListaHandler>();
         services.AddScoped<GetOrdenesByEstadoHandler>();
+
+        // Use cases — Slice E: Cocineros listing (CCC-A01)
+        services.AddScoped<GetCocinerosHandler>();
 
         return services;
     }

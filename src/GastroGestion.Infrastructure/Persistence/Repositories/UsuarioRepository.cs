@@ -1,4 +1,5 @@
 using GastroGestion.Application.Abstractions.Persistence;
+using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Usuarios;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,4 +23,12 @@ internal sealed class UsuarioRepository : IUsuarioRepository
 
     public async Task AddAsync(Usuario usuario, CancellationToken ct = default)
         => await _ctx.Usuarios.AddAsync(usuario, ct);
+
+    public async Task<IReadOnlyList<Usuario>> GetByRolAsync(RolUsuario rol, CancellationToken ct = default)
+    {
+        var list = await _ctx.Usuarios
+            .Where(u => u.Rol == rol && u.Activo)
+            .ToListAsync(ct);
+        return list.AsReadOnly();
+    }
 }
