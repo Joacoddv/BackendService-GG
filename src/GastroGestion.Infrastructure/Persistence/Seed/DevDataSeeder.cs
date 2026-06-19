@@ -44,6 +44,10 @@ public static class DevDataSeeder
         // Dev fallback: admin@gastrogestion.local / Admin1234!  (documented in appsettings.Development.json)
         await SeedAdminUsuarioAsync(db, config, sp, ct);
 
+        // Cocinero users — independent of the catalogue seed (own idempotency guard).
+        // Populates GET /usuarios/cocineros and the asignar-cocinero picker for local dev.
+        await SeedCocinerosAsync(sp, ct);
+
         // Idempotency guard: skip catalogue seed if already seeded
         if (await db.Clientes.AnyAsync(ct))
             return;
@@ -149,6 +153,18 @@ public static class DevDataSeeder
 
         await pedidoRepo.AddAsync(pedidoSalon, ct);
 
+        // ── Ordenes de Trabajo for the Salon pedido (kitchen board demo data) ───────
+        // Milanesa carries recipe lines, so OTs can be generated. This leaves a Creada
+        // OT on the Cocina board so asignar-cocinero is testable without manual setup.
+        var recetaSnapshots = new Dictionary<Guid, IReadOnlyList<LineaRecetaSnapshot>>
+        {
+            [milanesa.Id] = milanesa.LineasReceta
+                .Select(lr => new LineaRecetaSnapshot(lr.IngredienteId, lr.Cantidad))
+                .ToList()
+                .AsReadOnly()
+        };
+        pedidoSalon.GenerarOrdenesTrabajo(recetaSnapshots);
+
         // ── Pedido TakeAway (1) ────────────────────────────────────────────────────
 
         var pedidoTakeAway = Pedido.Crear(
@@ -223,5 +239,44 @@ public static class DevDataSeeder
         var adminUsuario = Usuario.Crear(adminEmail, "Admin", RolUsuario.Administrador, hash);
         await usuarioRepo.AddAsync(adminUsuario, ct);
         await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Seeds two Cocinero users for the Development environment so
+    /// GET /usuarios/cocineros and the asignar-cocinero picker are populated.
+    /// Idempotency guard: skips entirely if any Cocinero already exists.
+    /// Dev credentials (documented): pedro.cocina@gastrogestion.local /
+    /// ana.cocina@gastrogestion.local, password Cocina1234!
+    /// </summary>
+    private static async Task SeedCocinerosAsync(IServiceProvider sp, CancellationToken ct)
+    {
+        var db          = sp.GetRequiredService<GastroGestionDbContext>();
+        var usuarioRepo = sp.GetRequiredService<IUsuarioRepository>();
+        var hasher      = sp.GetRequiredService<IPasswordHasher>();
+
+        // Idempotency guard: return early if any Cocinero already exists
+        if ((await usuarioRepo.GetByRolAsync(RolUsuario.Cocinero, ct)).Any())
+            return;
+
+        await AddCocineroAsync(usuarioRepo, hasher, "pedro.cocina@gastrogestion.local", "Pedro Parrillero", ct);
+        await AddCocineroAsync(usuarioRepo, hasher, "ana.cocina@gastrogestion.local",   "Ana Salsera",      ct);
+        await db.SaveChangesAsync(ct);
+    }
+
+    private static async Task AddCocineroAsync(
+        IUsuarioRepository usuarioRepo,
+        IPasswordHasher    hasher,
+        string             email,
+        string             nombreCompleto,
+        CancellationToken  ct)
+    {
+        // Two-step create mirrors the admin seed: factory validates the hash is non-empty,
+        // so build once with a placeholder to obtain a Usuario for the hasher, then re-create
+        // with the real hash. Password is a documented dev constant (not used to log in as the cook).
+        var placeholder = Usuario.Crear(email, nombreCompleto, RolUsuario.Cocinero, "placeholder");
+        var hash        = hasher.Hash(placeholder, "Cocina1234!");
+
+        var cocinero = Usuario.Crear(email, nombreCompleto, RolUsuario.Cocinero, hash);
+        await usuarioRepo.AddAsync(cocinero, ct);
     }
 }
