@@ -3,7 +3,12 @@ using GastroGestion.Application.Clientes.BuscarClientes;
 using GastroGestion.Application.Clientes.CrearCliente;
 using GastroGestion.Application.Clientes.DesactivarCliente;
 using GastroGestion.Application.Clientes.EditarCliente;
+using GastroGestion.Application.Usuarios.BuscarUsuarios;
+using GastroGestion.Application.Usuarios.CrearUsuario;
+using GastroGestion.Application.Usuarios.DesactivarUsuario;
+using GastroGestion.Application.Usuarios.EditarUsuario;
 using GastroGestion.Application.Usuarios.GetCocineros;
+using GastroGestion.Application.Usuarios.GetUsuarioById;
 using GastroGestion.Application.Clientes.GetAllClientes;
 using GastroGestion.Application.Clientes.GetClienteById;
 using GastroGestion.Application.Facturacion.CrearFactura;
@@ -105,6 +110,13 @@ public static class DependencyInjection
 
         // Use cases — Slice E: Cocineros listing (CCC-A01)
         services.AddScoped<GetCocinerosHandler>();
+
+        // Use cases — Usuarios management CRUD (Phase-5 debt)
+        services.AddScoped<CrearUsuarioHandler>();
+        services.AddScoped<GetUsuarioByIdHandler>();
+        services.AddScoped<BuscarUsuariosHandler>();
+        services.AddScoped<EditarUsuarioHandler>();
+        services.AddScoped<DesactivarUsuarioHandler>();
 
         return services;
     }

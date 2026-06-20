@@ -72,6 +72,19 @@ public class Usuario : AggregateRoot
         return new Usuario(Guid.NewGuid(), email, nombreCompleto, rol, passwordHash);
     }
 
+    /// <summary>
+    /// Updates the user's mutable profile fields. Email is immutable — it is the login
+    /// identity — and the password is changed through a dedicated flow, not here.
+    /// </summary>
+    public void ActualizarDatos(string nombreCompleto, RolUsuario rol)
+    {
+        if (string.IsNullOrWhiteSpace(nombreCompleto))
+            throw new DomainException("Usuario.NombreCompleto cannot be null or empty.");
+
+        NombreCompleto = nombreCompleto;
+        Rol            = rol;
+    }
+
     /// <summary>Deactivates this user. Idempotent.</summary>
     public void Desactivar() => Activo = false;
 }
