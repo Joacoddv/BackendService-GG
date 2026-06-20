@@ -230,3 +230,12 @@ TestResults/
 # Separate frontend repository — nested in backend working tree but NOT tracked here.
 # GastroGestionBlazor is a separate git repo (Blazor WASM frontend).
 GastroGestionBlazor/
+
+# Gentle AI agent tooling (skill registry, caches, local scripts) — local state, not project source.
+.atl/
+
+# Temp artifacts
+*.temp
+
+# Original requirements spec — kept on disk as reference, not tracked (large binary).
+SAP Norte - Diaz de Vivar Completo VF.docx
