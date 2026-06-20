@@ -31,4 +31,27 @@ internal sealed class UsuarioRepository : IUsuarioRepository
             .ToListAsync(ct);
         return list.AsReadOnly();
     }
+
+    public Task<Usuario?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => _ctx.Usuarios.FirstOrDefaultAsync(u => u.Id == id, ct);
+
+    public async Task<IReadOnlyList<Usuario>> SearchAsync(
+        string? nombre,
+        RolUsuario? rol,
+        bool incluirInactivos,
+        CancellationToken ct = default)
+    {
+        var query = _ctx.Usuarios.AsQueryable();
+
+        if (!incluirInactivos)
+            query = query.Where(u => u.Activo);
+
+        if (rol is not null)
+            query = query.Where(u => u.Rol == rol);
+
+        if (!string.IsNullOrWhiteSpace(nombre))
+            query = query.Where(u => EF.Functions.Like(u.NombreCompleto, $"%{nombre}%"));
+
+        return (await query.ToListAsync(ct)).AsReadOnly();
+    }
 }

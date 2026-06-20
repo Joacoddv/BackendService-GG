@@ -19,4 +19,17 @@ public interface IUsuarioRepository
 
     /// <summary>Returns all active users whose role matches <paramref name="rol"/> (CCC-A01).</summary>
     Task<IReadOnlyList<Usuario>> GetByRolAsync(RolUsuario rol, CancellationToken ct = default);
+
+    /// <summary>Returns the user with the given id, or <c>null</c> if not found.</summary>
+    Task<Usuario?> GetByIdAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Searches users by optional name fragment and role, optionally including inactive ones.
+    /// Hides inactive users unless <paramref name="incluirInactivos"/> is true.
+    /// </summary>
+    Task<IReadOnlyList<Usuario>> SearchAsync(
+        string? nombre,
+        RolUsuario? rol,
+        bool incluirInactivos,
+        CancellationToken ct = default);
 }
