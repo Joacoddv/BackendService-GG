@@ -49,6 +49,7 @@ using GastroGestion.Application.Services;
 using GastroGestion.Application.Abstractions.Events;
 using GastroGestion.Application.Stock.EventHandlers;
 using GastroGestion.Application.Stock.GetBalanceStock;
+using GastroGestion.Application.Stock.GetBalancesStock;
 using GastroGestion.Application.Stock.RegistrarMovimientoStock;
 using GastroGestion.Domain.Pedidos.Events;
 using GastroGestion.Domain.Services;
@@ -118,6 +119,7 @@ public static class DependencyInjection
         // Use cases — Slice C (Stock)
         services.AddScoped<RegistrarMovimientoStockHandler>();
         services.AddScoped<GetBalanceStockHandler>();
+        services.AddScoped<GetBalancesStockHandler>();
 
         // Domain-event handlers — OT lifecycle drives the stock ledger (reserve → consume → release)
         services.AddScoped<IDomainEventHandler<OrdenTrabajoCreada>, ReservarStockOnOrdenTrabajoCreada>();

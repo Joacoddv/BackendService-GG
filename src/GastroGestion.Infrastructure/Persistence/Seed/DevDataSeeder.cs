@@ -9,6 +9,7 @@ using GastroGestion.Domain.Menus;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Domain.Platos;
 using GastroGestion.Domain.Services;
+using GastroGestion.Domain.Stock;
 using GastroGestion.Domain.Usuarios;
 using GastroGestion.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,12 @@ public static class DevDataSeeder
         // Mozo user — independent of the catalogue seed (own idempotency guard).
         // Lets the waiter create-order flow be exercised under a real Mozo role (not as admin).
         await SeedMozoAsync(sp, ct);
+
+        // Stock purchases — independent, idempotent. Seeds an opening Compra per ingredient so dev
+        // balances start positive. On a fresh DB ingredientes don't exist yet here (no-op); the
+        // call at the end of the catalogue block covers that pass. On an already-seeded DB this is
+        // where purchases get backfilled.
+        await SeedComprasAsync(sp, ct);
 
         // Idempotency guard: skip catalogue seed if already seeded
         if (await db.Clientes.AnyAsync(ct))
@@ -211,6 +218,33 @@ public static class DevDataSeeder
             lineasFactura);
 
         await facturaRepo.AddAsync(factura, ct);
+        await uow.SaveChangesAsync(ct);
+
+        // Fresh-DB pass: ingredientes now exist, so seed their opening purchases.
+        await SeedComprasAsync(sp, ct);
+    }
+
+    /// <summary>
+    /// Seeds an opening Compra (10000 units) for every ingredient so dev stock balances start
+    /// positive. Idempotent: skips when no ingredientes exist yet, or when any Compra already exists.
+    /// </summary>
+    private static async Task SeedComprasAsync(IServiceProvider sp, CancellationToken ct)
+    {
+        var db              = sp.GetRequiredService<GastroGestionDbContext>();
+        var ingredienteRepo = sp.GetRequiredService<IIngredienteRepository>();
+        var stockRepo       = sp.GetRequiredService<IMovimientoStockRepository>();
+        var uow             = sp.GetRequiredService<IUnitOfWork>();
+
+        var ingredientes = await ingredienteRepo.GetAllAsync(ct);
+        if (ingredientes.Count == 0)
+            return; // ingredientes not seeded yet (fresh DB, first pass)
+
+        if (await db.MovimientosStock.AnyAsync(m => m.Tipo == TipoMovimientoStock.Compra, ct))
+            return; // opening purchases already seeded
+
+        foreach (var ingrediente in ingredientes)
+            await stockRepo.AddAsync(MovimientoStock.RegistrarCompra(ingrediente.Id, 10000m), ct);
+
         await uow.SaveChangesAsync(ct);
     }
 

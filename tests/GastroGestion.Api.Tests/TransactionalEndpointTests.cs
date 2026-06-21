@@ -414,18 +414,19 @@ public sealed class TransactionalEndpointTests
     // ── Stock — Scenario 17-B ─────────────────────────────────────────────────
 
     [Fact]
-    public async Task POST_Stock_Consumo_Returns201_FactoryNegatesQuantity()
+    public async Task POST_Stock_Merma_Returns201_FactoryNegatesQuantity()
     {
-        // Consumo: caller passes positive absolute value; factory stores as negative (sign convention)
+        // Merma (scrap): caller passes positive absolute value; factory stores as negative.
+        // Consumo/Reserva are system-driven (OT events) and rejected by the manual endpoint.
         var ingredienteId = await CreateIngredienteAsync("AguaStock");
 
-        // First register a purchase so balance is positive before consuming
+        // First register a purchase so balance is positive before scrapping
         await _client.PostAsJsonAsync("/stock/movimientos",
             new RegistrarMovimientoStockRequest(ingredienteId, TipoMovimientoStock.Compra, 20m, null, null));
 
         var request = new RegistrarMovimientoStockRequest(
             ingredienteId,
-            TipoMovimientoStock.Consumo,
+            TipoMovimientoStock.Merma,
             5m,   // absolute value — factory will negate
             null,
             null);
@@ -454,7 +455,7 @@ public sealed class TransactionalEndpointTests
             new RegistrarMovimientoStockRequest(ingredienteId, TipoMovimientoStock.Compra, 100m, null, null));
 
         await _client.PostAsJsonAsync("/stock/movimientos",
-            new RegistrarMovimientoStockRequest(ingredienteId, TipoMovimientoStock.Consumo, 30m, null, null));
+            new RegistrarMovimientoStockRequest(ingredienteId, TipoMovimientoStock.Merma, 30m, null, null));
 
         await _client.PostAsJsonAsync("/stock/movimientos",
             new RegistrarMovimientoStockRequest(ingredienteId, TipoMovimientoStock.Compra, 20m, null, null));
@@ -503,6 +504,18 @@ public sealed class TransactionalEndpointTests
     {
         var request = new RegistrarMovimientoStockRequest(
             Guid.NewGuid(), TipoMovimientoStock.Compra, 0m, null, null);
+
+        var response = await _client.PostAsJsonAsync("/stock/movimientos", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task POST_Stock_SystemDrivenType_Returns400()
+    {
+        // Reserva is driven by the OT lifecycle event handlers; posting it manually is rejected.
+        var request = new RegistrarMovimientoStockRequest(
+            Guid.NewGuid(), TipoMovimientoStock.Reserva, 5m, null, null);
 
         var response = await _client.PostAsJsonAsync("/stock/movimientos", request);
 

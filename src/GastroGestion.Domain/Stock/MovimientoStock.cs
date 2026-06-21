@@ -126,7 +126,8 @@ public class MovimientoStock : AggregateRoot
             TipoMovimientoStock.DevolucionCancelacion => ValidarPositivo(cantidad, tipo),
 
             TipoMovimientoStock.Consumo or
-            TipoMovimientoStock.Reserva => -ValidarPositivo(cantidad, tipo),
+            TipoMovimientoStock.Reserva or
+            TipoMovimientoStock.Merma => -ValidarPositivo(cantidad, tipo),
 
             TipoMovimientoStock.Ajuste => cantidad, // signed: caller determines direction
 
