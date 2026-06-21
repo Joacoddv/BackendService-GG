@@ -25,3 +25,12 @@ public sealed class AgregarLineaValidator : AbstractValidator<AgregarLineaReques
             .GreaterThan(0).WithMessage("Cantidad must be greater than zero.");
     }
 }
+
+public sealed class ActualizarLineaValidator : AbstractValidator<ActualizarLineaRequest>
+{
+    public ActualizarLineaValidator()
+    {
+        RuleFor(x => x.Cantidad)
+            .GreaterThan(0).WithMessage("Cantidad must be greater than zero.");
+    }
+}

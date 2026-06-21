@@ -1,3 +1,4 @@
+using GastroGestion.Application.Pedidos.ActualizarLinea;
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
@@ -26,6 +27,9 @@ public static class PedidoMappings
 
     public static AgregarLineaCommand ToCommand(this AgregarLineaRequest request, Guid pedidoId)
         => new(pedidoId, request.PlatoId, request.Cantidad, request.Observaciones);
+
+    public static ActualizarLineaCommand ToCommand(this ActualizarLineaRequest request, Guid pedidoId, Guid lineaId)
+        => new(pedidoId, lineaId, request.Cantidad, request.Observaciones);
 
     public static TransicionarEstadoPedidoCommand ToCommand(this TransicionarEstadoRequest request, Guid pedidoId, RolUsuario rol)
         => new(pedidoId, request.EstadoNuevo, rol);
