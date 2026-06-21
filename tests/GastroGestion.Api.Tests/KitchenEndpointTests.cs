@@ -52,7 +52,15 @@ public sealed class KitchenEndpointTests
         var response = await _adminClient.PostAsJsonAsync("/ingredientes",
             new { nombre, unidadDeMedida = (int)UnidadDeMedida.Kilogramo });
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Guid>();
+        var id = await response.Content.ReadFromJsonAsync<Guid>();
+
+        // Seed a generous opening purchase so OT generation (which reserves stock) is not blocked
+        // by the insufficient-stock guard.
+        var compra = await _adminClient.PostAsJsonAsync("/stock/movimientos",
+            new { ingredienteId = id, tipo = "Compra", cantidad = 100000m, ordenTrabajoId = (Guid?)null, lineaPedidoId = (Guid?)null });
+        compra.EnsureSuccessStatusCode();
+
+        return id;
     }
 
     /// <summary>
