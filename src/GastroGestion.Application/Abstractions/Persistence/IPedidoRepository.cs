@@ -1,4 +1,5 @@
 using GastroGestion.Application.Pedidos.GetOrdenesByEstado;
+using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Pedidos;
 
 namespace GastroGestion.Application.Abstractions.Persistence;
@@ -6,6 +7,10 @@ namespace GastroGestion.Application.Abstractions.Persistence;
 public interface IPedidoRepository
 {
     Task<Pedido?> GetByIdAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>Lists orders, optionally filtered by state and/or type, newest first.</summary>
+    Task<IReadOnlyList<Pedido>> SearchAsync(
+        EstadoPedido? estado, TipoPedido? tipo, CancellationToken ct = default);
 
     /// <summary>Batch load — used by CrearFactura to load multiple Pedidos at once.</summary>
     Task<IReadOnlyList<Pedido>> GetByIdsAsync(

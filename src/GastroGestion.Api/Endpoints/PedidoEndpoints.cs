@@ -1,5 +1,6 @@
 using GastroGestion.Api.Filters;
 using GastroGestion.Application.Pedidos.AgregarLinea;
+using GastroGestion.Application.Pedidos.BuscarPedidos;
 using GastroGestion.Application.Pedidos.ConfirmarPrecioLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.GetPedidoById;
@@ -16,6 +17,34 @@ public static class PedidoEndpoints
     public static WebApplication MapPedidoEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/pedidos").WithTags("Pedidos").RequireAuthorization();
+
+        // GET /pedidos?estado=&tipo= — list orders (newest first), optional filters
+        group.MapGet("/", async (
+            HttpRequest request,
+            BuscarPedidosHandler handler,
+            CancellationToken ct) =>
+        {
+            EstadoPedido? estado = null;
+            var estadoRaw = request.Query["estado"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(estadoRaw))
+            {
+                if (!Enum.TryParse<EstadoPedido>(estadoRaw, ignoreCase: true, out var parsed))
+                    return Results.Problem(title: $"Invalid estado '{estadoRaw}'.", statusCode: StatusCodes.Status400BadRequest);
+                estado = parsed;
+            }
+
+            TipoPedido? tipo = null;
+            var tipoRaw = request.Query["tipo"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(tipoRaw))
+            {
+                if (!Enum.TryParse<TipoPedido>(tipoRaw, ignoreCase: true, out var parsed))
+                    return Results.Problem(title: $"Invalid tipo '{tipoRaw}'.", statusCode: StatusCodes.Status400BadRequest);
+                tipo = parsed;
+            }
+
+            var pedidos = await handler.Handle(new BuscarPedidosQuery(estado, tipo), ct);
+            return Results.Ok(pedidos.Select(p => p.ToResponse()).ToList());
+        });
 
         // POST /pedidos — create a new order
         group.MapPost("/", async (
