@@ -22,4 +22,11 @@ internal sealed class MovimientoStockRepository : IMovimientoStockRepository
         => await _ctx.MovimientosStock
             .Where(m => m.IngredienteId == ingredienteId)
             .SumAsync(m => m.Cantidad, ct);
+
+    public async Task<IReadOnlyList<MovimientoStock>> GetByIngredienteAsync(Guid ingredienteId, CancellationToken ct = default)
+        => await _ctx.MovimientosStock
+            .Where(m => m.IngredienteId == ingredienteId)
+            .OrderByDescending(m => m.FechaMovimiento)
+            .AsNoTracking()
+            .ToListAsync(ct);
 }

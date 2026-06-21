@@ -15,4 +15,7 @@ public interface IMovimientoStockRepository
     /// Positive result = net available stock.
     /// </summary>
     Task<decimal> CalcularBalanceAsync(Guid ingredienteId, CancellationToken ct = default);
+
+    /// <summary>Returns the ledger movements for an ingredient, newest first.</summary>
+    Task<IReadOnlyList<MovimientoStock>> GetByIngredienteAsync(Guid ingredienteId, CancellationToken ct = default);
 }

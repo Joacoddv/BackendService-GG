@@ -1,6 +1,7 @@
 using GastroGestion.Api.Filters;
 using GastroGestion.Application.Stock.GetBalanceStock;
 using GastroGestion.Application.Stock.GetBalancesStock;
+using GastroGestion.Application.Stock.GetMovimientosStock;
 using GastroGestion.Application.Stock.RegistrarMovimientoStock;
 using GastroGestion.Contracts.Stock;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,16 @@ public static class StockEndpoints
         {
             var balances = await handler.Handle(new GetBalancesStockQuery(), ct);
             return Results.Ok(balances.Select(b => b.ToResponse()).ToList());
+        });
+
+        // GET /stock/movimientos/{ingredienteId} — ledger history for an ingredient, newest first
+        group.MapGet("/movimientos/{ingredienteId:guid}", async (
+            Guid ingredienteId,
+            GetMovimientosStockHandler handler,
+            CancellationToken ct) =>
+        {
+            var movimientos = await handler.Handle(new GetMovimientosStockQuery(ingredienteId), ct);
+            return Results.Ok(movimientos.Select(m => m.ToResponse()).ToList());
         });
 
         // GET /stock/balance/{ingredienteId} — get current stock balance
