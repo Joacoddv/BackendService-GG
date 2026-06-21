@@ -1,4 +1,5 @@
 using GastroGestion.Api.Filters;
+using GastroGestion.Application.Pedidos.ActualizarLinea;
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.BuscarPedidos;
 using GastroGestion.Application.Pedidos.ConfirmarPrecioLinea;
@@ -68,6 +69,22 @@ public static class PedidoEndpoints
             return Results.Created($"/pedidos/{id}/lineas/{lineaId}", lineaId);
         })
         .WithValidation<AgregarLineaRequest>();
+
+        // PUT /pedidos/{id}/lineas/{lineaId} — edit an existing line's quantity/notes; returns the order
+        group.MapPut("/{id:guid}/lineas/{lineaId:guid}", async (
+            Guid id,
+            Guid lineaId,
+            [FromBody] ActualizarLineaRequest request,
+            ActualizarLineaHandler handler,
+            GetPedidoByIdHandler getHandler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(request.ToCommand(id, lineaId), ct);
+
+            var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
+            return Results.Ok(pedido!.ToResponse());
+        })
+        .WithValidation<ActualizarLineaRequest>();
 
         // POST /pedidos/{id}/lineas/{lineaId}/confirmar-precio — confirm price snapshot (W-01 live path)
         group.MapPost("/{id:guid}/lineas/{lineaId:guid}/confirmar-precio", async (

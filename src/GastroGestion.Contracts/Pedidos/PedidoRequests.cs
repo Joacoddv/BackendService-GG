@@ -22,6 +22,11 @@ public sealed record AgregarLineaRequest(
     int Cantidad,
     string? Observaciones);
 
+/// <summary>Request body for PUT /pedidos/{id}/lineas/{lineaId} — edit quantity/notes.</summary>
+public sealed record ActualizarLineaRequest(
+    int Cantidad,
+    string? Observaciones);
+
 /// <summary>
 /// PHASE-5: Rol is sourced from the JWT ClaimTypes.Role claim, not the request body.
 /// </summary>
