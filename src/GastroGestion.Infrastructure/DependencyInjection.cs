@@ -41,6 +41,7 @@ public static class DependencyInjection
 
         // Repositories — Slice C (fiscal)
         services.AddScoped<IFacturaRepository, FacturaRepository>();
+        services.AddScoped<IProveedorRepository, ProveedorRepository>();
 
         // Repositories — Auth (Phase 5)
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();

@@ -7,6 +7,7 @@ using GastroGestion.Domain.Mesas;
 using GastroGestion.Domain.Menus;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Domain.Platos;
+using GastroGestion.Domain.Proveedores;
 using GastroGestion.Domain.Stock;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +36,7 @@ public sealed class GastroGestionDbContext : DbContext
     public DbSet<Pedido>          Pedidos          => Set<Pedido>();
     public DbSet<MovimientoStock> MovimientosStock => Set<MovimientoStock>();
     public DbSet<Factura>         Facturas         => Set<Factura>();
+    public DbSet<Proveedor>       Proveedores      => Set<Proveedor>();
     // Usuario + RefreshToken moved to SeguridadDbContext (separate security database).
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

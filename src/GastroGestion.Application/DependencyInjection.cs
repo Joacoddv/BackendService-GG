@@ -44,6 +44,11 @@ using GastroGestion.Application.Pedidos.GetPedidoById;
 using GastroGestion.Application.Pedidos.MarcarOrdenTrabajoLista;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
 using GastroGestion.Application.Platos.CrearPlato;
+using GastroGestion.Application.Proveedores.BuscarProveedores;
+using GastroGestion.Application.Proveedores.CrearProveedor;
+using GastroGestion.Application.Proveedores.DesactivarProveedor;
+using GastroGestion.Application.Proveedores.EditarProveedor;
+using GastroGestion.Application.Proveedores.GetProveedorById;
 using GastroGestion.Application.Platos.GetAllPlatos;
 using GastroGestion.Application.Platos.GetPlatoById;
 using GastroGestion.Application.Services;
@@ -90,6 +95,13 @@ public static class DependencyInjection
         services.AddScoped<EditarIngredienteHandler>();
         services.AddScoped<DesactivarIngredienteHandler>();
         services.AddScoped<ActualizarStockMinimoHandler>();
+
+        // Use cases — Proveedores
+        services.AddScoped<CrearProveedorHandler>();
+        services.AddScoped<EditarProveedorHandler>();
+        services.AddScoped<DesactivarProveedorHandler>();
+        services.AddScoped<BuscarProveedoresHandler>();
+        services.AddScoped<GetProveedorByIdHandler>();
         services.AddScoped<BuscarIngredientesHandler>();
 
         services.AddScoped<CrearPlatoHandler>();
