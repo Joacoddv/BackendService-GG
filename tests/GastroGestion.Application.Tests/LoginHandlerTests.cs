@@ -20,7 +20,7 @@ public class LoginHandlerTests
     private readonly ITokenIssuer            _tokens           = Substitute.For<ITokenIssuer>();
     private readonly IRefreshTokenRepository _refreshTokens    = Substitute.For<IRefreshTokenRepository>();
     private readonly IRefreshTokenGenerator  _refreshGenerator = Substitute.For<IRefreshTokenGenerator>();
-    private readonly IUnitOfWork             _uow              = Substitute.For<IUnitOfWork>();
+    private readonly ISeguridadUnitOfWork    _uow              = Substitute.For<ISeguridadUnitOfWork>();
     private readonly LoginHandler            _sut;
 
     private static readonly string ValidHash  = "STORED_HASH";

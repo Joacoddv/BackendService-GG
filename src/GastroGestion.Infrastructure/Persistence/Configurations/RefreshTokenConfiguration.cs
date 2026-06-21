@@ -8,7 +8,7 @@ namespace GastroGestion.Infrastructure.Persistence.Configurations;
 /// EF Core mapping for the RefreshToken aggregate. Picked up automatically by
 /// ApplyConfigurationsFromAssembly in GastroGestionDbContext.
 /// </summary>
-internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>, ISecurityEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<RefreshToken> b)
     {

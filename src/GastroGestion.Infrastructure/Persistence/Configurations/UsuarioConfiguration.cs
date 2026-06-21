@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace GastroGestion.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// EF Core mapping for the Usuario aggregate. Picked up automatically by
-/// ApplyConfigurationsFromAssembly in GastroGestionDbContext.
+/// EF Core mapping for the Usuario aggregate. Applied by SeguridadDbContext
+/// (marked ISecurityEntityTypeConfiguration so the main context skips it).
 /// </summary>
-internal sealed class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
+internal sealed class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>, ISecurityEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<Usuario> b)
     {

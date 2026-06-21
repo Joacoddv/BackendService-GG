@@ -6,9 +6,9 @@ namespace GastroGestion.Application.Usuarios.DesactivarUsuario;
 public sealed class DesactivarUsuarioHandler
 {
     private readonly IUsuarioRepository _usuarios;
-    private readonly IUnitOfWork        _uow;
+    private readonly ISeguridadUnitOfWork        _uow;
 
-    public DesactivarUsuarioHandler(IUsuarioRepository usuarios, IUnitOfWork uow)
+    public DesactivarUsuarioHandler(IUsuarioRepository usuarios, ISeguridadUnitOfWork uow)
     {
         _usuarios = usuarios;
         _uow      = uow;

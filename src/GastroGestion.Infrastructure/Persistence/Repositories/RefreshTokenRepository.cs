@@ -7,9 +7,9 @@ namespace GastroGestion.Infrastructure.Persistence.Repositories;
 /// <summary>EF Core implementation of IRefreshTokenRepository. Mirrors the other repositories.</summary>
 internal sealed class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private readonly GastroGestionDbContext _ctx;
+    private readonly SeguridadDbContext _ctx;
 
-    public RefreshTokenRepository(GastroGestionDbContext ctx) => _ctx = ctx;
+    public RefreshTokenRepository(SeguridadDbContext ctx) => _ctx = ctx;
 
     public async Task AddAsync(RefreshToken token, CancellationToken ct = default)
         => await _ctx.RefreshTokens.AddAsync(token, ct);

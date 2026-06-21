@@ -20,14 +20,14 @@ public sealed class RefrescarTokenHandler
     private readonly IUsuarioRepository      _usuarios;
     private readonly ITokenIssuer            _tokens;
     private readonly IRefreshTokenGenerator  _refreshGenerator;
-    private readonly IUnitOfWork             _uow;
+    private readonly ISeguridadUnitOfWork             _uow;
 
     public RefrescarTokenHandler(
         IRefreshTokenRepository refreshTokens,
         IUsuarioRepository usuarios,
         ITokenIssuer tokens,
         IRefreshTokenGenerator refreshGenerator,
-        IUnitOfWork uow)
+        ISeguridadUnitOfWork uow)
     {
         _refreshTokens    = refreshTokens;
         _usuarios         = usuarios;

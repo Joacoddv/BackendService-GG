@@ -22,6 +22,12 @@ public static class DependencyInjection
                 configuration.GetConnectionString("GastroGestion"),
                 sql => sql.MigrationsAssembly(typeof(GastroGestionDbContext).Assembly.FullName)));
 
+        // Separate security/identity database (Usuario, RefreshToken).
+        services.AddDbContext<SeguridadDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("Seguridad"),
+                sql => sql.MigrationsAssembly(typeof(SeguridadDbContext).Assembly.FullName)));
+
         // Repositories — Slice A (catalogue)
         services.AddScoped<IClienteRepository, ClienteRepository>();
         services.AddScoped<IIngredienteRepository, IngredienteRepository>();
@@ -42,6 +48,7 @@ public static class DependencyInjection
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ISeguridadUnitOfWork, SeguridadUnitOfWork>();
 
         // Domain event dispatcher
         services.AddScoped<IDomainEventDispatcher, InProcessDomainEventDispatcher>();

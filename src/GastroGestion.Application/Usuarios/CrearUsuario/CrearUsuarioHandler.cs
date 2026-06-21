@@ -9,9 +9,9 @@ public sealed class CrearUsuarioHandler
 {
     private readonly IUsuarioRepository _usuarios;
     private readonly IPasswordHasher    _hasher;
-    private readonly IUnitOfWork        _uow;
+    private readonly ISeguridadUnitOfWork        _uow;
 
-    public CrearUsuarioHandler(IUsuarioRepository usuarios, IPasswordHasher hasher, IUnitOfWork uow)
+    public CrearUsuarioHandler(IUsuarioRepository usuarios, IPasswordHasher hasher, ISeguridadUnitOfWork uow)
     {
         _usuarios = usuarios;
         _hasher   = hasher;

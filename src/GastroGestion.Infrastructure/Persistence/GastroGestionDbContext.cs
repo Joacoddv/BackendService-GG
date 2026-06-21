@@ -8,13 +8,13 @@ using GastroGestion.Domain.Menus;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Domain.Platos;
 using GastroGestion.Domain.Stock;
-using GastroGestion.Domain.Usuarios;
 using Microsoft.EntityFrameworkCore;
 
 namespace GastroGestion.Infrastructure.Persistence;
 
 /// <summary>
-/// Primary EF Core context for GastroGestion. Contains DbSets for all 8 aggregate roots.
+/// Primary EF Core context for GastroGestion. Contains DbSets for the domain aggregate roots.
+/// Security aggregates (Usuario, RefreshToken) live in the separate SeguridadDbContext.
 /// Owned types (LineaPedido, OrdenTrabajo, FacturaLinea, Pago, Direccion, LineaReceta, MenuItem)
 /// are reached only through their owner — no DbSet exposed for them.
 /// </summary>
@@ -35,11 +35,13 @@ public sealed class GastroGestionDbContext : DbContext
     public DbSet<Pedido>          Pedidos          => Set<Pedido>();
     public DbSet<MovimientoStock> MovimientosStock => Set<MovimientoStock>();
     public DbSet<Factura>         Facturas         => Set<Factura>();
-    public DbSet<Usuario>         Usuarios         => Set<Usuario>();
-    public DbSet<RefreshToken>    RefreshTokens    => Set<RefreshToken>();
+    // Usuario + RefreshToken moved to SeguridadDbContext (separate security database).
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-        => modelBuilder.ApplyConfigurationsFromAssembly(typeof(GastroGestionDbContext).Assembly);
+        // Apply every config EXCEPT the security ones (those belong to SeguridadDbContext).
+        => modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(GastroGestionDbContext).Assembly,
+            t => !typeof(Configurations.ISecurityEntityTypeConfiguration).IsAssignableFrom(t));
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
