@@ -23,3 +23,12 @@ public sealed class RefrescarTokenValidator : AbstractValidator<RefrescarTokenRe
         RuleFor(x => x.RefreshToken).NotEmpty();
     }
 }
+
+/// <summary>Validates CerrarSesionRequest. Wired via WithValidation&lt;CerrarSesionRequest&gt;().</summary>
+public sealed class CerrarSesionValidator : AbstractValidator<CerrarSesionRequest>
+{
+    public CerrarSesionValidator()
+    {
+        RuleFor(x => x.RefreshToken).NotEmpty();
+    }
+}

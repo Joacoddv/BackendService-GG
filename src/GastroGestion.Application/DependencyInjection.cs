@@ -1,3 +1,5 @@
+using GastroGestion.Application.Auth.CerrarSesion;
+using GastroGestion.Application.Auth.CerrarSesionGlobal;
 using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Auth.RefrescarToken;
 using GastroGestion.Application.Clientes.BuscarClientes;
@@ -54,6 +56,8 @@ public static class DependencyInjection
         // Use cases — Auth (Phase 5)
         services.AddScoped<LoginHandler>();
         services.AddScoped<RefrescarTokenHandler>();
+        services.AddScoped<CerrarSesionHandler>();
+        services.AddScoped<CerrarSesionGlobalHandler>();
 
         // Domain services — Application implementations
         services.AddScoped<IEfectivoPrecioService, EfectivoPrecioService>();
