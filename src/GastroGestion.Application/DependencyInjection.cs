@@ -31,6 +31,7 @@ using GastroGestion.Application.Mesas.GetAllMesas;
 using GastroGestion.Application.Mesas.GetMesaById;
 using GastroGestion.Application.Pedidos.AsignarCocinero;
 using GastroGestion.Application.Pedidos.AgregarLinea;
+using GastroGestion.Application.Pedidos.BuscarPedidos;
 using GastroGestion.Application.Pedidos.ConfirmarPrecioLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.GenerarOrdenesTrabajo;
@@ -99,6 +100,7 @@ public static class DependencyInjection
         services.AddScoped<ConfirmarPrecioLineaHandler>();
         services.AddScoped<TransicionarEstadoPedidoHandler>();
         services.AddScoped<GetPedidoByIdHandler>();
+        services.AddScoped<BuscarPedidosHandler>();
 
         // Use cases — Slice C (Fiscal: Facturacion)
         services.AddScoped<RegistrarPagoHandler>();

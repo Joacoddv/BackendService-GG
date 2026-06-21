@@ -1,5 +1,6 @@
 using GastroGestion.Application.Abstractions.Persistence;
 using GastroGestion.Application.Pedidos.GetOrdenesByEstado;
+using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Pedidos;
 using GastroGestion.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,21 @@ internal sealed class PedidoRepository : IPedidoRepository
 
     public async Task<Pedido?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _ctx.Pedidos.FirstOrDefaultAsync(p => p.Id == id, ct);
+
+    public async Task<IReadOnlyList<Pedido>> SearchAsync(
+        EstadoPedido? estado, TipoPedido? tipo, CancellationToken ct = default)
+    {
+        var query = _ctx.Pedidos.AsQueryable();
+
+        if (estado is not null)
+            query = query.Where(p => p.Estado == estado);
+        if (tipo is not null)
+            query = query.Where(p => p.Tipo == tipo);
+
+        return await query
+            .OrderByDescending(p => p.CreadoEnUtc)
+            .ToListAsync(ct);
+    }
 
     public async Task<IReadOnlyList<Pedido>> GetByIdsAsync(
         IReadOnlyCollection<Guid> ids,
