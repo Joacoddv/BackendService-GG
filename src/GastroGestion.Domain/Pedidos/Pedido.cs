@@ -165,6 +165,64 @@ public class Pedido : AggregateRoot
         linea.ActualizarObservaciones(observaciones);
     }
 
+    /// <summary>
+    /// Removes a line from the order. Only valid while the order is non-terminal and the line is
+    /// still editable (no OT, or its OT is still Creada). If the line has a Creada OT, that OT is
+    /// cancelled and removed and a <see cref="StockDebeRestaurarse"/> event is raised (mirroring the
+    /// cancellation cascade), so any reserved stock is released.
+    /// </summary>
+    public void QuitarLinea(Guid lineaId)
+    {
+        GuardarEstadoEditable("remove a line");
+
+        var linea = GetLineaOrThrow(lineaId);
+
+        if (!LineaEsEditable(lineaId))
+            throw new DomainException(
+                $"LineaPedido {lineaId} cannot be removed because its OT has advanced beyond Creada.");
+
+        var ot = _ordenesTrabajo.FirstOrDefault(o => o.LineaPedidoId == lineaId);
+        if (ot is not null)
+        {
+            // The line is editable, so the OT is still Creada — cancel, release stock, drop it.
+            ot.Cancelar();
+            AddDomainEvent(new StockDebeRestaurarse(Id, ot.Id, ot.RecetaSnapshot, DateTime.UtcNow));
+            _ordenesTrabajo.Remove(ot);
+        }
+
+        _lineas.Remove(linea);
+    }
+
+    /// <summary>
+    /// Generates a single <see cref="OrdenTrabajo"/> for one already-priced line — used when a line
+    /// is added to an order that has already had its OTs generated (the all-or-nothing
+    /// <see cref="GenerarOrdenesTrabajo"/> cannot be re-run). Validates that the order is editable,
+    /// the line has a confirmed price, and the line does not already have an OT.
+    /// Raises <see cref="OrdenTrabajoCreada"/>.
+    /// </summary>
+    public void GenerarOrdenTrabajoParaLinea(Guid lineaId, IReadOnlyList<LineaRecetaSnapshot> receta)
+    {
+        GuardarEstadoEditable("generate a work order");
+
+        if (receta is null || receta.Count == 0)
+            throw new DomainException("A recipe snapshot must be provided to generate the OT.");
+
+        var linea = GetLineaOrThrow(lineaId);
+
+        if (linea.PrecioUnitario is null)
+            throw new DomainException(
+                $"LineaPedido {lineaId} has no confirmed price snapshot. Call ConfirmarPrecio before generating its OT.");
+
+        if (_ordenesTrabajo.Any(ot => ot.LineaPedidoId == lineaId))
+            throw new DomainException(
+                $"An OrdenTrabajo for LineaPedidoId {lineaId} already exists on this Pedido.");
+
+        var nuevaOt = OrdenTrabajo.Crear(linea.PlatoId, linea.Id, receta);
+        _ordenesTrabajo.Add(nuevaOt);
+
+        AddDomainEvent(new OrdenTrabajoCreada(Id, nuevaOt.Id, linea.PlatoId, DateTime.UtcNow));
+    }
+
     // ── State machine ─────────────────────────────────────────────────────────
 
     /// <summary>

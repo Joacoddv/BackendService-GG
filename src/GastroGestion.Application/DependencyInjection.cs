@@ -33,6 +33,8 @@ using GastroGestion.Application.Pedidos.ActualizarLinea;
 using GastroGestion.Application.Pedidos.AsignarCocinero;
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.BuscarPedidos;
+using GastroGestion.Application.Pedidos.GenerarOrdenTrabajoLinea;
+using GastroGestion.Application.Pedidos.QuitarLinea;
 using GastroGestion.Application.Pedidos.ConfirmarPrecioLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.GenerarOrdenesTrabajo;
@@ -99,6 +101,8 @@ public static class DependencyInjection
         services.AddScoped<CrearPedidoHandler>();
         services.AddScoped<AgregarLineaHandler>();
         services.AddScoped<ActualizarLineaHandler>();
+        services.AddScoped<QuitarLineaHandler>();
+        services.AddScoped<GenerarOrdenTrabajoLineaHandler>();
         services.AddScoped<ConfirmarPrecioLineaHandler>();
         services.AddScoped<TransicionarEstadoPedidoHandler>();
         services.AddScoped<GetPedidoByIdHandler>();
