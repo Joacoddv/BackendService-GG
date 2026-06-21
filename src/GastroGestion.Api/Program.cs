@@ -198,6 +198,7 @@ app.MapUsuarioEndpoints();
 app.MapHub<KitchenHub>("/hubs/kitchen");
 app.MapFacturaEndpoints();
 app.MapStockEndpoints();
+app.MapProveedorEndpoints();
 
 // 8. Run
 app.Run();
