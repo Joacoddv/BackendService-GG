@@ -11,17 +11,20 @@ namespace GastroGestion.Application.Pedidos.GenerarOrdenTrabajoLinea;
 /// </summary>
 public sealed class GenerarOrdenTrabajoLineaHandler
 {
-    private readonly IPedidoRepository _pedidos;
-    private readonly IPlatoRepository  _platos;
-    private readonly IUnitOfWork       _uow;
+    private readonly IPedidoRepository         _pedidos;
+    private readonly IPlatoRepository          _platos;
+    private readonly IMovimientoStockRepository _stock;
+    private readonly IUnitOfWork               _uow;
 
     public GenerarOrdenTrabajoLineaHandler(
         IPedidoRepository pedidos,
         IPlatoRepository platos,
+        IMovimientoStockRepository stock,
         IUnitOfWork uow)
     {
         _pedidos = pedidos;
         _platos  = platos;
+        _stock   = stock;
         _uow     = uow;
     }
 
@@ -43,6 +46,18 @@ public sealed class GenerarOrdenTrabajoLineaHandler
             .Select(lr => new LineaRecetaSnapshot(lr.IngredienteId, lr.Cantidad))
             .ToList()
             .AsReadOnly();
+
+        // Stock guard — generating this OT will reserve its ingredients; block if any is short.
+        var faltantes = new List<string>();
+        foreach (var item in receta)
+        {
+            var disponible = await _stock.CalcularBalanceAsync(item.IngredienteId, ct);
+            if (disponible < item.Cantidad.Valor)
+                faltantes.Add($"{item.IngredienteId} (necesita {item.Cantidad.Valor}, disponible {disponible})");
+        }
+        if (faltantes.Count > 0)
+            throw new ConflictException(
+                "Stock insuficiente para generar la orden de trabajo: " + string.Join("; ", faltantes));
 
         pedido.GenerarOrdenTrabajoParaLinea(linea.Id, receta);
 

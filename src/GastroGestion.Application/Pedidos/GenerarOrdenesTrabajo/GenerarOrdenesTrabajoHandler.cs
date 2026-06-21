@@ -7,17 +7,20 @@ namespace GastroGestion.Application.Pedidos.GenerarOrdenesTrabajo;
 
 public sealed class GenerarOrdenesTrabajoHandler
 {
-    private readonly IPedidoRepository _pedidos;
-    private readonly IPlatoRepository  _platos;
-    private readonly IUnitOfWork       _uow;
+    private readonly IPedidoRepository         _pedidos;
+    private readonly IPlatoRepository          _platos;
+    private readonly IMovimientoStockRepository _stock;
+    private readonly IUnitOfWork               _uow;
 
     public GenerarOrdenesTrabajoHandler(
         IPedidoRepository pedidos,
         IPlatoRepository  platos,
+        IMovimientoStockRepository stock,
         IUnitOfWork       uow)
     {
         _pedidos = pedidos;
         _platos  = platos;
+        _stock   = stock;
         _uow     = uow;
     }
 
@@ -74,9 +77,45 @@ public sealed class GenerarOrdenesTrabajoHandler
                 .ToList()
                 .AsReadOnly());
 
+        // Stock guard — block generation if any recipe ingredient is short (OT creation reserves
+        // stock). Required per ingredient = sum of the per-dish recipe quantity across every line
+        // (one OT per line), matching what the reservation handler will consume.
+        await GuardStockSuficienteAsync(pedido, snapshotsByPlato, ct);
+
         // Domain: all-or-nothing generation + OrdenTrabajoCreada event dispatch
         pedido.GenerarOrdenesTrabajo(snapshotsByPlato);
 
         await _uow.SaveChangesAsync(ct);
+    }
+
+    private async Task GuardStockSuficienteAsync(
+        Pedido pedido,
+        IReadOnlyDictionary<Guid, IReadOnlyList<LineaRecetaSnapshot>> snapshotsByPlato,
+        CancellationToken ct)
+    {
+        // Aggregate required quantity per ingredient across all lines.
+        var requeridoPorIngrediente = new Dictionary<Guid, decimal>();
+        foreach (var linea in pedido.Lineas)
+        {
+            if (!snapshotsByPlato.TryGetValue(linea.PlatoId, out var receta))
+                continue;
+            foreach (var item in receta)
+            {
+                requeridoPorIngrediente.TryGetValue(item.IngredienteId, out var acc);
+                requeridoPorIngrediente[item.IngredienteId] = acc + item.Cantidad.Valor;
+            }
+        }
+
+        var faltantes = new List<string>();
+        foreach (var (ingredienteId, requerido) in requeridoPorIngrediente)
+        {
+            var disponible = await _stock.CalcularBalanceAsync(ingredienteId, ct);
+            if (disponible < requerido)
+                faltantes.Add($"{ingredienteId} (necesita {requerido}, disponible {disponible})");
+        }
+
+        if (faltantes.Count > 0)
+            throw new ConflictException(
+                "Stock insuficiente para generar las órdenes de trabajo: " + string.Join("; ", faltantes));
     }
 }

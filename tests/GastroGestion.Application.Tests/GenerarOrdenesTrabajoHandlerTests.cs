@@ -25,14 +25,21 @@ public class GenerarOrdenesTrabajoHandlerTests
 {
     // ── Shared mocks ──────────────────────────────────────────────────────────
 
-    private readonly IPedidoRepository _pedidos = Substitute.For<IPedidoRepository>();
-    private readonly IPlatoRepository  _platos  = Substitute.For<IPlatoRepository>();
-    private readonly IUnitOfWork       _uow     = Substitute.For<IUnitOfWork>();
+    private readonly IPedidoRepository          _pedidos = Substitute.For<IPedidoRepository>();
+    private readonly IPlatoRepository           _platos  = Substitute.For<IPlatoRepository>();
+    private readonly IMovimientoStockRepository _stock   = Substitute.For<IMovimientoStockRepository>();
+    private readonly IUnitOfWork                _uow     = Substitute.For<IUnitOfWork>();
 
     private readonly GenerarOrdenesTrabajoHandler _sut;
 
     public GenerarOrdenesTrabajoHandlerTests()
-        => _sut = new GenerarOrdenesTrabajoHandler(_pedidos, _platos, _uow);
+    {
+        // Default: plenty of stock so the OT-generation guard passes; individual tests can override.
+        _stock.CalcularBalanceAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+            .Returns(decimal.MaxValue);
+
+        _sut = new GenerarOrdenesTrabajoHandler(_pedidos, _platos, _stock, _uow);
+    }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -100,6 +107,30 @@ public class GenerarOrdenesTrabajoHandlerTests
         await _sut.Handle(cmd);
 
         await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Stock guard: when a recipe ingredient has insufficient balance, generation is blocked with
+    /// ConflictException and SaveChangesAsync is never called.
+    /// </summary>
+    [Fact]
+    public async Task Handle_InsufficientStock_ThrowsConflict_DoesNotSave()
+    {
+        var plato  = BuildPlatoWithRecipe(Guid.NewGuid()); // recipe needs 200g of one ingredient
+        var pedido = BuildPedidoWithPricedLine(plato.Id, out _);
+
+        _pedidos.GetByIdAsync(pedido.Id).Returns(pedido);
+        _platos.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>())
+               .Returns(new List<Plato> { plato });
+        _stock.CalcularBalanceAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+              .Returns(10m); // not enough for the 200g the recipe requires
+
+        var cmd = new GenerarOrdenesTrabajoCommand(pedido.Id, RolUsuario.Mozo);
+
+        await Assert.ThrowsAsync<ConflictException>(() => _sut.Handle(cmd));
+
+        await _uow.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        pedido.OrdenesTrabajo.Should().BeEmpty();
     }
 
     // ── OT-01-B: empty recipe → ValidationException ────────────────────────────
