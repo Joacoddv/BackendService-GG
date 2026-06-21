@@ -7,4 +7,5 @@ public sealed record RegistrarMovimientoStockCommand(
     TipoMovimientoStock Tipo,
     decimal Cantidad,
     Guid? OrdenTrabajoId,
-    Guid? LineaPedidoId);
+    Guid? LineaPedidoId,
+    Guid? ProveedorId);

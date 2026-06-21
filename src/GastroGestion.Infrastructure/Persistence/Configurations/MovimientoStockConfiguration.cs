@@ -25,6 +25,7 @@ internal sealed class MovimientoStockConfiguration : IEntityTypeConfiguration<Mo
         b.Property(m => m.LineaPedidoId);    // nullable Guid
         b.Property(m => m.Lote);             // nullable string
         b.Property(m => m.FechaVencimiento); // DateOnly? → nullable date column
+        b.Property(m => m.ProveedorId);      // nullable Guid — supplier on Compra movements
 
         b.HasIndex(m => m.IngredienteId); // SUM query performance
     }

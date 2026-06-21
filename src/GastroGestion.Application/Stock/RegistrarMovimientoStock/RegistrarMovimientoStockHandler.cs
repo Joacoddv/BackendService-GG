@@ -22,7 +22,8 @@ public sealed class RegistrarMovimientoStockHandler
             cmd.Tipo,
             cmd.Cantidad,
             cmd.OrdenTrabajoId,
-            cmd.LineaPedidoId);
+            cmd.LineaPedidoId,
+            cmd.ProveedorId);
 
         await _stock.AddAsync(mov, ct);
         await _uow.SaveChangesAsync(ct);
