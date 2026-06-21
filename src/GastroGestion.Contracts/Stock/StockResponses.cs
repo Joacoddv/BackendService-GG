@@ -18,4 +18,6 @@ public sealed record IngredienteBalanceResponse(
     string Nombre,
     UnidadDeMedida Unidad,
     bool Activo,
-    decimal Balance);
+    decimal Balance,
+    decimal StockMinimo,
+    bool EnAlerta);

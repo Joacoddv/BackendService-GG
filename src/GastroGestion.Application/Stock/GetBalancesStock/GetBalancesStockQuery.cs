@@ -5,10 +5,12 @@ namespace GastroGestion.Application.Stock.GetBalancesStock;
 /// <summary>Query for GET /stock/balances — current balance for every ingredient.</summary>
 public sealed record GetBalancesStockQuery;
 
-/// <summary>Per-ingredient stock balance projection (name + unit included for display).</summary>
+/// <summary>Per-ingredient stock balance projection (name + unit + reorder threshold + alert flag).</summary>
 public sealed record IngredienteBalanceResult(
     Guid IngredienteId,
     string Nombre,
     UnidadDeMedida Unidad,
     bool Activo,
-    decimal Balance);
+    decimal Balance,
+    decimal StockMinimo,
+    bool EnAlerta);

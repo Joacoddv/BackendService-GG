@@ -17,6 +17,7 @@ using GastroGestion.Application.Clientes.GetClienteById;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
 using GastroGestion.Application.Facturacion.RegistrarPago;
+using GastroGestion.Application.Ingredientes.ActualizarStockMinimo;
 using GastroGestion.Application.Ingredientes.BuscarIngredientes;
 using GastroGestion.Application.Ingredientes.CrearIngrediente;
 using GastroGestion.Application.Ingredientes.DesactivarIngrediente;
@@ -88,6 +89,7 @@ public static class DependencyInjection
         services.AddScoped<GetAllIngredientesHandler>();
         services.AddScoped<EditarIngredienteHandler>();
         services.AddScoped<DesactivarIngredienteHandler>();
+        services.AddScoped<ActualizarStockMinimoHandler>();
         services.AddScoped<BuscarIngredientesHandler>();
 
         services.AddScoped<CrearPlatoHandler>();

@@ -22,3 +22,13 @@ public sealed class EditarIngredienteValidator : AbstractValidator<EditarIngredi
             .NotEmpty().WithMessage("Nombre is required.");
     }
 }
+
+/// <summary>Validator for PUT /ingredientes/{id}/stock-minimo.</summary>
+public sealed class ActualizarStockMinimoValidator : AbstractValidator<ActualizarStockMinimoRequest>
+{
+    public ActualizarStockMinimoValidator()
+    {
+        RuleFor(x => x.StockMinimo)
+            .GreaterThanOrEqualTo(0).WithMessage("StockMinimo must be zero or positive.");
+    }
+}

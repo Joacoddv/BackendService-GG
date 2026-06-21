@@ -14,6 +14,12 @@ public class Ingrediente : AggregateRoot
     public UnidadDeMedida UnidadBase { get; private set; }
     public bool Activo { get; private set; }
 
+    /// <summary>
+    /// Reorder threshold: when the ledger balance falls to or below this value the ingredient is
+    /// flagged low-stock. Zero (default) means "alert only when out of stock".
+    /// </summary>
+    public decimal StockMinimo { get; private set; }
+
 #pragma warning disable CS8618
     private Ingrediente() { } // EF Core
 #pragma warning restore CS8618
@@ -23,6 +29,7 @@ public class Ingrediente : AggregateRoot
         Nombre    = nombre;
         UnidadBase = unidadBase;
         Activo    = true;
+        StockMinimo = 0m;
     }
 
     /// <summary>Creates a new active <see cref="Ingrediente"/>.</summary>
@@ -46,6 +53,15 @@ public class Ingrediente : AggregateRoot
             throw new DomainException("Ingrediente.Nombre cannot be null or empty.");
 
         Nombre = nombre;
+    }
+
+    /// <summary>Sets the reorder threshold (low-stock alert point). Must be zero or positive.</summary>
+    public void ActualizarStockMinimo(decimal stockMinimo)
+    {
+        if (stockMinimo < 0)
+            throw new DomainException($"Ingrediente.StockMinimo cannot be negative. Received: {stockMinimo}.");
+
+        StockMinimo = stockMinimo;
     }
 
     /// <summary>Soft-deletes this ingredient. Idempotent.</summary>

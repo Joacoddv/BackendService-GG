@@ -22,6 +22,10 @@ internal sealed class IngredienteConfiguration : IEntityTypeConfiguration<Ingred
 
         b.Property(i => i.Activo);
 
+        b.Property(i => i.StockMinimo)
+            .HasColumnType("decimal(18,3)")
+            .HasDefaultValue(0m);
+
         b.HasIndex(i => i.Nombre).IsUnique();
     }
 }
