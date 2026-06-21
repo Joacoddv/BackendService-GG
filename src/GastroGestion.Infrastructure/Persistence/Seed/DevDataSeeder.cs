@@ -48,6 +48,10 @@ public static class DevDataSeeder
         // Populates GET /usuarios/cocineros and the asignar-cocinero picker for local dev.
         await SeedCocinerosAsync(sp, ct);
 
+        // Mozo user — independent of the catalogue seed (own idempotency guard).
+        // Lets the waiter create-order flow be exercised under a real Mozo role (not as admin).
+        await SeedMozoAsync(sp, ct);
+
         // Idempotency guard: skip catalogue seed if already seeded
         if (await db.Clientes.AnyAsync(ct))
             return;
@@ -260,6 +264,34 @@ public static class DevDataSeeder
 
         await AddCocineroAsync(usuarioRepo, hasher, "pedro.cocina@gastrogestion.local", "Pedro Parrillero", ct);
         await AddCocineroAsync(usuarioRepo, hasher, "ana.cocina@gastrogestion.local",   "Ana Salsera",      ct);
+        await seguridadUow.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Seeds one Mozo (waiter) user for the Development environment so the waiter create-order
+    /// flow can be tested under a real Mozo role instead of as the admin.
+    /// Idempotency guard: skips entirely if any Mozo already exists.
+    /// Dev credentials (documented): mozo@gastrogestion.local / Mozo1234!
+    /// </summary>
+    private static async Task SeedMozoAsync(IServiceProvider sp, CancellationToken ct)
+    {
+        var usuarioRepo  = sp.GetRequiredService<IUsuarioRepository>();
+        var hasher       = sp.GetRequiredService<IPasswordHasher>();
+        var seguridadUow = sp.GetRequiredService<ISeguridadUnitOfWork>();
+
+        // Idempotency guard: return early if any Mozo already exists
+        if ((await usuarioRepo.GetByRolAsync(RolUsuario.Mozo, ct)).Any())
+            return;
+
+        // Two-step create mirrors the other seeds: the factory validates the hash is non-empty,
+        // so build once with a placeholder to obtain a Usuario for the hasher, then re-create
+        // with the real hash. Password is a documented dev constant.
+        const string email = "mozo@gastrogestion.local";
+        var placeholder = Usuario.Crear(email, "Mateo Mozo", RolUsuario.Mozo, "placeholder");
+        var hash        = hasher.Hash(placeholder, "Mozo1234!");
+
+        var mozo = Usuario.Crear(email, "Mateo Mozo", RolUsuario.Mozo, hash);
+        await usuarioRepo.AddAsync(mozo, ct);
         await seguridadUow.SaveChangesAsync(ct);
     }
 
