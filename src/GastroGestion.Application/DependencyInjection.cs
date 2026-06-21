@@ -1,4 +1,5 @@
 using GastroGestion.Application.Auth.Login;
+using GastroGestion.Application.Auth.RefrescarToken;
 using GastroGestion.Application.Clientes.BuscarClientes;
 using GastroGestion.Application.Clientes.CrearCliente;
 using GastroGestion.Application.Clientes.DesactivarCliente;
@@ -52,6 +53,7 @@ public static class DependencyInjection
     {
         // Use cases — Auth (Phase 5)
         services.AddScoped<LoginHandler>();
+        services.AddScoped<RefrescarTokenHandler>();
 
         // Domain services — Application implementations
         services.AddScoped<IEfectivoPrecioService, EfectivoPrecioService>();

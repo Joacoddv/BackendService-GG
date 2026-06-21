@@ -6,5 +6,7 @@ namespace GastroGestion.Application.Auth.Login;
 public sealed record LoginResult(
     string AccessToken,
     DateTime ExpiresAtUtc,
+    string RefreshToken,
+    DateTime RefreshTokenExpiresAtUtc,
     Guid UsuarioId,
     RolUsuario Rol);

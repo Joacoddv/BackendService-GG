@@ -1,5 +1,6 @@
 using GastroGestion.Api.Filters;
 using GastroGestion.Application.Auth.Login;
+using GastroGestion.Application.Auth.RefrescarToken;
 using GastroGestion.Contracts.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,17 @@ public static class AuthEndpoints
             return Results.Ok(result.ToResponse());
         })
         .WithValidation<LoginRequest>();
+
+        // POST /auth/refresh — exchange a valid refresh token for a new token pair (rotation)
+        group.MapPost("/refresh", [AllowAnonymous] async (
+            [FromBody] RefrescarTokenRequest request,
+            RefrescarTokenHandler handler,
+            CancellationToken ct) =>
+        {
+            var result = await handler.Handle(request.ToCommand(), ct);
+            return Results.Ok(result.ToResponse());
+        })
+        .WithValidation<RefrescarTokenRequest>();
 
         return app;
     }
