@@ -1,5 +1,6 @@
 using GastroGestion.Api.Filters;
 using GastroGestion.Application.Stock.GetBalanceStock;
+using GastroGestion.Application.Stock.GetBalancesStock;
 using GastroGestion.Application.Stock.RegistrarMovimientoStock;
 using GastroGestion.Contracts.Stock;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,15 @@ public static class StockEndpoints
             return Results.Created($"/stock/movimientos/{id}", id);
         })
         .WithValidation<RegistrarMovimientoStockRequest>();
+
+        // GET /stock/balances — current balance for every ingredient (name + unit), ordered by name
+        group.MapGet("/balances", async (
+            GetBalancesStockHandler handler,
+            CancellationToken ct) =>
+        {
+            var balances = await handler.Handle(new GetBalancesStockQuery(), ct);
+            return Results.Ok(balances.Select(b => b.ToResponse()).ToList());
+        });
 
         // GET /stock/balance/{ingredienteId} — get current stock balance
         // NOTE: Never returns 404 — zero-balance is valid (Scenario 17-D)

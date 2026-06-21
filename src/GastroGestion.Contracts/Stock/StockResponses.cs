@@ -12,3 +12,10 @@ public sealed record MovimientoStockResponse(
 public sealed record BalanceStockResponse(
     Guid IngredienteId,
     decimal Balance);
+
+public sealed record IngredienteBalanceResponse(
+    Guid IngredienteId,
+    string Nombre,
+    UnidadDeMedida Unidad,
+    bool Activo,
+    decimal Balance);
