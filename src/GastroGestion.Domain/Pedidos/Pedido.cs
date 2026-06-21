@@ -220,7 +220,7 @@ public class Pedido : AggregateRoot
         var nuevaOt = OrdenTrabajo.Crear(linea.PlatoId, linea.Id, receta);
         _ordenesTrabajo.Add(nuevaOt);
 
-        AddDomainEvent(new OrdenTrabajoCreada(Id, nuevaOt.Id, linea.PlatoId, DateTime.UtcNow));
+        AddDomainEvent(new OrdenTrabajoCreada(Id, nuevaOt.Id, linea.PlatoId, nuevaOt.RecetaSnapshot, DateTime.UtcNow));
     }
 
     // ── State machine ─────────────────────────────────────────────────────────
@@ -315,7 +315,7 @@ public class Pedido : AggregateRoot
             var ot = OrdenTrabajo.Crear(linea.PlatoId, linea.Id, snapshot);
             _ordenesTrabajo.Add(ot);
 
-            AddDomainEvent(new OrdenTrabajoCreada(Id, ot.Id, linea.PlatoId, DateTime.UtcNow));
+            AddDomainEvent(new OrdenTrabajoCreada(Id, ot.Id, linea.PlatoId, ot.RecetaSnapshot, DateTime.UtcNow));
         }
     }
 
@@ -350,6 +350,9 @@ public class Pedido : AggregateRoot
     {
         var ot = GetOrdenTrabajoOrThrow(otId);
         ot.AsignarCocinero(cocinero); // internal — only Pedido can call
+
+        // The OT just moved Creada → Preparandose: turn its stock reservation into consumption.
+        AddDomainEvent(new OrdenTrabajoIniciada(Id, ot.Id, ot.PlatoId, ot.RecetaSnapshot, DateTime.UtcNow));
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

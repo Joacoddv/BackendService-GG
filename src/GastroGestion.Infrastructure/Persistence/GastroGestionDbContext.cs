@@ -71,10 +71,13 @@ public sealed class GastroGestionDbContext : DbContext
 
     private async Task DispatchAndClear(List<AggregateRoot> roots, CancellationToken ct)
     {
+        // Snapshot the events and clear them BEFORE dispatching. Handlers may call SaveChangesAsync
+        // again (e.g. to write stock-ledger movements), which re-enters this method; clearing first
+        // means that re-entrant save sees no pending events and cannot re-dispatch the same ones.
+        var events = roots.SelectMany(r => r.DomainEvents).ToList();
         foreach (var root in roots)
-        {
-            await _dispatcher.DispatchAsync(root.DomainEvents, ct);
             root.ClearDomainEvents();
-        }
+
+        await _dispatcher.DispatchAsync(events, ct);
     }
 }

@@ -46,8 +46,11 @@ using GastroGestion.Application.Platos.CrearPlato;
 using GastroGestion.Application.Platos.GetAllPlatos;
 using GastroGestion.Application.Platos.GetPlatoById;
 using GastroGestion.Application.Services;
+using GastroGestion.Application.Abstractions.Events;
+using GastroGestion.Application.Stock.EventHandlers;
 using GastroGestion.Application.Stock.GetBalanceStock;
 using GastroGestion.Application.Stock.RegistrarMovimientoStock;
+using GastroGestion.Domain.Pedidos.Events;
 using GastroGestion.Domain.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -115,6 +118,11 @@ public static class DependencyInjection
         // Use cases — Slice C (Stock)
         services.AddScoped<RegistrarMovimientoStockHandler>();
         services.AddScoped<GetBalanceStockHandler>();
+
+        // Domain-event handlers — OT lifecycle drives the stock ledger (reserve → consume → release)
+        services.AddScoped<IDomainEventHandler<OrdenTrabajoCreada>, ReservarStockOnOrdenTrabajoCreada>();
+        services.AddScoped<IDomainEventHandler<OrdenTrabajoIniciada>, ConsumirStockOnOrdenTrabajoIniciada>();
+        services.AddScoped<IDomainEventHandler<StockDebeRestaurarse>, RestaurarStockOnStockDebeRestaurarse>();
 
         // Use cases — Slice D: Kitchen (Phase 6)
         services.AddScoped<GenerarOrdenesTrabajoHandler>();
