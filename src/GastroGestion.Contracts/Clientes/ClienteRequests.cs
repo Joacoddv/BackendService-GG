@@ -14,7 +14,8 @@ public sealed record CrearClienteRequest(
     string Nombre,
     CondicionIVA CondicionIVA,
     string? Cuit,
-    string? Email);
+    string? Email,
+    DateOnly? FechaNacimiento = null);
 
 /// <summary>
 /// Request DTO for editing an existing Cliente.
@@ -28,4 +29,15 @@ public sealed record EditarClienteRequest(
     string Nombre,
     CondicionIVA CondicionIVA,
     string? Cuit,
-    string? Email);
+    string? Email,
+    DateOnly? FechaNacimiento = null);
+
+/// <summary>Request DTO for POST /clientes/{id}/direcciones.</summary>
+public sealed record AgregarDireccionRequest(
+    string Calle,
+    string Numero,
+    string Ciudad,
+    string Provincia,
+    string CodigoPostal,
+    string? Piso,
+    string? Departamento);

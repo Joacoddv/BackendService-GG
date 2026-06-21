@@ -8,4 +8,16 @@ public sealed record ClienteResponse(
     CondicionIVA CondicionIVA,
     string? Cuit,
     string? Email,
-    bool Activo);
+    bool Activo,
+    DateOnly? FechaNacimiento,
+    IReadOnlyList<DireccionResponse> Direcciones);
+
+public sealed record DireccionResponse(
+    Guid Id,
+    string Calle,
+    string Numero,
+    string Ciudad,
+    string Provincia,
+    string CodigoPostal,
+    string? Piso,
+    string? Departamento);
