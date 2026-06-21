@@ -14,3 +14,12 @@ public sealed class LoginValidator : AbstractValidator<LoginRequest>
         RuleFor(x => x.Password).NotEmpty();
     }
 }
+
+/// <summary>Validates RefrescarTokenRequest. Wired via WithValidation&lt;RefrescarTokenRequest&gt;().</summary>
+public sealed class RefrescarTokenValidator : AbstractValidator<RefrescarTokenRequest>
+{
+    public RefrescarTokenValidator()
+    {
+        RuleFor(x => x.RefreshToken).NotEmpty();
+    }
+}

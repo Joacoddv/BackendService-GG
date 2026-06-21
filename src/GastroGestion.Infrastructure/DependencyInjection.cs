@@ -38,6 +38,7 @@ public static class DependencyInjection
 
         // Repositories — Auth (Phase 5)
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -48,6 +49,7 @@ public static class DependencyInjection
         // Security — Auth (Phase 5)
         services.AddScoped<IPasswordHasher, PasswordHasherAdapter>();
         services.AddScoped<ITokenIssuer, JwtTokenIssuer>();
+        services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
 
         return services;
     }

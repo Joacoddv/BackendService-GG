@@ -15,16 +15,23 @@ namespace GastroGestion.Application.Tests;
 /// </summary>
 public class LoginHandlerTests
 {
-    private readonly IUsuarioRepository _userRepo    = Substitute.For<IUsuarioRepository>();
-    private readonly IPasswordHasher    _hasher      = Substitute.For<IPasswordHasher>();
-    private readonly ITokenIssuer       _tokens      = Substitute.For<ITokenIssuer>();
-    private readonly LoginHandler       _sut;
+    private readonly IUsuarioRepository      _userRepo         = Substitute.For<IUsuarioRepository>();
+    private readonly IPasswordHasher         _hasher           = Substitute.For<IPasswordHasher>();
+    private readonly ITokenIssuer            _tokens           = Substitute.For<ITokenIssuer>();
+    private readonly IRefreshTokenRepository _refreshTokens    = Substitute.For<IRefreshTokenRepository>();
+    private readonly IRefreshTokenGenerator  _refreshGenerator = Substitute.For<IRefreshTokenGenerator>();
+    private readonly IUnitOfWork             _uow              = Substitute.For<IUnitOfWork>();
+    private readonly LoginHandler            _sut;
 
     private static readonly string ValidHash  = "STORED_HASH";
     private static readonly string ValidEmail = "admin@test.com";
 
     public LoginHandlerTests()
-        => _sut = new LoginHandler(_userRepo, _hasher, _tokens);
+    {
+        // Default: the generator returns a usable token so the success path can build a RefreshToken.
+        _refreshGenerator.Generate().Returns(new GeneratedRefreshToken("raw-refresh", "hash-refresh"));
+        _sut = new LoginHandler(_userRepo, _hasher, _tokens, _refreshTokens, _refreshGenerator, _uow);
+    }
 
     private static Usuario MakeActiveUser(bool activo = true)
     {
@@ -50,6 +57,10 @@ public class LoginHandlerTests
         result.UsuarioId.Should().Be(usuario.Id);
         result.Rol.Should().Be(RolUsuario.Administrador);
         result.ExpiresAtUtc.Should().BeCloseTo(token.ExpiresAtUtc, TimeSpan.FromSeconds(1));
+        result.RefreshToken.Should().Be("raw-refresh");
+        result.RefreshTokenExpiresAtUtc.Should().BeAfter(DateTime.UtcNow);
+        await _refreshTokens.Received(1).AddAsync(Arg.Any<RefreshToken>(), Arg.Any<CancellationToken>());
+        await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     // AUTH-03-B: unknown email → generic failure

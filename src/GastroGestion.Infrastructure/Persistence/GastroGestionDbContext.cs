@@ -36,6 +36,7 @@ public sealed class GastroGestionDbContext : DbContext
     public DbSet<MovimientoStock> MovimientosStock => Set<MovimientoStock>();
     public DbSet<Factura>         Facturas         => Set<Factura>();
     public DbSet<Usuario>         Usuarios         => Set<Usuario>();
+    public DbSet<RefreshToken>    RefreshTokens    => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.ApplyConfigurationsFromAssembly(typeof(GastroGestionDbContext).Assembly);
