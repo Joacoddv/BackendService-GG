@@ -7,9 +7,9 @@ namespace GastroGestion.Application.Usuarios.EditarUsuario;
 public sealed class EditarUsuarioHandler
 {
     private readonly IUsuarioRepository _usuarios;
-    private readonly IUnitOfWork        _uow;
+    private readonly ISeguridadUnitOfWork        _uow;
 
-    public EditarUsuarioHandler(IUsuarioRepository usuarios, IUnitOfWork uow)
+    public EditarUsuarioHandler(IUsuarioRepository usuarios, ISeguridadUnitOfWork uow)
     {
         _usuarios = usuarios;
         _uow      = uow;

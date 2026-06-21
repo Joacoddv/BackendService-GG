@@ -9,7 +9,7 @@ namespace GastroGestion.Application.Auth.Login;
 /// Handles the login use case: load user, verify password, issue an access token and a
 /// rotating refresh token. Throws AuthenticationFailedException for any credential failure —
 /// all three failure paths produce the same exception type and message (AUTH-03-E).
-/// Writes the refresh token, so it commits via IUnitOfWork (supersedes the read-only ADR-8).
+/// Writes the refresh token, so it commits via ISeguridadUnitOfWork (supersedes the read-only ADR-8).
 /// </summary>
 public sealed class LoginHandler
 {
@@ -21,7 +21,7 @@ public sealed class LoginHandler
     private readonly ITokenIssuer            _tokens;
     private readonly IRefreshTokenRepository _refreshTokens;
     private readonly IRefreshTokenGenerator  _refreshGenerator;
-    private readonly IUnitOfWork             _uow;
+    private readonly ISeguridadUnitOfWork             _uow;
 
     public LoginHandler(
         IUsuarioRepository usuarios,
@@ -29,7 +29,7 @@ public sealed class LoginHandler
         ITokenIssuer tokens,
         IRefreshTokenRepository refreshTokens,
         IRefreshTokenGenerator refreshGenerator,
-        IUnitOfWork uow)
+        ISeguridadUnitOfWork uow)
     {
         _usuarios         = usuarios;
         _hasher           = hasher;

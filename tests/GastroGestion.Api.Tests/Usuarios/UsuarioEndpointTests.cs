@@ -114,7 +114,7 @@ public sealed class UsuarioEndpointTests
 
         await using (var scope = _factory.Services.CreateAsyncScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<GastroGestionDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<SeguridadDbContext>();
 
             var active = Usuario.Crear(
                 $"active.cocinero.{activeCocineroId:N}@test.local",

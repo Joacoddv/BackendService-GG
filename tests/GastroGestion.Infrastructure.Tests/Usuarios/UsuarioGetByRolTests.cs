@@ -37,7 +37,7 @@ public sealed class UsuarioGetByRolTests : IClassFixture<LocalDbFixture>
         var mozo             = CreateUsuario("mozo1@test.local",      RolUsuario.Mozo);
         var admin            = CreateUsuario("admin1@test.local",     RolUsuario.Administrador);
 
-        await using (var saveCtx = _fixture.CreateContext())
+        await using (var saveCtx = _fixture.CreateSeguridadContext())
         {
             await saveCtx.Usuarios.AddRangeAsync(
                 activeCocinero1, activeCocinero2, inactiveCocinero, mozo, admin);
@@ -45,7 +45,7 @@ public sealed class UsuarioGetByRolTests : IClassFixture<LocalDbFixture>
         }
 
         // Act
-        await using var readCtx = _fixture.CreateContext();
+        await using var readCtx = _fixture.CreateSeguridadContext();
         var repo   = new UsuarioRepository(readCtx);
         var result = await repo.GetByRolAsync(RolUsuario.Cocinero);
 
@@ -64,14 +64,14 @@ public sealed class UsuarioGetByRolTests : IClassFixture<LocalDbFixture>
         // Arrange
         var inactiveCocinero = CreateUsuario("inactive.cocinero@test.local", RolUsuario.Cocinero, activo: false);
 
-        await using (var saveCtx = _fixture.CreateContext())
+        await using (var saveCtx = _fixture.CreateSeguridadContext())
         {
             await saveCtx.Usuarios.AddAsync(inactiveCocinero);
             await saveCtx.SaveChangesAsync();
         }
 
         // Act
-        await using var readCtx = _fixture.CreateContext();
+        await using var readCtx = _fixture.CreateSeguridadContext();
         var repo   = new UsuarioRepository(readCtx);
         var result = await repo.GetByRolAsync(RolUsuario.Cocinero);
 
@@ -89,14 +89,14 @@ public sealed class UsuarioGetByRolTests : IClassFixture<LocalDbFixture>
         var mozo  = CreateUsuario("mozo.exclude@test.local",  RolUsuario.Mozo);
         var cajero = CreateUsuario("cajero.exclude@test.local", RolUsuario.Cajero);
 
-        await using (var saveCtx = _fixture.CreateContext())
+        await using (var saveCtx = _fixture.CreateSeguridadContext())
         {
             await saveCtx.Usuarios.AddRangeAsync(mozo, cajero);
             await saveCtx.SaveChangesAsync();
         }
 
         // Act
-        await using var readCtx = _fixture.CreateContext();
+        await using var readCtx = _fixture.CreateSeguridadContext();
         var repo   = new UsuarioRepository(readCtx);
         var result = await repo.GetByRolAsync(RolUsuario.Cocinero);
 

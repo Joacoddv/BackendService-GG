@@ -42,7 +42,7 @@ public static class DevDataSeeder
         // Admin user seed — independent of catalogue seed; guarded by its own AnyAsync (ADR-9).
         // Credentials read from configuration; fall back to documented dev constants when absent.
         // Dev fallback: admin@gastrogestion.local / Admin1234!  (documented in appsettings.Development.json)
-        await SeedAdminUsuarioAsync(db, config, sp, ct);
+        await SeedAdminUsuarioAsync(config, sp, ct);
 
         // Cocinero users — independent of the catalogue seed (own idempotency guard).
         // Populates GET /usuarios/cocineros and the asignar-cocinero picker for local dev.
@@ -216,13 +216,13 @@ public static class DevDataSeeder
     /// Dev fallback (documented): admin@gastrogestion.local / Admin1234!
     /// </summary>
     private static async Task SeedAdminUsuarioAsync(
-        GastroGestionDbContext db,
         IConfiguration config,
         IServiceProvider sp,
         CancellationToken ct)
     {
-        var usuarioRepo = sp.GetRequiredService<IUsuarioRepository>();
-        var hasher      = sp.GetRequiredService<IPasswordHasher>();
+        var usuarioRepo   = sp.GetRequiredService<IUsuarioRepository>();
+        var hasher        = sp.GetRequiredService<IPasswordHasher>();
+        var seguridadUow  = sp.GetRequiredService<ISeguridadUnitOfWork>();
 
         // Idempotency guard: return early if any user already exists (AUTH-08.3)
         if (await usuarioRepo.AnyAsync(ct))
@@ -238,7 +238,7 @@ public static class DevDataSeeder
         // Re-create with the real hash — factory validates all fields including hash (non-empty)
         var adminUsuario = Usuario.Crear(adminEmail, "Admin", RolUsuario.Administrador, hash);
         await usuarioRepo.AddAsync(adminUsuario, ct);
-        await db.SaveChangesAsync(ct);
+        await seguridadUow.SaveChangesAsync(ct);
     }
 
     /// <summary>
@@ -250,9 +250,9 @@ public static class DevDataSeeder
     /// </summary>
     private static async Task SeedCocinerosAsync(IServiceProvider sp, CancellationToken ct)
     {
-        var db          = sp.GetRequiredService<GastroGestionDbContext>();
-        var usuarioRepo = sp.GetRequiredService<IUsuarioRepository>();
-        var hasher      = sp.GetRequiredService<IPasswordHasher>();
+        var usuarioRepo  = sp.GetRequiredService<IUsuarioRepository>();
+        var hasher       = sp.GetRequiredService<IPasswordHasher>();
+        var seguridadUow = sp.GetRequiredService<ISeguridadUnitOfWork>();
 
         // Idempotency guard: return early if any Cocinero already exists
         if ((await usuarioRepo.GetByRolAsync(RolUsuario.Cocinero, ct)).Any())
@@ -260,7 +260,7 @@ public static class DevDataSeeder
 
         await AddCocineroAsync(usuarioRepo, hasher, "pedro.cocina@gastrogestion.local", "Pedro Parrillero", ct);
         await AddCocineroAsync(usuarioRepo, hasher, "ana.cocina@gastrogestion.local",   "Ana Salsera",      ct);
-        await db.SaveChangesAsync(ct);
+        await seguridadUow.SaveChangesAsync(ct);
     }
 
     private static async Task AddCocineroAsync(

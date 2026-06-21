@@ -24,6 +24,9 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private const string TestConnectionString =
         "Server=(localdb)\\mssqllocaldb;Database=GastroGestion_ApiTests;Trusted_Connection=True;TrustServerCertificate=True";
 
+    private const string TestSeguridadConnectionString =
+        "Server=(localdb)\\mssqllocaldb;Database=GastroGestionSeguridad_ApiTests;Trusted_Connection=True;TrustServerCertificate=True";
+
     // Must be ≥32 chars to satisfy the startup guard minimum-length expectation.
     private const string TestJwtSigningKey =
         "TestSigningKeyForApiTestsMinimumLength32Chars";
@@ -33,6 +36,7 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseEnvironment("Development");
 
         builder.UseSetting("ConnectionStrings:GastroGestion", TestConnectionString);
+        builder.UseSetting("ConnectionStrings:Seguridad", TestSeguridadConnectionString);
         builder.UseSetting("Jwt:SigningKey",  TestJwtSigningKey);
         builder.UseSetting("Jwt:Issuer",      "GastroGestion");
         builder.UseSetting("Jwt:Audience",    "GastroGestion");
@@ -50,10 +54,12 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public new async Task DisposeAsync()
     {
-        // Drop the test database so each test run starts fresh.
+        // Drop both test databases so each test run starts fresh.
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<GastroGestionDbContext>();
         await db.Database.EnsureDeletedAsync();
+        var seguridadDb = scope.ServiceProvider.GetRequiredService<SeguridadDbContext>();
+        await seguridadDb.Database.EnsureDeletedAsync();
         await base.DisposeAsync();
     }
 

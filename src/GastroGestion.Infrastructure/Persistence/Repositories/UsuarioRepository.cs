@@ -11,9 +11,9 @@ namespace GastroGestion.Infrastructure.Persistence.Repositories;
 /// </summary>
 internal sealed class UsuarioRepository : IUsuarioRepository
 {
-    private readonly GastroGestionDbContext _ctx;
+    private readonly SeguridadDbContext _ctx;
 
-    public UsuarioRepository(GastroGestionDbContext ctx) => _ctx = ctx;
+    public UsuarioRepository(SeguridadDbContext ctx) => _ctx = ctx;
 
     public Task<Usuario?> GetByEmailAsync(string email, CancellationToken ct = default)
         => _ctx.Usuarios.FirstOrDefaultAsync(u => u.Email == email, ct);

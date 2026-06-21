@@ -160,6 +160,8 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<GastroGestionDbContext>();
     await db.Database.MigrateAsync();
+    var seguridadDb = scope.ServiceProvider.GetRequiredService<SeguridadDbContext>();
+    await seguridadDb.Database.MigrateAsync();
     await DevDataSeeder.SeedAsync(scope.ServiceProvider);
 }
 
