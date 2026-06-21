@@ -25,7 +25,11 @@ public sealed class GetBalancesStockHandler
         foreach (var ing in ingredientes)
         {
             var balance = await _stock.CalcularBalanceAsync(ing.Id, ct);
-            result.Add(new IngredienteBalanceResult(ing.Id, ing.Nombre, ing.UnidadBase, ing.Activo, balance));
+            // Low-stock when at/below the reorder threshold. With the default threshold of 0 this
+            // only fires when the ingredient is actually out of stock.
+            var enAlerta = balance <= ing.StockMinimo;
+            result.Add(new IngredienteBalanceResult(
+                ing.Id, ing.Nombre, ing.UnidadBase, ing.Activo, balance, ing.StockMinimo, enAlerta));
         }
 
         return result

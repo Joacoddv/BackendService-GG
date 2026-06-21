@@ -12,3 +12,6 @@ public sealed record CrearIngredienteRequest(string Nombre, UnidadDeMedida Unida
 /// </summary>
 /// <param name="Nombre">New display name — required, non-empty.</param>
 public sealed record EditarIngredienteRequest(string Nombre);
+
+/// <summary>Request DTO for PUT /ingredientes/{id}/stock-minimo — sets the reorder threshold.</summary>
+public sealed record ActualizarStockMinimoRequest(decimal StockMinimo);

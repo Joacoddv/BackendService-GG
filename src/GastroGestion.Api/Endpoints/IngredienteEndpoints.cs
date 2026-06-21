@@ -1,4 +1,5 @@
 using GastroGestion.Api.Filters;
+using GastroGestion.Application.Ingredientes.ActualizarStockMinimo;
 using GastroGestion.Application.Ingredientes.BuscarIngredientes;
 using GastroGestion.Application.Ingredientes.CrearIngrediente;
 using GastroGestion.Application.Ingredientes.DesactivarIngrediente;
@@ -79,6 +80,30 @@ public static class IngredienteEndpoints
             return Results.Ok(ingrediente.ToResponse());
         })
         .WithValidation<EditarIngredienteRequest>();
+
+        // PUT /ingredientes/{id}/stock-minimo — set the reorder threshold (Admin only)
+        group.MapPut("/{id:guid}/stock-minimo", async (
+            Guid id,
+            [FromBody] ActualizarStockMinimoRequest request,
+            HttpContext http,
+            ActualizarStockMinimoHandler handler,
+            CancellationToken ct) =>
+        {
+            var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
+            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
+                return Results.Problem(
+                    title: "Invalid or missing role claim.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
+            if (rol is not RolUsuario.Administrador)
+                return Results.Problem(
+                    title: "Access denied. Required role: Administrador.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
+            await handler.Handle(request.ToCommand(id), ct);
+            return Results.NoContent();
+        })
+        .WithValidation<ActualizarStockMinimoRequest>();
 
         // DELETE /ingredientes/{id} — soft-delete (Admin only, CCC-C02)
         group.MapDelete("/{id:guid}", async (
