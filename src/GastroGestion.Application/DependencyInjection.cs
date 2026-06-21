@@ -4,6 +4,7 @@ using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Auth.RefrescarToken;
 using GastroGestion.Application.Clientes.AgregarDireccion;
 using GastroGestion.Application.Clientes.BuscarClientes;
+using GastroGestion.Application.Clientes.Cumpleaneros;
 using GastroGestion.Application.Clientes.QuitarDireccion;
 using GastroGestion.Application.Dashboard.GetDashboard;
 using GastroGestion.Application.Clientes.CrearCliente;
@@ -93,6 +94,8 @@ public static class DependencyInjection
         services.AddScoped<BuscarClientesHandler>();
         services.AddScoped<AgregarDireccionHandler>();
         services.AddScoped<QuitarDireccionHandler>();
+        services.AddScoped<GetCumpleanerosHandler>();
+        services.AddScoped<EnviarPromoCumpleanosHandler>();
 
         services.AddScoped<CrearIngredienteHandler>();
         services.AddScoped<GetIngredienteByIdHandler>();

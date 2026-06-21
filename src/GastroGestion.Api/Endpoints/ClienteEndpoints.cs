@@ -2,6 +2,7 @@ using GastroGestion.Api.Filters;
 using GastroGestion.Application.Clientes.AgregarDireccion;
 using GastroGestion.Application.Clientes.BuscarClientes;
 using GastroGestion.Application.Clientes.CrearCliente;
+using GastroGestion.Application.Clientes.Cumpleaneros;
 using GastroGestion.Application.Clientes.DesactivarCliente;
 using GastroGestion.Application.Clientes.EditarCliente;
 using GastroGestion.Application.Clientes.GetClienteById;
@@ -104,6 +105,28 @@ public static class ClienteEndpoints
             return Results.NoContent();
         });
 
+        // GET /clientes/cumpleaneros?mes= — clientes whose birthday is in the month (default: current)
+        group.MapGet("/cumpleaneros", async (
+            HttpRequest request,
+            GetCumpleanerosHandler handler,
+            CancellationToken ct) =>
+        {
+            var mes = ParseMes(request.Query["mes"].FirstOrDefault());
+            var lista = await handler.Handle(new GetCumpleanerosQuery(mes), ct);
+            return Results.Ok(lista.Select(c => c.ToResponse()).ToList());
+        });
+
+        // POST /clientes/cumpleaneros/enviar-promo?mes= — email a birthday promo to the month's clientes
+        group.MapPost("/cumpleaneros/enviar-promo", async (
+            HttpRequest request,
+            EnviarPromoCumpleanosHandler handler,
+            CancellationToken ct) =>
+        {
+            var mes = ParseMes(request.Query["mes"].FirstOrDefault());
+            var result = await handler.Handle(new EnviarPromoCumpleanosCommand(mes), ct);
+            return Results.Ok(result.ToResponse());
+        });
+
         // POST /clientes/{id}/direcciones — add an address; returns the updated cliente
         group.MapPost("/{id:guid}/direcciones", async (
             Guid id,
@@ -136,4 +159,8 @@ public static class ClienteEndpoints
 
         return app;
     }
+
+    /// <summary>Parses a 1-12 month query value; falls back to the current UTC month.</summary>
+    private static int ParseMes(string? raw)
+        => int.TryParse(raw, out var m) && m is >= 1 and <= 12 ? m : DateTime.UtcNow.Month;
 }

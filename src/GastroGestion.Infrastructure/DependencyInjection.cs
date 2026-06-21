@@ -1,7 +1,9 @@
 using GastroGestion.Application.Abstractions.Events;
+using GastroGestion.Application.Abstractions.Notifications;
 using GastroGestion.Application.Abstractions.Persistence;
 using GastroGestion.Application.Abstractions.Security;
 using GastroGestion.Infrastructure.Events;
+using GastroGestion.Infrastructure.Notifications;
 using GastroGestion.Infrastructure.Persistence;
 using GastroGestion.Infrastructure.Persistence.Repositories;
 using GastroGestion.Infrastructure.Security;
@@ -53,6 +55,9 @@ public static class DependencyInjection
 
         // Domain event dispatcher
         services.AddScoped<IDomainEventDispatcher, InProcessDomainEventDispatcher>();
+
+        // Email — dev/no-op logger; swap for a real SMTP/provider adapter when configured.
+        services.AddScoped<IEmailSender, LoggingEmailSender>();
 
         // Security — Auth (Phase 5)
         services.AddScoped<IPasswordHasher, PasswordHasherAdapter>();
