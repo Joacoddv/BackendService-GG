@@ -2,7 +2,9 @@ using GastroGestion.Application.Auth.CerrarSesion;
 using GastroGestion.Application.Auth.CerrarSesionGlobal;
 using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Auth.RefrescarToken;
+using GastroGestion.Application.Clientes.AgregarDireccion;
 using GastroGestion.Application.Clientes.BuscarClientes;
+using GastroGestion.Application.Clientes.QuitarDireccion;
 using GastroGestion.Application.Dashboard.GetDashboard;
 using GastroGestion.Application.Clientes.CrearCliente;
 using GastroGestion.Application.Clientes.DesactivarCliente;
@@ -89,6 +91,8 @@ public static class DependencyInjection
         services.AddScoped<EditarClienteHandler>();
         services.AddScoped<DesactivarClienteHandler>();
         services.AddScoped<BuscarClientesHandler>();
+        services.AddScoped<AgregarDireccionHandler>();
+        services.AddScoped<QuitarDireccionHandler>();
 
         services.AddScoped<CrearIngredienteHandler>();
         services.AddScoped<GetIngredienteByIdHandler>();

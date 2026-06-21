@@ -1,9 +1,11 @@
 using GastroGestion.Api.Filters;
+using GastroGestion.Application.Clientes.AgregarDireccion;
 using GastroGestion.Application.Clientes.BuscarClientes;
 using GastroGestion.Application.Clientes.CrearCliente;
 using GastroGestion.Application.Clientes.DesactivarCliente;
 using GastroGestion.Application.Clientes.EditarCliente;
 using GastroGestion.Application.Clientes.GetClienteById;
+using GastroGestion.Application.Clientes.QuitarDireccion;
 using GastroGestion.Contracts.Clientes;
 using GastroGestion.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -100,6 +102,36 @@ public static class ClienteEndpoints
 
             await handler.Handle(new DesactivarClienteCommand(id), ct);
             return Results.NoContent();
+        });
+
+        // POST /clientes/{id}/direcciones — add an address; returns the updated cliente
+        group.MapPost("/{id:guid}/direcciones", async (
+            Guid id,
+            [FromBody] AgregarDireccionRequest request,
+            AgregarDireccionHandler handler,
+            GetClienteByIdHandler getHandler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(new AgregarDireccionCommand(
+                id, request.Calle, request.Numero, request.Ciudad, request.Provincia,
+                request.CodigoPostal, request.Piso, request.Departamento), ct);
+
+            var cliente = await getHandler.Handle(new GetClienteByIdQuery(id), ct);
+            return Results.Ok(cliente!.ToResponse());
+        });
+
+        // DELETE /clientes/{id}/direcciones/{direccionId} — remove an address; returns the updated cliente
+        group.MapDelete("/{id:guid}/direcciones/{direccionId:guid}", async (
+            Guid id,
+            Guid direccionId,
+            QuitarDireccionHandler handler,
+            GetClienteByIdHandler getHandler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(new QuitarDireccionCommand(id, direccionId), ct);
+
+            var cliente = await getHandler.Handle(new GetClienteByIdQuery(id), ct);
+            return cliente is null ? Results.NotFound() : Results.Ok(cliente.ToResponse());
         });
 
         return app;

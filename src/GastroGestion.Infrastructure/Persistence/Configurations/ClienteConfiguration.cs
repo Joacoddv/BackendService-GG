@@ -38,6 +38,8 @@ internal sealed class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
 
         b.Property(c => c.Activo);
 
+        b.Property(c => c.FechaNacimiento); // DateOnly? → nullable date column
+
         b.HasIndex(c => c.Cuit)
             .IsUnique()
             .HasFilter("[Cuit] IS NOT NULL");

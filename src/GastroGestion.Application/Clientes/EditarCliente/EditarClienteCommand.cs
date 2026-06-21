@@ -7,4 +7,5 @@ public sealed record EditarClienteCommand(
     string Nombre,
     CondicionIVA CondicionIVA,
     string? Cuit,
-    string? Email);
+    string? Email,
+    DateOnly? FechaNacimiento = null);

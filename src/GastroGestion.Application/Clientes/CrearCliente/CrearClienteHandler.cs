@@ -20,7 +20,7 @@ public sealed class CrearClienteHandler
         var cuit  = cmd.Cuit  is null ? null : new Cuit(cmd.Cuit);
         var email = cmd.Email is null ? null : new Email(cmd.Email);
 
-        var cliente = Cliente.Crear(cmd.Nombre, cmd.CondicionIVA, cuit, email);
+        var cliente = Cliente.Crear(cmd.Nombre, cmd.CondicionIVA, cuit, email, cmd.FechaNacimiento);
 
         await _clientes.AddAsync(cliente, ct);
         await _uow.SaveChangesAsync(ct);

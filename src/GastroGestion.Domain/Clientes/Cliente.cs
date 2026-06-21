@@ -17,6 +17,9 @@ public class Cliente : AggregateRoot
     public Cuit? Cuit { get; private set; }
     public Email? Email { get; private set; }
 
+    /// <summary>Optional date of birth — drives birthday promotions.</summary>
+    public DateOnly? FechaNacimiento { get; private set; }
+
     /// <summary>
     /// Immutable surrogate client number. Assigned at creation; never editable.
     /// Uniqueness is enforced at the infrastructure layer.
@@ -36,12 +39,14 @@ public class Cliente : AggregateRoot
         string nombre,
         CondicionIVA condicionIVA,
         Cuit? cuit,
-        Email? email) : base(id)
+        Email? email,
+        DateOnly? fechaNacimiento) : base(id)
     {
         Nombre       = nombre;
         CondicionIVA = condicionIVA;
         Cuit         = cuit;
         Email        = email;
+        FechaNacimiento = fechaNacimiento;
         NumeroCliente = id; // v1: surrogate = same as aggregate Id
         Activo       = true;
     }
@@ -57,7 +62,8 @@ public class Cliente : AggregateRoot
         string nombre,
         CondicionIVA condicionIVA,
         Cuit? cuit,
-        Email? email)
+        Email? email,
+        DateOnly? fechaNacimiento = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("Cliente.Nombre cannot be null or empty.");
@@ -66,7 +72,7 @@ public class Cliente : AggregateRoot
             throw new DomainException(
                 "CUIT is required for a ResponsableInscripto client.");
 
-        return new Cliente(Guid.NewGuid(), nombre, condicionIVA, cuit, email);
+        return new Cliente(Guid.NewGuid(), nombre, condicionIVA, cuit, email, fechaNacimiento);
     }
 
     /// <summary>
@@ -96,7 +102,7 @@ public class Cliente : AggregateRoot
     /// <param name="condicionIVA">New fiscal condition.</param>
     /// <param name="cuit">Required when <paramref name="condicionIVA"/> is <see cref="CondicionIVA.ResponsableInscripto"/>.</param>
     /// <param name="email">Optional contact email.</param>
-    public void ActualizarDatos(string nombre, CondicionIVA condicionIVA, Cuit? cuit, Email? email)
+    public void ActualizarDatos(string nombre, CondicionIVA condicionIVA, Cuit? cuit, Email? email, DateOnly? fechaNacimiento = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("Cliente.Nombre cannot be null or empty.");
@@ -108,6 +114,7 @@ public class Cliente : AggregateRoot
         CondicionIVA = condicionIVA;
         Cuit         = cuit;
         Email        = email;
+        FechaNacimiento = fechaNacimiento;
     }
 
     /// <summary>
