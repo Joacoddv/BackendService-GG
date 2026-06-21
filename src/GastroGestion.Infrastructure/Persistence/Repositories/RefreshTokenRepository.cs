@@ -16,4 +16,9 @@ internal sealed class RefreshTokenRepository : IRefreshTokenRepository
 
     public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default)
         => _ctx.RefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == tokenHash, ct);
+
+    public async Task<IReadOnlyList<RefreshToken>> GetActivosByUsuarioAsync(Guid usuarioId, CancellationToken ct = default)
+        => await _ctx.RefreshTokens
+            .Where(t => t.UsuarioId == usuarioId && t.RevocadoEnUtc == null)
+            .ToListAsync(ct);
 }

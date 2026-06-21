@@ -1,3 +1,4 @@
+using GastroGestion.Application.Auth.CerrarSesion;
 using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Auth.RefrescarToken;
 
@@ -10,6 +11,9 @@ public static class AuthMappings
         => new(request.Email, request.Password);
 
     public static RefrescarTokenCommand ToCommand(this RefrescarTokenRequest request)
+        => new(request.RefreshToken);
+
+    public static CerrarSesionCommand ToCommand(this CerrarSesionRequest request)
         => new(request.RefreshToken);
 
     public static LoginResponse ToResponse(this LoginResult result)
