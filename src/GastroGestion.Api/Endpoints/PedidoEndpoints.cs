@@ -2,6 +2,8 @@ using GastroGestion.Api.Filters;
 using GastroGestion.Application.Pedidos.ActualizarLinea;
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.BuscarPedidos;
+using GastroGestion.Application.Pedidos.GenerarOrdenTrabajoLinea;
+using GastroGestion.Application.Pedidos.QuitarLinea;
 using GastroGestion.Application.Pedidos.ConfirmarPrecioLinea;
 using GastroGestion.Application.Pedidos.CrearPedido;
 using GastroGestion.Application.Pedidos.GetPedidoById;
@@ -85,6 +87,35 @@ public static class PedidoEndpoints
             return Results.Ok(pedido!.ToResponse());
         })
         .WithValidation<ActualizarLineaRequest>();
+
+        // DELETE /pedidos/{id}/lineas/{lineaId} — remove a line; returns the updated order
+        group.MapDelete("/{id:guid}/lineas/{lineaId:guid}", async (
+            Guid id,
+            Guid lineaId,
+            QuitarLineaHandler handler,
+            GetPedidoByIdHandler getHandler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(new QuitarLineaCommand(id, lineaId), ct);
+
+            var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
+            return Results.Ok(pedido!.ToResponse());
+        });
+
+        // POST /pedidos/{id}/lineas/{lineaId}/orden-trabajo — generate the kitchen OT for one
+        // (newly added, already priced) line; returns the updated order
+        group.MapPost("/{id:guid}/lineas/{lineaId:guid}/orden-trabajo", async (
+            Guid id,
+            Guid lineaId,
+            GenerarOrdenTrabajoLineaHandler handler,
+            GetPedidoByIdHandler getHandler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(new GenerarOrdenTrabajoLineaCommand(id, lineaId), ct);
+
+            var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
+            return Results.Ok(pedido!.ToResponse());
+        });
 
         // POST /pedidos/{id}/lineas/{lineaId}/confirmar-precio — confirm price snapshot (W-01 live path)
         group.MapPost("/{id:guid}/lineas/{lineaId:guid}/confirmar-precio", async (
