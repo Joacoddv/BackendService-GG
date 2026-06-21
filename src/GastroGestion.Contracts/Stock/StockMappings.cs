@@ -15,8 +15,9 @@ public static class StockMappings
             request.Tipo,
             request.Cantidad,
             request.OrdenTrabajoId,
-            request.LineaPedidoId);
+            request.LineaPedidoId,
+            request.ProveedorId);
 
     public static MovimientoStockResponse ToResponse(this MovimientoStock mov)
-        => new(mov.Id, mov.IngredienteId, mov.Tipo, mov.Cantidad, mov.FechaMovimiento);
+        => new(mov.Id, mov.IngredienteId, mov.Tipo, mov.Cantidad, mov.FechaMovimiento, mov.ProveedorId);
 }

@@ -66,6 +66,9 @@ public class MovimientoStock : AggregateRoot
     /// </summary>
     public DateOnly? FechaVencimiento { get; private set; }
 
+    /// <summary>Optional supplier this movement came from (set on Compra purchases).</summary>
+    public Guid? ProveedorId { get; private set; }
+
     // ── EF Core / private ─────────────────────────────────────────────────────
 
 #pragma warning disable CS8618
@@ -81,7 +84,8 @@ public class MovimientoStock : AggregateRoot
         Guid? ordenTrabajoId,
         Guid? lineaPedidoId,
         string? lote,
-        DateOnly? fechaVencimiento) : base(id)
+        DateOnly? fechaVencimiento,
+        Guid? proveedorId) : base(id)
     {
         IngredienteId    = ingredienteId;
         Cantidad         = cantidad;
@@ -91,6 +95,7 @@ public class MovimientoStock : AggregateRoot
         LineaPedidoId    = lineaPedidoId;
         Lote             = lote;
         FechaVencimiento = fechaVencimiento;
+        ProveedorId      = proveedorId;
     }
 
     // ── Factories ─────────────────────────────────────────────────────────────
@@ -112,7 +117,8 @@ public class MovimientoStock : AggregateRoot
         TipoMovimientoStock tipo,
         decimal cantidad,
         Guid? ordenTrabajoId = null,
-        Guid? lineaPedidoId = null)
+        Guid? lineaPedidoId = null,
+        Guid? proveedorId = null)
     {
         if (ingredienteId == Guid.Empty)
             throw new DomainException("MovimientoStock.IngredienteId cannot be empty.");
@@ -143,7 +149,8 @@ public class MovimientoStock : AggregateRoot
             ordenTrabajoId,
             lineaPedidoId,
             lote: null,
-            fechaVencimiento: null);
+            fechaVencimiento: null,
+            proveedorId: proveedorId);
     }
 
     /// <summary>
@@ -159,7 +166,8 @@ public class MovimientoStock : AggregateRoot
         Guid ingredienteId,
         decimal cantidad,
         string? lote = null,
-        DateOnly? fechaVencimiento = null)
+        DateOnly? fechaVencimiento = null,
+        Guid? proveedorId = null)
     {
         if (ingredienteId == Guid.Empty)
             throw new DomainException("MovimientoStock.IngredienteId cannot be empty.");
@@ -175,7 +183,8 @@ public class MovimientoStock : AggregateRoot
             ordenTrabajoId: null,
             lineaPedidoId: null,
             lote,
-            fechaVencimiento);
+            fechaVencimiento,
+            proveedorId: proveedorId);
     }
 
     // ── Projection ────────────────────────────────────────────────────────────

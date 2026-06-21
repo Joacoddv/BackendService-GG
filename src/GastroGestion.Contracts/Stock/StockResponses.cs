@@ -7,7 +7,8 @@ public sealed record MovimientoStockResponse(
     Guid IngredienteId,
     TipoMovimientoStock Tipo,
     decimal Cantidad,
-    DateTime FechaMovimiento);
+    DateTime FechaMovimiento,
+    Guid? ProveedorId);
 
 public sealed record BalanceStockResponse(
     Guid IngredienteId,
