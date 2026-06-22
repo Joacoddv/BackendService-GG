@@ -2,6 +2,20 @@ using GastroGestion.Domain.Enums;
 
 namespace GastroGestion.Contracts.Facturacion;
 
+/// <summary>
+/// Lightweight invoice header returned in the list endpoint.
+/// Does not include line or payment arrays to keep the response compact.
+/// </summary>
+public sealed record FacturaResumenResponse(
+    Guid Id,
+    TipoComprobante TipoComprobante,
+    EstadoFactura Estado,
+    Guid ClienteId,
+    DateTime FechaAlta,
+    decimal Total,
+    decimal TotalPagado,
+    bool EstaPagada);
+
 public sealed record FacturaResponse(
     Guid Id,
     TipoComprobante TipoComprobante,

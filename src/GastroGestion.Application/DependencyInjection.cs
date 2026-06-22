@@ -18,8 +18,10 @@ using GastroGestion.Application.Usuarios.GetCocineros;
 using GastroGestion.Application.Usuarios.GetUsuarioById;
 using GastroGestion.Application.Clientes.GetAllClientes;
 using GastroGestion.Application.Clientes.GetClienteById;
+using GastroGestion.Application.Facturacion.CancelarFactura;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
+using GastroGestion.Application.Facturacion.GetFacturas;
 using GastroGestion.Application.Facturacion.RegistrarPago;
 using GastroGestion.Application.Ingredientes.ActualizarStockMinimo;
 using GastroGestion.Application.Ingredientes.BuscarIngredientes;
@@ -141,6 +143,8 @@ public static class DependencyInjection
         // Use cases — Slice C (Fiscal: Facturacion)
         services.AddScoped<RegistrarPagoHandler>();
         services.AddScoped<GetFacturaByIdHandler>();
+        services.AddScoped<GetFacturasHandler>();
+        services.AddScoped<CancelarFacturaHandler>();
 
         // Use cases — Slice C (Stock)
         services.AddScoped<RegistrarMovimientoStockHandler>();

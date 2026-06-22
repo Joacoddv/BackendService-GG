@@ -1,4 +1,5 @@
 using GastroGestion.Application.Abstractions.Persistence;
+using GastroGestion.Domain.Enums;
 using GastroGestion.Domain.Facturacion;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,4 +20,26 @@ internal sealed class FacturaRepository : IFacturaRepository
 
     public async Task AddAsync(Factura factura, CancellationToken ct = default)
         => await _ctx.Facturas.AddAsync(factura, ct);
+
+    /// <summary>
+    /// Returns a read-only list of Facturas ordered newest-first.
+    /// Applies estado and clienteId filters only when the nullable arg has a value.
+    /// </summary>
+    public async Task<IReadOnlyList<Factura>> ListAsync(
+        EstadoFactura? estado,
+        Guid? clienteId,
+        CancellationToken ct = default)
+    {
+        var query = _ctx.Facturas.AsNoTracking();
+
+        if (estado.HasValue)
+            query = query.Where(f => f.Estado == estado.Value);
+
+        if (clienteId.HasValue)
+            query = query.Where(f => f.ClienteId == clienteId.Value);
+
+        return await query
+            .OrderByDescending(f => f.FechaAlta)
+            .ToListAsync(ct);
+    }
 }

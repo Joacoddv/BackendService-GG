@@ -12,6 +12,17 @@ public static class FacturaMappings
     public static RegistrarPagoCommand ToCommand(this RegistrarPagoRequest request, Guid facturaId)
         => new(facturaId, request.Monto, request.MetodoPago);
 
+    public static FacturaResumenResponse ToResumenResponse(this Factura factura)
+        => new(
+            factura.Id,
+            factura.TipoComprobante,
+            factura.Estado,
+            factura.ClienteId,
+            factura.FechaAlta,
+            factura.Total.Monto,
+            factura.TotalPagado.Monto,
+            factura.EstaPagada);
+
     public static FacturaResponse ToResponse(this Factura factura)
         => new(
             factura.Id,
