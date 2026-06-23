@@ -85,9 +85,25 @@ public static class DevDataSeeder
             null,
             null);
 
+        // A second ConsumidorFinal (no CUIT) so the address book has more demo data.
+        var cliente4 = Cliente.Crear(
+            "Consumidor Demo 2",
+            CondicionIVA.ConsumidorFinal,
+            null,
+            new Email("consumidor2@demo.test"));
+
+        // Saved addresses — so the "usar dirección guardada" picker on the delivery
+        // order form and the cliente detail screen have demo data out of the box.
+        cliente2.AgregarDireccion(new Direccion(Guid.NewGuid(), "Av. Corrientes", "1234", "CABA", "CABA", "1043"));
+        cliente2.AgregarDireccion(new Direccion(Guid.NewGuid(), "Av. Santa Fe", "3456", "CABA", "CABA", "1425"));
+        cliente3.AgregarDireccion(new Direccion(Guid.NewGuid(), "Calle Falsa", "123", "Rosario", "Santa Fe", "2000"));
+        cliente4.AgregarDireccion(new Direccion(Guid.NewGuid(), "Belgrano", "456", "Córdoba", "Córdoba", "5000"));
+        cliente4.AgregarDireccion(new Direccion(Guid.NewGuid(), "San Martín", "789", "Mendoza", "Mendoza", "5500"));
+
         await clienteRepo.AddAsync(cliente1, ct);
         await clienteRepo.AddAsync(cliente2, ct);
         await clienteRepo.AddAsync(cliente3, ct);
+        await clienteRepo.AddAsync(cliente4, ct);
 
         // ── Ingredientes (5) ──────────────────────────────────────────────────────
 
