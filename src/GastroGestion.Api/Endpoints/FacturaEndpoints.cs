@@ -4,6 +4,7 @@ using GastroGestion.Application.Facturacion.CancelarFactura;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
 using GastroGestion.Application.Facturacion.GetFacturas;
+using GastroGestion.Application.Facturacion.GetReporteVentas;
 using GastroGestion.Application.Facturacion.RegistrarPago;
 using GastroGestion.Contracts.Facturacion;
 using GastroGestion.Domain.Enums;
@@ -72,6 +73,17 @@ public static class FacturaEndpoints
             return Results.NoContent();
         })
         .WithValidation<AnularFacturaRequest>();
+
+        // GET /facturas/reporte — aggregate sales report with optional date range
+        group.MapGet("/reporte", async (
+            [FromQuery] DateTime? desde,
+            [FromQuery] DateTime? hasta,
+            GetReporteVentasHandler handler,
+            CancellationToken ct) =>
+        {
+            var result = await handler.Handle(new GetReporteVentasQuery(desde, hasta), ct);
+            return Results.Ok(result.ToResponse(desde, hasta));
+        });
 
         // GET /facturas/{id} — get invoice by id
         group.MapGet("/{id:guid}", async (

@@ -8,4 +8,5 @@ public interface IFacturaRepository
     Task<Factura?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Factura factura, CancellationToken ct = default);
     Task<IReadOnlyList<Factura>> ListAsync(EstadoFactura? estado, Guid? clienteId, CancellationToken ct = default);
+    Task<IReadOnlyList<Factura>> ListByFechaAltaAsync(DateTime? desde, DateTime? hasta, CancellationToken ct = default);
 }
