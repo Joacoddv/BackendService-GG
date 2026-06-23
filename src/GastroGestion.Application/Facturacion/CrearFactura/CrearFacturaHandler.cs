@@ -9,6 +9,7 @@ namespace GastroGestion.Application.Facturacion.CrearFactura;
 /// <summary>
 /// Handles <see cref="CrearFacturaCommand"/>.
 /// Enforces REQ-13-G: all Pedidos in a single Factura must belong to the same ClienteId.
+/// Enforces comprobante type rules based on the client's CondicionIVA.
 /// This is the Phase-2 deferred validation that cannot live inside the domain because
 /// the domain factory cannot load aggregates.
 /// </summary>
@@ -16,15 +17,18 @@ public sealed class CrearFacturaHandler
 {
     private readonly IPedidoRepository  _pedidos;
     private readonly IFacturaRepository _facturas;
+    private readonly IClienteRepository _clientes;
     private readonly IUnitOfWork        _uow;
 
     public CrearFacturaHandler(
         IPedidoRepository pedidos,
         IFacturaRepository facturas,
+        IClienteRepository clientes,
         IUnitOfWork uow)
     {
         _pedidos  = pedidos;
         _facturas = facturas;
+        _clientes = clientes;
         _uow      = uow;
     }
 
@@ -51,6 +55,13 @@ public sealed class CrearFacturaHandler
         if (pedidos.Any(p => p.ClienteId != cmd.ClienteId))
             throw new ConflictException(
                 "All Pedidos in a Factura must belong to the same ClienteId (REQ-13-G).");
+
+        var cliente = await _clientes.GetByIdAsync(cmd.ClienteId, ct)
+            ?? throw new ConflictException("Cliente not found.");
+
+        if (!ReglasComprobante.EsPermitido(cliente.CondicionIVA, cmd.Tipo))
+            throw new ConflictException(
+                $"A client with IVA condition {cliente.CondicionIVA} cannot be issued a {cmd.Tipo}.");
 
         var lineas = BuildLineasFromPedidos(pedidos);
 

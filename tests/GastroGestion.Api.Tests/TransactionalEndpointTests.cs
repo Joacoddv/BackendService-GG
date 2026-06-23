@@ -1,4 +1,5 @@
 using GastroGestion.Application.Facturacion.CrearFactura;
+using GastroGestion.Contracts.Clientes;
 using GastroGestion.Contracts.Facturacion;
 using GastroGestion.Contracts.Ingredientes;
 using GastroGestion.Contracts.Pedidos;
@@ -78,6 +79,15 @@ public sealed class TransactionalEndpointTests
         var response = await _client.PostAsync(
             $"/pedidos/{pedidoId}/lineas/{lineaId}/confirmar-precio", null);
         response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>Creates a ConsumidorFinal cliente via the API and returns its Id.</summary>
+    private async Task<Guid> CreateClienteConsumidorFinalAsync(string nombre = "ClienteTest")
+    {
+        var response = await _client.PostAsJsonAsync("/clientes",
+            new CrearClienteRequest(nombre, CondicionIVA.ConsumidorFinal, null, null));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Guid>();
     }
 
     // ── Pedido — Scenario 15-A ────────────────────────────────────────────────
@@ -275,8 +285,8 @@ public sealed class TransactionalEndpointTests
     public async Task POST_Facturas_ValidRequest_Returns201WithLocation()
     {
         // Full happy path: create pedido, add line, confirm price, then create factura
-        var platoId = await CreatePlatoAsync("PlatoFacturaValid");
-        var clienteId = Guid.NewGuid(); // arbitrary — just needs to be consistent
+        var platoId   = await CreatePlatoAsync("PlatoFacturaValid");
+        var clienteId = await CreateClienteConsumidorFinalAsync("ClienteFacturaValid");
         var pedidoRequest = new CrearPedidoRequest(TipoPedido.TakeAway, null, clienteId, null);
         var pedidoResponse = await _client.PostAsJsonAsync("/pedidos", pedidoRequest);
         pedidoResponse.EnsureSuccessStatusCode();
@@ -303,8 +313,8 @@ public sealed class TransactionalEndpointTests
     public async Task POST_Facturas_RegistrarPago_FullAmount_Returns204_EstaPagada()
     {
         // Create and bill a pedido, then register full payment and check EstaPagada
-        var platoId = await CreatePlatoAsync("PlatoPagado");
-        var clienteId = Guid.NewGuid();
+        var platoId   = await CreatePlatoAsync("PlatoPagado");
+        var clienteId = await CreateClienteConsumidorFinalAsync("ClientePagado");
         var pedidoRequest = new CrearPedidoRequest(TipoPedido.TakeAway, null, clienteId, null);
         var pedidoResponse = await _client.PostAsJsonAsync("/pedidos", pedidoRequest);
         pedidoResponse.EnsureSuccessStatusCode();
@@ -345,8 +355,8 @@ public sealed class TransactionalEndpointTests
     public async Task POST_Facturas_RegistrarPago_OnCancelada_Returns422()
     {
         // Create factura, cancel it, then try to pay → DomainException → 422
-        var platoId = await CreatePlatoAsync("PlatoCancelado");
-        var clienteId = Guid.NewGuid();
+        var platoId   = await CreatePlatoAsync("PlatoCancelado");
+        var clienteId = await CreateClienteConsumidorFinalAsync("ClienteCancelado");
         var pedidoRequest = new CrearPedidoRequest(TipoPedido.TakeAway, null, clienteId, null);
         var pedidoResponse = await _client.PostAsJsonAsync("/pedidos", pedidoRequest);
         pedidoResponse.EnsureSuccessStatusCode();
