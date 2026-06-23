@@ -42,4 +42,26 @@ internal sealed class FacturaRepository : IFacturaRepository
             .OrderByDescending(f => f.FechaAlta)
             .ToListAsync(ct);
     }
+
+    /// <summary>
+    /// Returns a read-only list of Facturas filtered by FechaAlta range, ordered newest-first.
+    /// Applies desde/hasta filters only when the nullable arg has a value.
+    /// </summary>
+    public async Task<IReadOnlyList<Factura>> ListByFechaAltaAsync(
+        DateTime? desde,
+        DateTime? hasta,
+        CancellationToken ct = default)
+    {
+        var query = _ctx.Facturas.AsNoTracking();
+
+        if (desde.HasValue)
+            query = query.Where(f => f.FechaAlta >= desde.Value);
+
+        if (hasta.HasValue)
+            query = query.Where(f => f.FechaAlta <= hasta.Value);
+
+        return await query
+            .OrderByDescending(f => f.FechaAlta)
+            .ToListAsync(ct);
+    }
 }

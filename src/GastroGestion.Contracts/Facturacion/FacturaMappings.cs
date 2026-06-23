@@ -1,5 +1,6 @@
 using GastroGestion.Application.Facturacion.AnularFactura;
 using GastroGestion.Application.Facturacion.CrearFactura;
+using GastroGestion.Application.Facturacion.GetReporteVentas;
 using GastroGestion.Application.Facturacion.RegistrarPago;
 using GastroGestion.Domain.Facturacion;
 
@@ -26,6 +27,16 @@ public static class FacturaMappings
             factura.Total.Monto,
             factura.TotalPagado.Monto,
             factura.EstaPagada);
+
+    public static ReporteVentasResponse ToResponse(this ReporteVentasResult result, DateTime? desde, DateTime? hasta)
+        => new(
+            desde,
+            hasta,
+            result.CantidadFacturas,
+            result.TotalFacturado,
+            result.TotalCobrado,
+            result.PorTipo.Select(x => new ReporteTipoResponse(x.Tipo, x.Cantidad, x.Total)).ToList(),
+            result.PorMetodoPago.Select(x => new ReporteMetodoResponse(x.Metodo, x.Total)).ToList());
 
     public static FacturaResponse ToResponse(this Factura factura)
         => new(
