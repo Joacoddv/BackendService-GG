@@ -31,3 +31,16 @@ public sealed class AnularFacturaValidator : AbstractValidator<AnularFacturaRequ
             .NotEmpty().WithMessage("Motivo is required.");
     }
 }
+
+public sealed class AsignarCaeValidator : AbstractValidator<AsignarCaeRequest>
+{
+    public AsignarCaeValidator()
+    {
+        RuleFor(x => x.Cae)
+            .NotEmpty().WithMessage("Cae is required.")
+            .MaximumLength(14).WithMessage("Cae must not exceed 14 characters.");
+
+        RuleFor(x => x.Vencimiento)
+            .Must(v => v != default).WithMessage("Vencimiento is required.");
+    }
+}

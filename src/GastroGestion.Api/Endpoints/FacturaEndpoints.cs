@@ -1,5 +1,6 @@
 using GastroGestion.Api.Filters;
 using GastroGestion.Application.Facturacion.AnularFactura;
+using GastroGestion.Application.Facturacion.AsignarCae;
 using GastroGestion.Application.Facturacion.CancelarFactura;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
@@ -73,6 +74,18 @@ public static class FacturaEndpoints
             return Results.NoContent();
         })
         .WithValidation<AnularFacturaRequest>();
+
+        // POST /facturas/{id}/cae — assign AFIP/ARCA CAE to an electronic invoice
+        group.MapPost("/{id:guid}/cae", async (
+            Guid id,
+            [FromBody] AsignarCaeRequest request,
+            AsignarCaeHandler handler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(request.ToCommand(id), ct);
+            return Results.NoContent();
+        })
+        .WithValidation<AsignarCaeRequest>();
 
         // GET /facturas/reporte — aggregate sales report with optional date range
         group.MapGet("/reporte", async (
