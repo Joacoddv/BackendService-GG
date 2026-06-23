@@ -30,7 +30,9 @@ public sealed record FacturaResponse(
     string? CAE,
     DateOnly? VencimientoCAE,
     IReadOnlyList<FacturaLineaResponse> Lineas,
-    IReadOnlyList<PagoResponse> Pagos);
+    IReadOnlyList<PagoResponse> Pagos,
+    string? MotivoAnulacion,
+    DateTime? FechaAnulacion);
 
 public sealed record FacturaLineaResponse(
     Guid Id,

@@ -1,3 +1,4 @@
+using GastroGestion.Application.Facturacion.AnularFactura;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.RegistrarPago;
 using GastroGestion.Domain.Facturacion;
@@ -11,6 +12,9 @@ public static class FacturaMappings
 
     public static RegistrarPagoCommand ToCommand(this RegistrarPagoRequest request, Guid facturaId)
         => new(facturaId, request.Monto, request.MetodoPago);
+
+    public static AnularFacturaCommand ToCommand(this AnularFacturaRequest request, Guid facturaId)
+        => new(facturaId, request.Motivo);
 
     public static FacturaResumenResponse ToResumenResponse(this Factura factura)
         => new(
@@ -48,5 +52,7 @@ public static class FacturaMappings
                 p.Id,
                 p.Monto.Monto,
                 p.MetodoPago,
-                p.FechaPago)).ToList().AsReadOnly());
+                p.FechaPago)).ToList().AsReadOnly(),
+            factura.MotivoAnulacion,
+            factura.FechaAnulacion);
 }

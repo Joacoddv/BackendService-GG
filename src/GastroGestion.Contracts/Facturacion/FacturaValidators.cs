@@ -22,3 +22,12 @@ public sealed class RegistrarPagoValidator : AbstractValidator<RegistrarPagoRequ
             .GreaterThan(0).WithMessage("Monto must be greater than zero.");
     }
 }
+
+public sealed class AnularFacturaValidator : AbstractValidator<AnularFacturaRequest>
+{
+    public AnularFacturaValidator()
+    {
+        RuleFor(x => x.Motivo)
+            .NotEmpty().WithMessage("Motivo is required.");
+    }
+}

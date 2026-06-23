@@ -197,6 +197,76 @@ public class FacturaTests
         factura.Total.Monto.Should().Be(463m);
     }
 
+    // ── Anular ────────────────────────────────────────────────────────────────
+
+    private static Factura FacturaPagada()
+    {
+        var lineas = new List<FacturaLinea>
+        {
+            new(Guid.NewGuid(), Guid.NewGuid(), new Dinero(100m), PorcentajeIVA.Cero, 1)
+        };
+        var factura = Factura.CrearTicket(ClienteId, UnPedido(), lineas);
+        factura.RegistrarPago(new Dinero(100m), MetodoPago.Efectivo, DateTime.UtcNow);
+        return factura;
+    }
+
+    [Fact]
+    public void Anular_WhenPagada_SetsEstadoAnuladaAndRecordsMotivo()
+    {
+        var factura  = FacturaPagada();
+        var motivo   = "Credit note — customer return";
+        var fechaUtc = new DateTime(2026, 6, 22, 10, 0, 0, DateTimeKind.Utc);
+
+        factura.Anular(motivo, fechaUtc);
+
+        factura.Estado.Should().Be(EstadoFactura.Anulada);
+        factura.MotivoAnulacion.Should().Be(motivo);
+        factura.FechaAnulacion.Should().Be(fechaUtc);
+    }
+
+    [Fact]
+    public void Anular_WhenCreada_ThrowsDomainException()
+    {
+        var factura = Factura.CrearTicket(ClienteId, UnPedido(), LineasBasicas());
+
+        var act = () => factura.Anular("some reason", DateTime.UtcNow);
+
+        act.Should().Throw<DomainException>()
+           .WithMessage("*paid*");
+    }
+
+    [Fact]
+    public void Anular_WhenAlreadyAnulada_ThrowsDomainException()
+    {
+        var factura = FacturaPagada();
+        factura.Anular("first annulment", DateTime.UtcNow);
+
+        var act = () => factura.Anular("second annulment", DateTime.UtcNow);
+
+        act.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Anular_WithEmptyMotivo_ThrowsDomainException()
+    {
+        var factura = FacturaPagada();
+
+        var act = () => factura.Anular("   ", DateTime.UtcNow);
+
+        act.Should().Throw<DomainException>()
+           .WithMessage("*empty*");
+    }
+
+    [Fact]
+    public void Anular_TrimsMotivo()
+    {
+        var factura = FacturaPagada();
+
+        factura.Anular("  padded reason  ", DateTime.UtcNow);
+
+        factura.MotivoAnulacion.Should().Be("padded reason");
+    }
+
     // ── PuedeCombinarse ───────────────────────────────────────────────────────
 
     [Fact]
