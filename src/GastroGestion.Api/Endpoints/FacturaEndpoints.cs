@@ -1,4 +1,5 @@
 using GastroGestion.Api.Filters;
+using GastroGestion.Application.Facturacion.AnularFactura;
 using GastroGestion.Application.Facturacion.CancelarFactura;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetFacturaById;
@@ -59,6 +60,18 @@ public static class FacturaEndpoints
             await handler.Handle(new CancelarFacturaCommand(id), ct);
             return Results.NoContent();
         });
+
+        // POST /facturas/{id}/anular — annul a paid invoice via credit note
+        group.MapPost("/{id:guid}/anular", async (
+            Guid id,
+            [FromBody] AnularFacturaRequest request,
+            AnularFacturaHandler handler,
+            CancellationToken ct) =>
+        {
+            await handler.Handle(request.ToCommand(id), ct);
+            return Results.NoContent();
+        })
+        .WithValidation<AnularFacturaRequest>();
 
         // GET /facturas/{id} — get invoice by id
         group.MapGet("/{id:guid}", async (

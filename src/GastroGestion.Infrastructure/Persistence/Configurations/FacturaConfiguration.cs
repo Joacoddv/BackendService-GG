@@ -29,6 +29,14 @@ internal sealed class FacturaConfiguration : IEntityTypeConfiguration<Factura>
         b.Property(f => f.CAE).HasMaxLength(14);   // nullable — FacturaElectronica only
         b.Property(f => f.VencimientoCAE);          // DateOnly? → nullable date
 
+        b.Property(f => f.MotivoAnulacion)
+            .HasMaxLength(500)
+            .HasColumnType("nvarchar(500)")
+            .IsRequired(false);
+        b.Property(f => f.FechaAnulacion)
+            .HasColumnType("datetime2")
+            .IsRequired(false);
+
         // Computed totals — MUST be Ignored
         b.Ignore(f => f.SubTotal);
         b.Ignore(f => f.TotalIVA);

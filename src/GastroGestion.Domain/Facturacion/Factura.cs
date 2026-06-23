@@ -56,6 +56,18 @@ public class Factura : AggregateRoot
     /// </summary>
     public DateOnly? VencimientoCAE { get; private set; }
 
+    /// <summary>
+    /// Reason provided when annulling a paid invoice via a credit note.
+    /// Only set after <see cref="Anular"/> is called.
+    /// </summary>
+    public string? MotivoAnulacion { get; private set; }
+
+    /// <summary>
+    /// UTC timestamp when the invoice was annulled.
+    /// Only set after <see cref="Anular"/> is called.
+    /// </summary>
+    public DateTime? FechaAnulacion { get; private set; }
+
     // ── Collections ───────────────────────────────────────────────────────────
 
     public IReadOnlyList<FacturaLinea> Lineas            => _lineas.AsReadOnly();
@@ -218,6 +230,30 @@ public class Factura : AggregateRoot
             throw new DomainException("Factura is already cancelled.");
 
         Estado = EstadoFactura.Cancelada;
+    }
+
+    /// <summary>
+    /// Annuls a paid invoice by issuing a full credit note reversal.
+    /// Only valid when <see cref="Estado"/> is <see cref="EstadoFactura.Pagada"/>.
+    /// </summary>
+    /// <param name="motivo">Non-empty reason for the annulment.</param>
+    /// <param name="fechaUtc">UTC timestamp of the annulment.</param>
+    /// <exception cref="DomainException">
+    /// Thrown when the invoice is not in <see cref="EstadoFactura.Pagada"/> state,
+    /// already annulled, or <paramref name="motivo"/> is empty.
+    /// </exception>
+    public void Anular(string motivo, DateTime fechaUtc)
+    {
+        if (Estado != EstadoFactura.Pagada)
+            throw new DomainException("Only a paid Factura can be annulled with a credit note.");
+        if (Estado == EstadoFactura.Anulada)
+            throw new DomainException("Factura is already annulled.");
+        if (string.IsNullOrWhiteSpace(motivo))
+            throw new DomainException("Annulment reason (motivo) cannot be empty.");
+
+        Estado           = EstadoFactura.Anulada;
+        MotivoAnulacion  = motivo.Trim();
+        FechaAnulacion   = fechaUtc;
     }
 
     /// <summary>

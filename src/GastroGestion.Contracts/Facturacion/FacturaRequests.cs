@@ -11,3 +11,5 @@ public sealed record CrearFacturaRequest(
 public sealed record RegistrarPagoRequest(
     decimal Monto,
     MetodoPago MetodoPago);
+
+public sealed record AnularFacturaRequest(string Motivo);
