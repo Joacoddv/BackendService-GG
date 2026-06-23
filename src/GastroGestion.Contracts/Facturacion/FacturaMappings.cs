@@ -1,4 +1,5 @@
 using GastroGestion.Application.Facturacion.AnularFactura;
+using GastroGestion.Application.Facturacion.AsignarCae;
 using GastroGestion.Application.Facturacion.CrearFactura;
 using GastroGestion.Application.Facturacion.GetReporteVentas;
 using GastroGestion.Application.Facturacion.RegistrarPago;
@@ -16,6 +17,9 @@ public static class FacturaMappings
 
     public static AnularFacturaCommand ToCommand(this AnularFacturaRequest request, Guid facturaId)
         => new(facturaId, request.Motivo);
+
+    public static AsignarCaeCommand ToCommand(this AsignarCaeRequest request, Guid facturaId)
+        => new(facturaId, request.Cae, request.Vencimiento);
 
     public static FacturaResumenResponse ToResumenResponse(this Factura factura)
         => new(
