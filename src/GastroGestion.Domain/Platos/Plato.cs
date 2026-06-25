@@ -74,4 +74,48 @@ public class Plato : AggregateRoot
     {
         Activo = false;
     }
+
+    /// <summary>
+    /// Maximum whole units of this dish producible from the given on-hand ingredient
+    /// balances (already net of reservations). Pure: min over recipe lines of
+    /// floor(available / required). Returns 0 if any required ingredient is missing
+    /// or insufficient. Returns 0 if the dish has no recipe lines.
+    /// </summary>
+    /// <param name="balancesPorIngrediente">
+    /// Net balances keyed by IngredienteId (SUM of all ledger movements, reservations already negative).
+    /// </param>
+    public int CalcularMaxProducible(IReadOnlyDictionary<Guid, decimal> balancesPorIngrediente)
+    {
+        if (_lineasReceta.Count == 0)
+            return 0;
+
+        int? min = null;
+
+        foreach (var linea in _lineasReceta)
+        {
+            // Sub-recipe seam: if PlatoReferenciadoId is non-null we cannot compute
+            // producible from ingredient balances alone — return 0 for safety.
+            if (linea.PlatoReferenciadoId is not null)
+                return 0;
+
+            var required = linea.Cantidad.Valor;
+
+            // Non-positive recipe quantity is invalid data; skip so it never inflates the result.
+            if (required <= 0m)
+                continue;
+
+            var available  = balancesPorIngrediente.GetValueOrDefault(linea.IngredienteId, 0m);
+            var producible = (int)Math.Floor(available / required);
+
+            // Floor at 0 (negative available means over-committed stock).
+            if (producible < 0)
+                producible = 0;
+
+            min = min.HasValue ? Math.Min(min.Value, producible) : producible;
+        }
+
+        // If every line was skipped (all had non-positive required), treat as 0 — no constraint
+        // could be computed, so we cannot claim anything is producible.
+        return min ?? 0;
+    }
 }

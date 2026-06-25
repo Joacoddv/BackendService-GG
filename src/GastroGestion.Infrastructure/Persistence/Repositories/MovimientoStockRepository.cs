@@ -29,4 +29,14 @@ internal sealed class MovimientoStockRepository : IMovimientoStockRepository
             .OrderByDescending(m => m.FechaMovimiento)
             .AsNoTracking()
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyDictionary<Guid, decimal>> CalcularBalancesAsync(CancellationToken ct = default)
+    {
+        var rows = await _ctx.MovimientosStock
+            .GroupBy(m => m.IngredienteId)
+            .Select(g => new { IngredienteId = g.Key, Balance = g.Sum(x => x.Cantidad) })
+            .ToListAsync(ct);
+
+        return rows.ToDictionary(r => r.IngredienteId, r => r.Balance);
+    }
 }

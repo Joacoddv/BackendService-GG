@@ -2,6 +2,7 @@ using GastroGestion.Api.Filters;
 using GastroGestion.Application.Stock.GetBalanceStock;
 using GastroGestion.Application.Stock.GetBalancesStock;
 using GastroGestion.Application.Stock.GetMovimientosStock;
+using GastroGestion.Application.Stock.GetProducibles;
 using GastroGestion.Application.Stock.RegistrarMovimientoStock;
 using GastroGestion.Contracts.Stock;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +54,15 @@ public static class StockEndpoints
         {
             var balance = await handler.Handle(new GetBalanceStockQuery(ingredienteId), ct);
             return Results.Ok(new BalanceStockResponse(ingredienteId, balance));
+        });
+
+        // GET /stock/producibles — maximum producible quantity per active dish, ordered by name
+        group.MapGet("/producibles", async (
+            GetProduciblesHandler handler,
+            CancellationToken ct) =>
+        {
+            var results = await handler.Handle(new GetProduciblesQuery(), ct);
+            return Results.Ok(results.Select(r => r.ToResponse()).ToList());
         });
 
         return app;
