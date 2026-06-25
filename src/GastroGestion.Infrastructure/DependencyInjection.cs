@@ -1,7 +1,9 @@
+using GastroGestion.Application.Abstractions;
 using GastroGestion.Application.Abstractions.Events;
 using GastroGestion.Application.Abstractions.Notifications;
 using GastroGestion.Application.Abstractions.Persistence;
 using GastroGestion.Application.Abstractions.Security;
+using GastroGestion.Infrastructure.Bitacora;
 using GastroGestion.Infrastructure.Events;
 using GastroGestion.Infrastructure.Notifications;
 using GastroGestion.Infrastructure.Persistence;
@@ -29,6 +31,10 @@ public static class DependencyInjection
             options.UseSqlServer(
                 configuration.GetConnectionString("Seguridad"),
                 sql => sql.MigrationsAssembly(typeof(SeguridadDbContext).Assembly.FullName)));
+
+        // Bitacora (audit log) — writer + read-side repository
+        services.AddScoped<IBitacoraWriter, BitacoraWriter>();
+        services.AddScoped<IBitacoraRepository, BitacoraRepository>();
 
         // Repositories — Slice A (catalogue)
         services.AddScoped<IClienteRepository, ClienteRepository>();

@@ -8,13 +8,12 @@ using GastroGestion.Application.Usuarios.GetUsuarioById;
 using GastroGestion.Contracts.Usuarios;
 using GastroGestion.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace GastroGestion.Api.Endpoints;
 
 /// <summary>
-/// Endpoint group for /usuarios: cocineros listing (CCC-A01) + the Admin-only
-/// user management CRUD (registration, list, edit, soft-delete).
+/// Endpoint group for /usuarios: cocineros listing (CCC-A01) + Admin-only user management CRUD.
+/// Role enforcement is handled by named authorization policies defined in Program.cs.
 /// </summary>
 public static class UsuarioEndpoints
 {
@@ -27,63 +26,46 @@ public static class UsuarioEndpoints
 
         // GET /usuarios/cocineros — Cocinero | Administrador only (CCC-A01)
         group.MapGet("/cocineros", async (
-            HttpContext http,
             GetCocinerosHandler handler,
             CancellationToken ct) =>
         {
-            var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
-            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
-                return Results.Problem(
-                    title: "Invalid or missing role claim.",
-                    statusCode: StatusCodes.Status403Forbidden);
-
-            if (rol is not (RolUsuario.Cocinero or RolUsuario.Administrador))
-                return Results.Problem(
-                    title: "Access denied. Required role: Cocinero or Administrador.",
-                    statusCode: StatusCodes.Status403Forbidden);
-
             var cocineros = await handler.Handle(new GetCocinerosQuery(), ct);
             return Results.Ok(cocineros.Select(u => u.ToCocineroResponse()).ToList());
-        });
+        })
+        .RequireAuthorization("CocineroOAdministrador");
 
         // POST /usuarios — register a new user (Admin only)
         group.MapPost("/", async (
             [FromBody] CrearUsuarioRequest request,
-            HttpContext http,
             CrearUsuarioHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/usuarios/{id}", id);
         })
-        .WithValidation<CrearUsuarioRequest>();
+        .WithValidation<CrearUsuarioRequest>()
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Create user");
 
         // GET /usuarios/{id} — get by id (Admin only)
         group.MapGet("/{id:guid}", async (
             Guid id,
-            HttpContext http,
             GetUsuarioByIdHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             var usuario = await handler.Handle(new GetUsuarioByIdQuery(id), ct);
             return usuario is null
                 ? Results.NotFound()
                 : Results.Ok(usuario.ToResponse());
-        });
+        })
+        .RequireAuthorization("SoloAdministrador");
 
         // GET /usuarios?nombre=&rol=&incluirInactivos= — search (Admin only)
         group.MapGet("/", async (
             HttpRequest request,
-            HttpContext http,
             BuscarUsuariosHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             var nombre = request.Query["nombre"].FirstOrDefault();
 
             RolUsuario? rolFiltro = null;
@@ -101,56 +83,35 @@ public static class UsuarioEndpoints
 
             var list = await handler.Handle(new BuscarUsuariosQuery(nombre, rolFiltro, incluirInactivos), ct);
             return Results.Ok(list.Select(u => u.ToResponse()).ToList());
-        });
+        })
+        .RequireAuthorization("SoloAdministrador");
 
         // PUT /usuarios/{id} — edit name + role (Admin only)
         group.MapPut("/{id:guid}", async (
             Guid id,
             [FromBody] EditarUsuarioRequest request,
-            HttpContext http,
             EditarUsuarioHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             var usuario = await handler.Handle(request.ToCommand(id), ct);
             return Results.Ok(usuario.ToResponse());
         })
-        .WithValidation<EditarUsuarioRequest>();
+        .WithValidation<EditarUsuarioRequest>()
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Update user");
 
         // DELETE /usuarios/{id} — soft-delete (Admin only)
         group.MapDelete("/{id:guid}", async (
             Guid id,
-            HttpContext http,
             DesactivarUsuarioHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             await handler.Handle(new DesactivarUsuarioCommand(id), ct);
             return Results.NoContent();
-        });
+        })
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Deactivate user");
 
         return app;
-    }
-
-    /// <summary>
-    /// Returns a 403 ProblemDetails result when the caller is not an Administrador,
-    /// or <c>null</c> when access is granted.
-    /// </summary>
-    private static IResult? RequireAdmin(HttpContext http)
-    {
-        var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
-        if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
-            return Results.Problem(
-                title: "Invalid or missing role claim.",
-                statusCode: StatusCodes.Status403Forbidden);
-
-        if (rol is not RolUsuario.Administrador)
-            return Results.Problem(
-                title: "Access denied. Required role: Administrador.",
-                statusCode: StatusCodes.Status403Forbidden);
-
-        return null;
     }
 }

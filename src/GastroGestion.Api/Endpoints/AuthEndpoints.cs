@@ -1,9 +1,11 @@
 using GastroGestion.Api.Filters;
+using GastroGestion.Application.Abstractions;
 using GastroGestion.Application.Auth.CerrarSesion;
 using GastroGestion.Application.Auth.CerrarSesionGlobal;
 using GastroGestion.Application.Auth.Login;
 using GastroGestion.Application.Auth.RefrescarToken;
 using GastroGestion.Contracts.Auth;
+using GastroGestion.Domain.Bitacora;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,10 +25,41 @@ public static class AuthEndpoints
         group.MapPost("/login", [AllowAnonymous] async (
             [FromBody] LoginRequest request,
             LoginHandler handler,
+            IBitacoraWriter bitacora,
             CancellationToken ct) =>
         {
-            var result = await handler.Handle(request.ToCommand(), ct);
-            return Results.Ok(result.ToResponse());
+            try
+            {
+                var result = await handler.Handle(request.ToCommand(), ct);
+
+                // Audit: successful login — record the canonical email from the authenticated
+                // user, not the raw request value (casing/whitespace may differ).
+                var entry = BitacoraEntry.Registrar(
+                    result.UsuarioId,
+                    result.Email,
+                    result.Rol,
+                    "Login",
+                    detalle: null,
+                    resultadoHttp: StatusCodes.Status200OK,
+                    fechaUtc: DateTime.UtcNow);
+                await bitacora.RegistrarAsync(entry, ct);
+
+                return Results.Ok(result.ToResponse());
+            }
+            catch
+            {
+                // Audit: failed login — record the attempted email (all we have for an
+                // unauthenticated request); do not reveal the failure reason in the detail.
+                var failEntry = BitacoraEntry.RegistrarAnonimo(
+                    email: request.Email,
+                    accion: "Login failed",
+                    detalle: null,
+                    resultadoHttp: StatusCodes.Status401Unauthorized,
+                    fechaUtc: DateTime.UtcNow);
+                await bitacora.RegistrarAsync(failEntry, ct);
+
+                throw; // re-throw so the exception handler maps it to the right status code
+            }
         })
         .WithValidation<LoginRequest>();
 
@@ -41,9 +74,7 @@ public static class AuthEndpoints
         })
         .WithValidation<RefrescarTokenRequest>();
 
-        // POST /auth/logout — revoke the presented refresh token (single session). Anonymous like
-        // /refresh: the access token may already be expired at logout time, and possession of the
-        // refresh token is what authorises its revocation. Always 204 (idempotent, non-revealing).
+        // POST /auth/logout — revoke refresh token. Anonymous: possession of the token authorises revocation.
         group.MapPost("/logout", [AllowAnonymous] async (
             [FromBody] CerrarSesionRequest request,
             CerrarSesionHandler handler,
@@ -55,13 +86,11 @@ public static class AuthEndpoints
         .WithValidation<CerrarSesionRequest>();
 
         // POST /auth/logout-all — revoke every active session of the authenticated user
-        // ("log out everywhere"). Requires a valid access token; the user id comes from its claims.
         group.MapPost("/logout-all", async (
             HttpContext http,
             CerrarSesionGlobalHandler handler,
             CancellationToken ct) =>
         {
-            // sub is mapped to NameIdentifier by the JWT bearer middleware (default inbound mapping).
             var sub = http.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(sub, out var usuarioId))
                 return Results.Problem(

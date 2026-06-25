@@ -3,9 +3,12 @@ using GastroGestion.Api.Endpoints;
 using GastroGestion.Api.ErrorHandling;
 using GastroGestion.Api.Hubs;
 using GastroGestion.Api.Realtime;
+using GastroGestion.Api.Security;
 using GastroGestion.Application;
+using GastroGestion.Application.Abstractions;
 using GastroGestion.Application.Abstractions.Realtime;
 using GastroGestion.Contracts.Clientes;
+using GastroGestion.Domain.Enums;
 using GastroGestion.Infrastructure;
 using GastroGestion.Infrastructure.Persistence;
 using GastroGestion.Infrastructure.Persistence.Seed;
@@ -91,7 +94,20 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SoloAdministrador",
+        p => p.RequireRole(nameof(RolUsuario.Administrador)));
+
+    options.AddPolicy("CocineroOAdministrador",
+        p => p.RequireRole(nameof(RolUsuario.Cocinero), nameof(RolUsuario.Administrador)));
+
+    options.AddPolicy("MozoOAdministrador",
+        p => p.RequireRole(nameof(RolUsuario.Mozo), nameof(RolUsuario.Administrador)));
+});
 
 // 6b. CORS — allow the Blazor WASM client (cross-origin SignalR + REST)
 // AllowCredentials() is required for SignalR auth; it mandates explicit origins (not AllowAnyOrigin).
@@ -187,6 +203,7 @@ app.MapHealthChecks("/health");
 
 // 7. Endpoint groups
 app.MapAuthEndpoints();
+app.MapBitacoraEndpoints();
 app.MapClienteEndpoints();
 app.MapIngredienteEndpoints();
 app.MapPlatoEndpoints();

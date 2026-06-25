@@ -8,9 +8,7 @@ using GastroGestion.Application.Clientes.EditarCliente;
 using GastroGestion.Application.Clientes.GetClienteById;
 using GastroGestion.Application.Clientes.QuitarDireccion;
 using GastroGestion.Contracts.Clientes;
-using GastroGestion.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace GastroGestion.Api.Endpoints;
 
@@ -29,7 +27,8 @@ public static class ClienteEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/clientes/{id}", id);
         })
-        .WithValidation<CrearClienteRequest>();
+        .WithValidation<CrearClienteRequest>()
+        .WithBitacora("Create client");
 
         // GET /clientes/{id} — get by id
         group.MapGet("/{id:guid}", async (
@@ -44,7 +43,6 @@ public static class ClienteEndpoints
         });
 
         // GET /clientes?nombre=&incluirInactivos= — search (CCC-B03)
-        // Default hides inactive (incluirInactivos defaults to false). ADR-CCC-3: does NOT call GetAllAsync.
         group.MapGet("/", async (
             HttpRequest request,
             BuscarClientesHandler handler,
@@ -63,49 +61,29 @@ public static class ClienteEndpoints
         group.MapPut("/{id:guid}", async (
             Guid id,
             [FromBody] EditarClienteRequest request,
-            HttpContext http,
             EditarClienteHandler handler,
             CancellationToken ct) =>
         {
-            var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
-            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
-                return Results.Problem(
-                    title: "Invalid or missing role claim.",
-                    statusCode: StatusCodes.Status403Forbidden);
-
-            if (rol is not RolUsuario.Administrador)
-                return Results.Problem(
-                    title: "Access denied. Required role: Administrador.",
-                    statusCode: StatusCodes.Status403Forbidden);
-
             var cliente = await handler.Handle(request.ToCommand(id), ct);
             return Results.Ok(cliente.ToResponse());
         })
-        .WithValidation<EditarClienteRequest>();
+        .WithValidation<EditarClienteRequest>()
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Update client");
 
         // DELETE /clientes/{id} — soft-delete (Admin only, CCC-B02)
         group.MapDelete("/{id:guid}", async (
             Guid id,
-            HttpContext http,
             DesactivarClienteHandler handler,
             CancellationToken ct) =>
         {
-            var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
-            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
-                return Results.Problem(
-                    title: "Invalid or missing role claim.",
-                    statusCode: StatusCodes.Status403Forbidden);
-
-            if (rol is not RolUsuario.Administrador)
-                return Results.Problem(
-                    title: "Access denied. Required role: Administrador.",
-                    statusCode: StatusCodes.Status403Forbidden);
-
             await handler.Handle(new DesactivarClienteCommand(id), ct);
             return Results.NoContent();
-        });
+        })
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Deactivate client");
 
-        // GET /clientes/cumpleaneros?mes= — clientes whose birthday is in the month (default: current)
+        // GET /clientes/cumpleaneros?mes=
         group.MapGet("/cumpleaneros", async (
             HttpRequest request,
             GetCumpleanerosHandler handler,
@@ -116,7 +94,7 @@ public static class ClienteEndpoints
             return Results.Ok(lista.Select(c => c.ToResponse()).ToList());
         });
 
-        // POST /clientes/cumpleaneros/enviar-promo?mes= — email a birthday promo to the month's clientes
+        // POST /clientes/cumpleaneros/enviar-promo?mes=
         group.MapPost("/cumpleaneros/enviar-promo", async (
             HttpRequest request,
             EnviarPromoCumpleanosHandler handler,
@@ -127,7 +105,7 @@ public static class ClienteEndpoints
             return Results.Ok(result.ToResponse());
         });
 
-        // POST /clientes/{id}/direcciones — add an address; returns the updated cliente
+        // POST /clientes/{id}/direcciones
         group.MapPost("/{id:guid}/direcciones", async (
             Guid id,
             [FromBody] AgregarDireccionRequest request,
@@ -141,9 +119,10 @@ public static class ClienteEndpoints
 
             var cliente = await getHandler.Handle(new GetClienteByIdQuery(id), ct);
             return Results.Ok(cliente!.ToResponse());
-        });
+        })
+        .WithBitacora("Add client address");
 
-        // DELETE /clientes/{id}/direcciones/{direccionId} — remove an address; returns the updated cliente
+        // DELETE /clientes/{id}/direcciones/{direccionId}
         group.MapDelete("/{id:guid}/direcciones/{direccionId:guid}", async (
             Guid id,
             Guid direccionId,
@@ -155,7 +134,8 @@ public static class ClienteEndpoints
 
             var cliente = await getHandler.Handle(new GetClienteByIdQuery(id), ct);
             return cliente is null ? Results.NotFound() : Results.Ok(cliente.ToResponse());
-        });
+        })
+        .WithBitacora("Remove client address");
 
         return app;
     }

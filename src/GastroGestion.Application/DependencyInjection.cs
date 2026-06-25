@@ -1,3 +1,4 @@
+using GastroGestion.Application.Bitacora.GetBitacora;
 using GastroGestion.Application.Auth.CerrarSesion;
 using GastroGestion.Application.Auth.CerrarSesionGlobal;
 using GastroGestion.Application.Auth.Login;
@@ -77,6 +78,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        // Use cases — Bitacora (audit log)
+        services.AddScoped<GetBitacoraHandler>();
+
         // Use cases — Auth (Phase 5)
         services.AddScoped<LoginHandler>();
         services.AddScoped<RefrescarTokenHandler>();

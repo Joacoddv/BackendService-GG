@@ -1,4 +1,5 @@
 using GastroGestion.Api.Filters;
+using GastroGestion.Application.Abstractions;
 using GastroGestion.Application.Pedidos.ActualizarLinea;
 using GastroGestion.Application.Pedidos.AgregarLinea;
 using GastroGestion.Application.Pedidos.BuscarPedidos;
@@ -10,7 +11,6 @@ using GastroGestion.Application.Pedidos.GetPedidoById;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
 using GastroGestion.Contracts.Pedidos;
 using GastroGestion.Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroGestion.Api.Endpoints;
@@ -21,7 +21,7 @@ public static class PedidoEndpoints
     {
         var group = app.MapGroup("/pedidos").WithTags("Pedidos").RequireAuthorization();
 
-        // GET /pedidos?estado=&tipo= — list orders (newest first), optional filters
+        // GET /pedidos?estado=&tipo= — list orders
         group.MapGet("/", async (
             HttpRequest request,
             BuscarPedidosHandler handler,
@@ -58,9 +58,10 @@ public static class PedidoEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/pedidos/{id}", id);
         })
-        .WithValidation<CrearPedidoRequest>();
+        .WithValidation<CrearPedidoRequest>()
+        .WithBitacora("Create order");
 
-        // POST /pedidos/{id}/lineas — add a line to an order
+        // POST /pedidos/{id}/lineas — add a line
         group.MapPost("/{id:guid}/lineas", async (
             Guid id,
             [FromBody] AgregarLineaRequest request,
@@ -70,9 +71,10 @@ public static class PedidoEndpoints
             var lineaId = await handler.Handle(request.ToCommand(id), ct);
             return Results.Created($"/pedidos/{id}/lineas/{lineaId}", lineaId);
         })
-        .WithValidation<AgregarLineaRequest>();
+        .WithValidation<AgregarLineaRequest>()
+        .WithBitacora("Add order line");
 
-        // PUT /pedidos/{id}/lineas/{lineaId} — edit an existing line's quantity/notes; returns the order
+        // PUT /pedidos/{id}/lineas/{lineaId} — edit a line
         group.MapPut("/{id:guid}/lineas/{lineaId:guid}", async (
             Guid id,
             Guid lineaId,
@@ -86,9 +88,10 @@ public static class PedidoEndpoints
             var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
             return Results.Ok(pedido!.ToResponse());
         })
-        .WithValidation<ActualizarLineaRequest>();
+        .WithValidation<ActualizarLineaRequest>()
+        .WithBitacora("Update order line");
 
-        // DELETE /pedidos/{id}/lineas/{lineaId} — remove a line; returns the updated order
+        // DELETE /pedidos/{id}/lineas/{lineaId} — remove a line
         group.MapDelete("/{id:guid}/lineas/{lineaId:guid}", async (
             Guid id,
             Guid lineaId,
@@ -100,10 +103,10 @@ public static class PedidoEndpoints
 
             var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
             return Results.Ok(pedido!.ToResponse());
-        });
+        })
+        .WithBitacora("Remove order line");
 
-        // POST /pedidos/{id}/lineas/{lineaId}/orden-trabajo — generate the kitchen OT for one
-        // (newly added, already priced) line; returns the updated order
+        // POST /pedidos/{id}/lineas/{lineaId}/orden-trabajo
         group.MapPost("/{id:guid}/lineas/{lineaId:guid}/orden-trabajo", async (
             Guid id,
             Guid lineaId,
@@ -115,9 +118,10 @@ public static class PedidoEndpoints
 
             var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
             return Results.Ok(pedido!.ToResponse());
-        });
+        })
+        .WithBitacora("Generate line work order");
 
-        // POST /pedidos/{id}/lineas/{lineaId}/confirmar-precio — confirm price snapshot (W-01 live path)
+        // POST /pedidos/{id}/lineas/{lineaId}/confirmar-precio
         group.MapPost("/{id:guid}/lineas/{lineaId:guid}/confirmar-precio", async (
             Guid id,
             Guid lineaId,
@@ -126,19 +130,22 @@ public static class PedidoEndpoints
         {
             await handler.Handle(new ConfirmarPrecioLineaCommand(id, lineaId), ct);
             return Results.NoContent();
-        });
+        })
+        .WithBitacora("Confirm line price");
 
-        // POST /pedidos/{id}/transicion — transition order state; role comes from JWT claim
+        // POST /pedidos/{id}/transicion — transition state; rol is needed by the domain handler
         group.MapPost("/{id:guid}/transicion", async (
             Guid id,
             [FromBody] TransicionarEstadoRequest request,
-            HttpContext http,
+            ICurrentUser currentUser,
             TransicionarEstadoPedidoHandler handler,
             GetPedidoByIdHandler getHandler,
             CancellationToken ct) =>
         {
-            var rolClaim = http.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
+            // The domain state-machine validates role-based transition rules,
+            // so we still need to pass the role to the handler. If the user is
+            // unauthenticated the group policy above would have already rejected the request.
+            if (currentUser.Rol is not { } rol)
                 return Results.Problem(
                     title: "Invalid or missing role claim.",
                     statusCode: StatusCodes.Status403Forbidden);
@@ -147,9 +154,10 @@ public static class PedidoEndpoints
 
             var pedido = await getHandler.Handle(new GetPedidoByIdQuery(id), ct);
             return Results.Ok(pedido!.ToResponse());
-        });
+        })
+        .WithBitacora("Transition order state");
 
-        // GET /pedidos/{id} — get order by id
+        // GET /pedidos/{id}
         group.MapGet("/{id:guid}", async (
             Guid id,
             GetPedidoByIdHandler handler,
