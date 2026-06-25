@@ -5,9 +5,7 @@ using GastroGestion.Application.Proveedores.DesactivarProveedor;
 using GastroGestion.Application.Proveedores.EditarProveedor;
 using GastroGestion.Application.Proveedores.GetProveedorById;
 using GastroGestion.Contracts.Proveedores;
-using GastroGestion.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace GastroGestion.Api.Endpoints;
 
@@ -26,7 +24,8 @@ public static class ProveedorEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/proveedores/{id}", id);
         })
-        .WithValidation<CrearProveedorRequest>();
+        .WithValidation<CrearProveedorRequest>()
+        .WithBitacora("Create supplier");
 
         // GET /proveedores/{id} — get by id
         group.MapGet("/{id:guid}", async (
@@ -38,7 +37,7 @@ public static class ProveedorEndpoints
             return proveedor is null ? Results.NotFound() : Results.Ok(proveedor.ToResponse());
         });
 
-        // GET /proveedores?nombre=&incluirInactivos= — search (hides inactive by default)
+        // GET /proveedores?nombre=&incluirInactivos=
         group.MapGet("/", async (
             HttpRequest request,
             BuscarProveedoresHandler handler,
@@ -57,42 +56,28 @@ public static class ProveedorEndpoints
         group.MapPut("/{id:guid}", async (
             Guid id,
             [FromBody] EditarProveedorRequest request,
-            HttpContext http,
             EditarProveedorHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             var proveedor = await handler.Handle(request.ToCommand(id), ct);
             return Results.Ok(proveedor.ToResponse());
         })
-        .WithValidation<EditarProveedorRequest>();
+        .WithValidation<EditarProveedorRequest>()
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Update supplier");
 
         // DELETE /proveedores/{id} — soft-delete (Admin only)
         group.MapDelete("/{id:guid}", async (
             Guid id,
-            HttpContext http,
             DesactivarProveedorHandler handler,
             CancellationToken ct) =>
         {
-            if (RequireAdmin(http) is { } denied) return denied;
-
             await handler.Handle(new DesactivarProveedorCommand(id), ct);
             return Results.NoContent();
-        });
+        })
+        .RequireAuthorization("SoloAdministrador")
+        .WithBitacora("Deactivate supplier");
 
         return app;
-    }
-
-    private static IResult? RequireAdmin(HttpContext http)
-    {
-        var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
-        if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
-            return Results.Problem(title: "Invalid or missing role claim.", statusCode: StatusCodes.Status403Forbidden);
-
-        if (rol is not RolUsuario.Administrador)
-            return Results.Problem(title: "Access denied. Required role: Administrador.", statusCode: StatusCodes.Status403Forbidden);
-
-        return null;
     }
 }

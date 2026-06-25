@@ -19,7 +19,7 @@ public static class FacturaEndpoints
     {
         var group = app.MapGroup("/facturas").WithTags("Facturas").RequireAuthorization();
 
-        // POST /facturas — create invoice from confirmed pedidos
+        // POST /facturas — create invoice
         group.MapPost("/", async (
             [FromBody] CrearFacturaRequest request,
             CrearFacturaHandler handler,
@@ -28,9 +28,10 @@ public static class FacturaEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/facturas/{id}", id);
         })
-        .WithValidation<CrearFacturaRequest>();
+        .WithValidation<CrearFacturaRequest>()
+        .WithBitacora("Create invoice");
 
-        // GET /facturas — list invoices with optional filters
+        // GET /facturas — list invoices
         group.MapGet("/", async (
             [FromQuery] EstadoFactura? estado,
             [FromQuery] Guid? clienteId,
@@ -51,7 +52,8 @@ public static class FacturaEndpoints
             await handler.Handle(request.ToCommand(id), ct);
             return Results.NoContent();
         })
-        .WithValidation<RegistrarPagoRequest>();
+        .WithValidation<RegistrarPagoRequest>()
+        .WithBitacora("Register payment");
 
         // POST /facturas/{id}/cancelar — cancel an invoice
         group.MapPost("/{id:guid}/cancelar", async (
@@ -61,7 +63,8 @@ public static class FacturaEndpoints
         {
             await handler.Handle(new CancelarFacturaCommand(id), ct);
             return Results.NoContent();
-        });
+        })
+        .WithBitacora("Cancel invoice");
 
         // POST /facturas/{id}/anular — annul a paid invoice via credit note
         group.MapPost("/{id:guid}/anular", async (
@@ -73,9 +76,10 @@ public static class FacturaEndpoints
             await handler.Handle(request.ToCommand(id), ct);
             return Results.NoContent();
         })
-        .WithValidation<AnularFacturaRequest>();
+        .WithValidation<AnularFacturaRequest>()
+        .WithBitacora("Annul invoice");
 
-        // POST /facturas/{id}/cae — assign AFIP/ARCA CAE to an electronic invoice
+        // POST /facturas/{id}/cae — assign AFIP/ARCA CAE
         group.MapPost("/{id:guid}/cae", async (
             Guid id,
             [FromBody] AsignarCaeRequest request,
@@ -85,9 +89,10 @@ public static class FacturaEndpoints
             await handler.Handle(request.ToCommand(id), ct);
             return Results.NoContent();
         })
-        .WithValidation<AsignarCaeRequest>();
+        .WithValidation<AsignarCaeRequest>()
+        .WithBitacora("Assign CAE");
 
-        // GET /facturas/reporte — aggregate sales report with optional date range
+        // GET /facturas/reporte — aggregate sales report
         group.MapGet("/reporte", async (
             [FromQuery] DateTime? desde,
             [FromQuery] DateTime? hasta,
@@ -98,7 +103,7 @@ public static class FacturaEndpoints
             return Results.Ok(result.ToResponse(desde, hasta));
         });
 
-        // GET /facturas/{id} — get invoice by id
+        // GET /facturas/{id} — get by id
         group.MapGet("/{id:guid}", async (
             Guid id,
             GetFacturaByIdHandler handler,

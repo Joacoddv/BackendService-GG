@@ -21,7 +21,8 @@ public static class PlatoEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/platos/{id}", id);
         })
-        .WithValidation<CrearPlatoRequest>();
+        .WithValidation<CrearPlatoRequest>()
+        .WithBitacora("Create dish");
 
         group.MapGet("/{id:guid}", async (
             Guid id,

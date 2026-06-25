@@ -9,4 +9,5 @@ public sealed record LoginResult(
     string RefreshToken,
     DateTime RefreshTokenExpiresAtUtc,
     Guid UsuarioId,
-    RolUsuario Rol);
+    RolUsuario Rol,
+    string Email);

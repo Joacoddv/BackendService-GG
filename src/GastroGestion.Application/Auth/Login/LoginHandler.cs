@@ -62,6 +62,6 @@ public sealed class LoginHandler
         return new LoginResult(
             access.Value, access.ExpiresAtUtc,
             generated.Raw, refresh.ExpiresAtUtc,
-            usuario.Id, usuario.Rol);
+            usuario.Id, usuario.Rol, usuario.Email);
     }
 }

@@ -21,7 +21,8 @@ public static class MenuEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/menus/{id}", id);
         })
-        .WithValidation<CrearMenuRequest>();
+        .WithValidation<CrearMenuRequest>()
+        .WithBitacora("Create menu");
 
         group.MapGet("/{id:guid}", async (
             Guid id,

@@ -1,4 +1,5 @@
 using GastroGestion.Application.Abstractions.Events;
+using GastroGestion.Domain.Bitacora;
 using GastroGestion.Domain.Clientes;
 using GastroGestion.Domain.Common;
 using GastroGestion.Domain.Facturacion;
@@ -28,6 +29,7 @@ public sealed class GastroGestionDbContext : DbContext
         IDomainEventDispatcher dispatcher) : base(options)
         => _dispatcher = dispatcher;
 
+    public DbSet<BitacoraEntry>    BitacoraEntries  => Set<BitacoraEntry>();
     public DbSet<Cliente>         Clientes         => Set<Cliente>();
     public DbSet<Ingrediente>     Ingredientes     => Set<Ingrediente>();
     public DbSet<Plato>           Platos           => Set<Plato>();

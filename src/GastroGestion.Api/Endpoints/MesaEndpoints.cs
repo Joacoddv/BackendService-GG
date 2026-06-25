@@ -21,7 +21,8 @@ public static class MesaEndpoints
             var id = await handler.Handle(request.ToCommand(), ct);
             return Results.Created($"/mesas/{id}", id);
         })
-        .WithValidation<CrearMesaRequest>();
+        .WithValidation<CrearMesaRequest>()
+        .WithBitacora("Create table");
 
         group.MapGet("/{id:guid}", async (
             Guid id,
