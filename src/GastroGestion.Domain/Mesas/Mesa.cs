@@ -55,6 +55,21 @@ public class Mesa : AggregateRoot
     }
 
     /// <summary>
+    /// Updates the table number and seating capacity. Validates both the same way
+    /// <see cref="Crear"/> does: number and capacity must be greater than zero.
+    /// </summary>
+    public void Actualizar(int numero, int capacidad)
+    {
+        if (numero <= 0)
+            throw new DomainException("Mesa.Numero must be greater than zero.");
+        if (capacidad <= 0)
+            throw new DomainException("Mesa.Capacidad must be greater than zero.");
+
+        Numero    = numero;
+        Capacidad = capacidad;
+    }
+
+    /// <summary>
     /// Assigns an active Pedido to this table and marks it as occupied.
     /// Throws if a Pedido is already assigned (one-open-Pedido invariant).
     /// </summary>

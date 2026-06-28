@@ -72,6 +72,15 @@ public class Plato : AggregateRoot
             _lineasReceta.Remove(linea);
     }
 
+    /// <summary>Renames this dish. Validates the new name the same way <see cref="Crear"/> does.</summary>
+    public void Renombrar(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("Plato.Nombre cannot be null or empty.");
+
+        Nombre = nombre;
+    }
+
     /// <summary>Replaces the base price. Does not affect existing snapshotted prices on orders.</summary>
     public void ActualizarPrecio(Dinero nuevoPrecio)
     {

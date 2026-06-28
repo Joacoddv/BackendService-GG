@@ -34,9 +34,13 @@ using GastroGestion.Application.Ingredientes.EditarIngrediente;
 using GastroGestion.Application.Ingredientes.GetAllIngredientes;
 using GastroGestion.Application.Ingredientes.GetIngredienteById;
 using GastroGestion.Application.Menus.CrearMenu;
+using GastroGestion.Application.Menus.DesactivarMenu;
+using GastroGestion.Application.Menus.EditarMenu;
 using GastroGestion.Application.Menus.GetAllMenus;
 using GastroGestion.Application.Menus.GetMenuById;
 using GastroGestion.Application.Mesas.CrearMesa;
+using GastroGestion.Application.Mesas.DesactivarMesa;
+using GastroGestion.Application.Mesas.EditarMesa;
 using GastroGestion.Application.Mesas.GetAllMesas;
 using GastroGestion.Application.Mesas.GetMesaById;
 using GastroGestion.Application.Pedidos.ActualizarLinea;
@@ -53,6 +57,8 @@ using GastroGestion.Application.Pedidos.GetPedidoById;
 using GastroGestion.Application.Pedidos.MarcarOrdenTrabajoLista;
 using GastroGestion.Application.Pedidos.TransicionarEstadoPedido;
 using GastroGestion.Application.Platos.CrearPlato;
+using GastroGestion.Application.Platos.DesactivarPlato;
+using GastroGestion.Application.Platos.EditarPlato;
 using GastroGestion.Application.Proveedores.BuscarProveedores;
 using GastroGestion.Application.Proveedores.CrearProveedor;
 using GastroGestion.Application.Proveedores.DesactivarProveedor;
@@ -124,14 +130,20 @@ public static class DependencyInjection
         services.AddScoped<CrearPlatoHandler>();
         services.AddScoped<GetPlatoByIdHandler>();
         services.AddScoped<GetAllPlatosHandler>();
+        services.AddScoped<EditarPlatoHandler>();
+        services.AddScoped<DesactivarPlatoHandler>();
 
         services.AddScoped<CrearMenuHandler>();
         services.AddScoped<GetMenuByIdHandler>();
         services.AddScoped<GetAllMenusHandler>();
+        services.AddScoped<EditarMenuHandler>();
+        services.AddScoped<DesactivarMenuHandler>();
 
         services.AddScoped<CrearMesaHandler>();
         services.AddScoped<GetMesaByIdHandler>();
         services.AddScoped<GetAllMesasHandler>();
+        services.AddScoped<EditarMesaHandler>();
+        services.AddScoped<DesactivarMesaHandler>();
 
         // Use cases — Slice C (Transactional: Pedidos)
         services.AddScoped<CrearPedidoHandler>();
