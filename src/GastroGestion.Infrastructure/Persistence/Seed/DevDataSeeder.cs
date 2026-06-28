@@ -122,14 +122,14 @@ public static class DevDataSeeder
         // ── Platos (3) ────────────────────────────────────────────────────────────
 
         var milanesa = Plato.Crear("Milanesa", new Dinero(850m), AlicuotaIVA.General);
-        milanesa.AgregarLineaReceta(harina.Id, new Cantidad(200m, UnidadDeMedida.Gramo));
-        milanesa.AgregarLineaReceta(huevo.Id,  new Cantidad(2m,   UnidadDeMedida.Unidad));
+        milanesa.AgregarLineaReceta(harina.Id, harina.UnidadBase, new Cantidad(0.2m, UnidadDeMedida.Kilogramo));
+        milanesa.AgregarLineaReceta(huevo.Id,  huevo.UnidadBase,  new Cantidad(2m,   UnidadDeMedida.Unidad));
 
         var ensalada = Plato.Crear("Ensalada", new Dinero(450m), AlicuotaIVA.ReducidoA);
 
         var tarta = Plato.Crear("Tarta", new Dinero(650m), AlicuotaIVA.General);
-        tarta.AgregarLineaReceta(harina.Id, new Cantidad(300m, UnidadDeMedida.Gramo));
-        tarta.AgregarLineaReceta(sal.Id,    new Cantidad(5m,   UnidadDeMedida.Gramo));
+        tarta.AgregarLineaReceta(harina.Id, harina.UnidadBase, new Cantidad(0.3m, UnidadDeMedida.Kilogramo));
+        tarta.AgregarLineaReceta(sal.Id,    sal.UnidadBase,    new Cantidad(5m,   UnidadDeMedida.Gramo));
 
         await platoRepo.AddAsync(milanesa, ct);
         await platoRepo.AddAsync(ensalada, ct);

@@ -61,6 +61,7 @@ public class GenerarOrdenesTrabajoHandlerTests
         // and let the test wire the mock using plato.Id.
         plato.AgregarLineaReceta(
             Guid.NewGuid(),
+            UnidadDeMedida.Gramo,
             new Cantidad(200m, UnidadDeMedida.Gramo));
         return plato;
     }
@@ -184,7 +185,7 @@ public class GenerarOrdenesTrabajoHandlerTests
 
         // Plato needs a recipe but the price check fires first
         var plato = Plato.Crear("PlatoUnpriced", new Dinero(50m), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(Guid.NewGuid(), new Cantidad(1m, UnidadDeMedida.Kilogramo));
+        plato.AgregarLineaReceta(Guid.NewGuid(), UnidadDeMedida.Kilogramo, new Cantidad(1m, UnidadDeMedida.Kilogramo));
         _platos.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>())
                .Returns(new List<Plato> { plato });
 

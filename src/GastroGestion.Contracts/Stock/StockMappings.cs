@@ -1,4 +1,5 @@
 using GastroGestion.Application.Stock.GetBalancesStock;
+using GastroGestion.Application.Stock.GetProducibles;
 using GastroGestion.Application.Stock.RegistrarMovimientoStock;
 using GastroGestion.Domain.Stock;
 
@@ -8,6 +9,9 @@ public static class StockMappings
 {
     public static IngredienteBalanceResponse ToResponse(this IngredienteBalanceResult r)
         => new(r.IngredienteId, r.Nombre, r.Unidad, r.Activo, r.Balance, r.StockMinimo, r.EnAlerta);
+
+    public static PlatoProducibleResponse ToResponse(this PlatoProducibleResult r)
+        => new(r.PlatoId, r.Nombre, r.MaxProducible);
 
     public static RegistrarMovimientoStockCommand ToCommand(this RegistrarMovimientoStockRequest request)
         => new(

@@ -22,3 +22,8 @@ public sealed record IngredienteBalanceResponse(
     decimal Balance,
     decimal StockMinimo,
     bool EnAlerta);
+
+public sealed record PlatoProducibleResponse(
+    Guid PlatoId,
+    string Nombre,
+    int MaxProducible);

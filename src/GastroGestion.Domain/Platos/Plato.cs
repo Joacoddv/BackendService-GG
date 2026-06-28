@@ -47,10 +47,20 @@ public class Plato : AggregateRoot
         return new Plato(Guid.NewGuid(), nombre, precioBase, alicuotaIVA);
     }
 
-    /// <summary>Adds a recipe line to this dish.</summary>
-    public void AgregarLineaReceta(Guid ingredienteId, Cantidad cantidad)
+    /// <summary>
+    /// Adds a recipe line to this dish. The recipe line quantity MUST be expressed in the
+    /// ingredient's base unit (<paramref name="unidadBaseIngrediente"/>); no unit conversion is
+    /// performed when computing producible quantities, so a mismatched unit is rejected here.
+    /// </summary>
+    public void AgregarLineaReceta(Guid ingredienteId, UnidadDeMedida unidadBaseIngrediente, Cantidad cantidad)
     {
         ArgumentNullException.ThrowIfNull(cantidad);
+
+        if (cantidad.Unidad != unidadBaseIngrediente)
+            throw new DomainException(
+                $"Recipe line unit ({cantidad.Unidad}) must match the ingredient base unit " +
+                $"({unidadBaseIngrediente}).");
+
         _lineasReceta.Add(new LineaReceta(Guid.NewGuid(), ingredienteId, cantidad));
     }
 
@@ -73,5 +83,52 @@ public class Plato : AggregateRoot
     public void Desactivar()
     {
         Activo = false;
+    }
+
+    /// <summary>
+    /// Maximum whole units of this dish producible from the given on-hand ingredient
+    /// balances (already net of reservations). Pure: min over recipe lines of
+    /// floor(available / required). Returns 0 if any required ingredient is missing
+    /// or insufficient. Returns 0 if the dish has no recipe lines.
+    /// </summary>
+    /// <param name="balancesPorIngrediente">
+    /// Net balances keyed by IngredienteId (SUM of all ledger movements, reservations already negative).
+    /// </param>
+    public int CalcularMaxProducible(IReadOnlyDictionary<Guid, decimal> balancesPorIngrediente)
+    {
+        if (_lineasReceta.Count == 0)
+            return 0;
+
+        int? min = null;
+
+        foreach (var linea in _lineasReceta)
+        {
+            // Sub-recipe seam: if PlatoReferenciadoId is non-null we cannot compute
+            // producible from ingredient balances alone — return 0 for safety.
+            if (linea.PlatoReferenciadoId is not null)
+                return 0;
+
+            var required = linea.Cantidad.Valor;
+
+            // Non-positive recipe quantity is invalid data; skip so it never inflates the result.
+            if (required <= 0m)
+                continue;
+
+            var available = balancesPorIngrediente.GetValueOrDefault(linea.IngredienteId, 0m);
+            var ratio     = Math.Floor(available / required);
+
+            // Clamp the decimal ratio before casting: a very large ratio would overflow int
+            // (decimal→int throws OverflowException), and a negative one means over-committed stock.
+            int producible =
+                ratio > int.MaxValue ? int.MaxValue :
+                ratio < 0m           ? 0 :
+                (int)ratio;
+
+            min = min.HasValue ? Math.Min(min.Value, producible) : producible;
+        }
+
+        // If every line was skipped (all had non-positive required), treat as 0 — no constraint
+        // could be computed, so we cannot claim anything is producible.
+        return min ?? 0;
     }
 }

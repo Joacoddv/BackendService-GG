@@ -18,4 +18,10 @@ public interface IMovimientoStockRepository
 
     /// <summary>Returns the ledger movements for an ingredient, newest first.</summary>
     Task<IReadOnlyList<MovimientoStock>> GetByIngredienteAsync(Guid ingredienteId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns the net balance (SUM of all movements) for EVERY ingredient in a single query.
+    /// Use this instead of looping over <see cref="CalcularBalanceAsync"/> to avoid N+1.
+    /// </summary>
+    Task<IReadOnlyDictionary<Guid, decimal>> CalcularBalancesAsync(CancellationToken ct = default);
 }

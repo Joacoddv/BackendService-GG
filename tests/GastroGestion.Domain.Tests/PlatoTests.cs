@@ -44,7 +44,7 @@ public class PlatoTests
         var plato = Plato.Crear("Pasta", PrecioValido(), AlicuotaIVA.General);
         var ingredienteId = Guid.NewGuid();
 
-        plato.AgregarLineaReceta(ingredienteId, CantidadValida());
+        plato.AgregarLineaReceta(ingredienteId, UnidadDeMedida.Kilogramo, CantidadValida());
 
         plato.LineasReceta.Should().HaveCount(1);
         plato.LineasReceta[0].IngredienteId.Should().Be(ingredienteId);
@@ -54,7 +54,7 @@ public class PlatoTests
     public void EliminarLineaReceta_RemovesFromRecipe()
     {
         var plato = Plato.Crear("Pasta", PrecioValido(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(Guid.NewGuid(), CantidadValida());
+        plato.AgregarLineaReceta(Guid.NewGuid(), UnidadDeMedida.Kilogramo, CantidadValida());
         var lineaId = plato.LineasReceta[0].Id;
 
         plato.EliminarLineaReceta(lineaId);
@@ -78,9 +78,24 @@ public class PlatoTests
     {
         // Sub-recipe seam: PlatoReferenciadoId is null in v1
         var plato = Plato.Crear("Combo", PrecioValido(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(Guid.NewGuid(), CantidadValida());
+        plato.AgregarLineaReceta(Guid.NewGuid(), UnidadDeMedida.Kilogramo, CantidadValida());
 
         plato.LineasReceta[0].PlatoReferenciadoId.Should().BeNull();
+    }
+
+    [Fact]
+    public void AgregarLineaReceta_UnitMismatch_ThrowsDomainException()
+    {
+        var plato = Plato.Crear("Pasta", PrecioValido(), AlicuotaIVA.General);
+
+        // Recipe line quantity in Gramo while the ingredient base unit is Kilogramo → rejected.
+        var act = () => plato.AgregarLineaReceta(
+            Guid.NewGuid(),
+            UnidadDeMedida.Kilogramo,
+            new Cantidad(200m, UnidadDeMedida.Gramo));
+
+        act.Should().Throw<DomainException>();
+        plato.LineasReceta.Should().BeEmpty();
     }
 
     [Fact]
