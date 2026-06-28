@@ -1,10 +1,14 @@
 using GastroGestion.Application.Menus.CrearMenu;
+using GastroGestion.Application.Menus.EditarMenu;
 using GastroGestion.Domain.Menus;
 
 namespace GastroGestion.Contracts.Menus;
 
 public static class MenuMappings
 {
+    public static EditarMenuCommand ToCommand(this EditarMenuRequest request, Guid id)
+        => new(id, request.Nombre, request.FechaVigencia);
+
     public static CrearMenuCommand ToCommand(this CrearMenuRequest request)
         => new(
             request.Nombre,

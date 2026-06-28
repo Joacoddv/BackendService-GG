@@ -13,3 +13,16 @@ public sealed class PlatoValidator : AbstractValidator<CrearPlatoRequest>
             .GreaterThan(0).WithMessage("PrecioBase must be greater than zero.");
     }
 }
+
+/// <summary>Validator for PUT /platos/{id}.</summary>
+public sealed class EditarPlatoValidator : AbstractValidator<EditarPlatoRequest>
+{
+    public EditarPlatoValidator()
+    {
+        RuleFor(x => x.Nombre)
+            .NotEmpty().WithMessage("Nombre is required.");
+
+        RuleFor(x => x.PrecioBase)
+            .GreaterThan(0).WithMessage("PrecioBase must be greater than zero.");
+    }
+}

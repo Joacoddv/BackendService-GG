@@ -1,10 +1,14 @@
 using GastroGestion.Application.Platos.CrearPlato;
+using GastroGestion.Application.Platos.EditarPlato;
 using GastroGestion.Domain.Platos;
 
 namespace GastroGestion.Contracts.Platos;
 
 public static class PlatoMappings
 {
+    public static EditarPlatoCommand ToCommand(this EditarPlatoRequest request, Guid id)
+        => new(id, request.Nombre, request.PrecioBase);
+
     public static CrearPlatoCommand ToCommand(this CrearPlatoRequest request)
         => new(
             request.Nombre,

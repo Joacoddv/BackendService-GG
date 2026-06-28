@@ -18,4 +18,8 @@ internal sealed class MesaRepository : IMesaRepository
 
     public async Task<IReadOnlyList<Mesa>> GetAllAsync(CancellationToken ct = default)
         => (await _ctx.Mesas.ToListAsync(ct)).AsReadOnly();
+
+    public Task<bool> NumeroExistsForOtherAsync(int numero, Guid excludeId, CancellationToken ct = default)
+        => _ctx.Mesas
+               .AnyAsync(m => m.Id != excludeId && m.Numero == numero, ct);
 }

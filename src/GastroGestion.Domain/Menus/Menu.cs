@@ -73,6 +73,28 @@ public class Menu : AggregateRoot
             _items.Remove(item);
     }
 
+    /// <summary>Renames this menu. Validates the new name the same way <see cref="Crear"/> does.</summary>
+    public void Renombrar(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("Menu.Nombre cannot be null or empty.");
+
+        Nombre = nombre;
+    }
+
+    /// <summary>
+    /// Changes the effective date. Validates it the same way <see cref="Crear"/> does:
+    /// the date must be strictly in the future (after today in UTC).
+    /// </summary>
+    public void CambiarFechaVigencia(DateOnly fecha)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (fecha <= today)
+            throw new DomainException("FechaVigencia must be a future date.");
+
+        FechaVigencia = fecha;
+    }
+
     /// <summary>Soft-deletes this menu. Idempotent.</summary>
     public void Desactivar()
     {
