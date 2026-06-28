@@ -7,10 +7,10 @@ namespace GastroGestion.Contracts.Clientes;
 public static class ClienteMappings
 {
     public static CrearClienteCommand ToCommand(this CrearClienteRequest request)
-        => new(request.Nombre, request.CondicionIVA, request.Cuit, request.Email, request.FechaNacimiento);
+        => new(request.Nombre, request.CondicionIVA, request.Cuit, request.Email, request.FechaNacimiento, request.Apellido, request.Telefono, request.Dni);
 
     public static EditarClienteCommand ToCommand(this EditarClienteRequest request, Guid id)
-        => new(id, request.Nombre, request.CondicionIVA, request.Cuit, request.Email, request.FechaNacimiento);
+        => new(id, request.Nombre, request.CondicionIVA, request.Cuit, request.Email, request.FechaNacimiento, request.Apellido, request.Telefono, request.Dni);
 
     public static ClienteResponse ToResponse(this Cliente cliente)
         => new(
@@ -21,8 +21,11 @@ public static class ClienteMappings
             cliente.Email?.Valor,
             cliente.Activo,
             cliente.FechaNacimiento,
+            cliente.Apellido,
+            cliente.Telefono,
+            cliente.Dni,
             cliente.Direcciones
                 .Select(d => new DireccionResponse(
-                    d.Id, d.Calle, d.Numero, d.Ciudad, d.Provincia, d.CodigoPostal, d.Piso, d.Departamento))
+                    d.Id, d.Calle, d.Numero, d.Ciudad, d.Provincia, d.CodigoPostal, d.Piso, d.Departamento, d.Zona))
                 .ToList());
 }

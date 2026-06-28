@@ -141,4 +141,37 @@ public sealed class MesaCrudEndpointTests
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
+
+    // ── PUT /mesas/{id}/posicion ──────────────────────────────────────────────
+
+    [Fact]
+    public async Task PUT_Mesas_Posicion_Admin_Returns200WithCoordinates()
+    {
+        var id     = await CreateMesaAsync(NextNumero());
+        var client = _factory.CreateAuthenticatedClient(RolUsuario.Administrador);
+        var body   = new UbicarMesaRequest(X: 150, Y: 300);
+
+        var response = await client.PutAsJsonAsync($"/mesas/{id}/posicion", body);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<MesaResponse>(JsonOpts);
+        Assert.NotNull(result);
+        Assert.Equal(150, result!.PosicionX);
+        Assert.Equal(300, result.PosicionY);
+    }
+
+    [Theory]
+    [InlineData(RolUsuario.Mozo)]
+    [InlineData(RolUsuario.Cajero)]
+    [InlineData(RolUsuario.Cocinero)]
+    public async Task PUT_Mesas_Posicion_NonAdmin_Returns403(RolUsuario role)
+    {
+        var id     = await CreateMesaAsync(NextNumero());
+        var client = _factory.CreateAuthenticatedClient(role);
+        var body   = new UbicarMesaRequest(X: 50, Y: 50);
+
+        var response = await client.PutAsJsonAsync($"/mesas/{id}/posicion", body);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
 }

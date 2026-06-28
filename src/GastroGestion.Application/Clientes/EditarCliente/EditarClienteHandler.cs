@@ -34,7 +34,7 @@ public sealed class EditarClienteHandler
 
         // Domain method re-validates RI-requires-CUIT and updates mutable fields.
         // DomainException bubbles up → 422 via GastroGestionExceptionHandler.
-        cliente.ActualizarDatos(cmd.Nombre, cmd.CondicionIVA, cuit, email, cmd.FechaNacimiento);
+        cliente.ActualizarDatos(cmd.Nombre, cmd.CondicionIVA, cuit, email, cmd.FechaNacimiento, cmd.Apellido, cmd.Telefono, cmd.Dni);
 
         await _uow.SaveChangesAsync(ct);
 

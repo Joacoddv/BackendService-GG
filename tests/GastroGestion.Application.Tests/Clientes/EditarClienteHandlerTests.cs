@@ -113,4 +113,32 @@ public sealed class EditarClienteHandlerTests
         await act.Should().ThrowAsync<DomainException>();
         await _uow.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
+
+    /// <summary>New Apellido/Telefono/Dni fields round-trip through the handler.</summary>
+    [Fact]
+    public async Task Handle_WithApellidoTelefonoDni_RoundTripsCorrectly()
+    {
+        var cliente = BuildCliente();
+        var cmd     = new EditarClienteCommand(
+            cliente.Id,
+            "Updated Name",
+            CondicionIVA.ConsumidorFinal,
+            Cuit: null,
+            Email: null,
+            FechaNacimiento: null,
+            Apellido: "García",
+            Telefono: "1155998877",
+            Dni: "30123456");
+
+        _clientes.GetByIdAsync(cliente.Id, Arg.Any<CancellationToken>()).Returns(cliente);
+        _clientes.CuitExistsForOtherAsync(Arg.Any<string>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+                 .Returns(false);
+
+        var result = await _sut.Handle(cmd);
+
+        result.Apellido.Should().Be("García");
+        result.Telefono.Should().Be("1155998877");
+        result.Dni.Should().Be("30123456");
+        await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
 }

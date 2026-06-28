@@ -10,6 +10,9 @@ public sealed record ClienteResponse(
     string? Email,
     bool Activo,
     DateOnly? FechaNacimiento,
+    string? Apellido,
+    string? Telefono,
+    string? Dni,
     IReadOnlyList<DireccionResponse> Direcciones);
 
 public sealed record DireccionResponse(
@@ -20,4 +23,5 @@ public sealed record DireccionResponse(
     string Provincia,
     string CodigoPostal,
     string? Piso,
-    string? Departamento);
+    string? Departamento,
+    string? Zona);

@@ -8,4 +8,6 @@ public sealed record MesaResponse(
     int Capacidad,
     EstadoMesa Estado,
     bool Activa,
-    Guid? PedidoActivoId);
+    Guid? PedidoActivoId,
+    int? PosicionX,
+    int? PosicionY);

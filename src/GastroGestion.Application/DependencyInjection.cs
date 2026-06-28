@@ -43,6 +43,7 @@ using GastroGestion.Application.Mesas.DesactivarMesa;
 using GastroGestion.Application.Mesas.EditarMesa;
 using GastroGestion.Application.Mesas.GetAllMesas;
 using GastroGestion.Application.Mesas.GetMesaById;
+using GastroGestion.Application.Mesas.UbicarMesa;
 using GastroGestion.Application.Pedidos.ActualizarLinea;
 using GastroGestion.Application.Pedidos.AsignarCocinero;
 using GastroGestion.Application.Pedidos.AgregarLinea;
@@ -144,6 +145,7 @@ public static class DependencyInjection
         services.AddScoped<GetAllMesasHandler>();
         services.AddScoped<EditarMesaHandler>();
         services.AddScoped<DesactivarMesaHandler>();
+        services.AddScoped<UbicarMesaHandler>();
 
         // Use cases — Slice C (Transactional: Pedidos)
         services.AddScoped<CrearPedidoHandler>();

@@ -12,7 +12,8 @@ public sealed record AgregarDireccionCommand(
     string Provincia,
     string CodigoPostal,
     string? Piso,
-    string? Departamento);
+    string? Departamento,
+    string? Zona = null);
 
 public sealed class AgregarDireccionHandler
 {
@@ -33,7 +34,7 @@ public sealed class AgregarDireccionHandler
         var direccion = new Direccion(
             Guid.NewGuid(),
             cmd.Calle, cmd.Numero, cmd.Ciudad, cmd.Provincia, cmd.CodigoPostal,
-            cmd.Piso, cmd.Departamento);
+            cmd.Piso, cmd.Departamento, cmd.Zona);
 
         cliente.AgregarDireccion(direccion);
         await _uow.SaveChangesAsync(ct);

@@ -22,7 +22,8 @@ public static class PedidoMappings
                 request.DireccionEntrega.Provincia,
                 request.DireccionEntrega.CodigoPostal,
                 request.DireccionEntrega.Piso,
-                request.DireccionEntrega.Departamento),
+                request.DireccionEntrega.Departamento,
+                request.DireccionEntrega.Zona),
             DateTime.UtcNow);
 
     public static AgregarLineaCommand ToCommand(this AgregarLineaRequest request, Guid pedidoId)
@@ -48,7 +49,8 @@ public static class PedidoMappings
                 pedido.DireccionEntrega.Provincia,
                 pedido.DireccionEntrega.CodigoPostal,
                 pedido.DireccionEntrega.Piso,
-                pedido.DireccionEntrega.Departamento),
+                pedido.DireccionEntrega.Departamento,
+                pedido.DireccionEntrega.Zona),
             pedido.CreadoEnUtc,
             pedido.Lineas.Select(l => l.ToResponse()).ToList().AsReadOnly());
 

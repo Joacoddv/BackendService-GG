@@ -7,4 +7,5 @@ public sealed record DireccionEntregaInput(
     string Provincia,
     string CodigoPostal,
     string? Piso,
-    string? Departamento);
+    string? Departamento,
+    string? Zona = null);
