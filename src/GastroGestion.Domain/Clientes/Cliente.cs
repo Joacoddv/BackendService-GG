@@ -20,6 +20,15 @@ public class Cliente : AggregateRoot
     /// <summary>Optional date of birth — drives birthday promotions.</summary>
     public DateOnly? FechaNacimiento { get; private set; }
 
+    /// <summary>Optional last name.</summary>
+    public string? Apellido { get; private set; }
+
+    /// <summary>Optional contact phone number.</summary>
+    public string? Telefono { get; private set; }
+
+    /// <summary>Optional national identity document number.</summary>
+    public string? Dni { get; private set; }
+
     /// <summary>
     /// Immutable surrogate client number. Assigned at creation; never editable.
     /// Uniqueness is enforced at the infrastructure layer.
@@ -40,15 +49,21 @@ public class Cliente : AggregateRoot
         CondicionIVA condicionIVA,
         Cuit? cuit,
         Email? email,
-        DateOnly? fechaNacimiento) : base(id)
+        DateOnly? fechaNacimiento,
+        string? apellido = null,
+        string? telefono = null,
+        string? dni = null) : base(id)
     {
-        Nombre       = nombre;
-        CondicionIVA = condicionIVA;
-        Cuit         = cuit;
-        Email        = email;
+        Nombre          = nombre;
+        CondicionIVA    = condicionIVA;
+        Cuit            = cuit;
+        Email           = email;
         FechaNacimiento = fechaNacimiento;
-        NumeroCliente = id; // v1: surrogate = same as aggregate Id
-        Activo       = true;
+        NumeroCliente   = id; // v1: surrogate = same as aggregate Id
+        Activo          = true;
+        Apellido        = apellido;
+        Telefono        = telefono;
+        Dni             = dni;
     }
 
     /// <summary>
@@ -63,7 +78,10 @@ public class Cliente : AggregateRoot
         CondicionIVA condicionIVA,
         Cuit? cuit,
         Email? email,
-        DateOnly? fechaNacimiento = null)
+        DateOnly? fechaNacimiento = null,
+        string? apellido = null,
+        string? telefono = null,
+        string? dni = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("Cliente.Nombre cannot be null or empty.");
@@ -72,7 +90,7 @@ public class Cliente : AggregateRoot
             throw new DomainException(
                 "CUIT is required for a ResponsableInscripto client.");
 
-        return new Cliente(Guid.NewGuid(), nombre, condicionIVA, cuit, email, fechaNacimiento);
+        return new Cliente(Guid.NewGuid(), nombre, condicionIVA, cuit, email, fechaNacimiento, apellido, telefono, dni);
     }
 
     /// <summary>
@@ -102,7 +120,15 @@ public class Cliente : AggregateRoot
     /// <param name="condicionIVA">New fiscal condition.</param>
     /// <param name="cuit">Required when <paramref name="condicionIVA"/> is <see cref="CondicionIVA.ResponsableInscripto"/>.</param>
     /// <param name="email">Optional contact email.</param>
-    public void ActualizarDatos(string nombre, CondicionIVA condicionIVA, Cuit? cuit, Email? email, DateOnly? fechaNacimiento = null)
+    public void ActualizarDatos(
+        string nombre,
+        CondicionIVA condicionIVA,
+        Cuit? cuit,
+        Email? email,
+        DateOnly? fechaNacimiento = null,
+        string? apellido = null,
+        string? telefono = null,
+        string? dni = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("Cliente.Nombre cannot be null or empty.");
@@ -110,11 +136,14 @@ public class Cliente : AggregateRoot
         if (condicionIVA == CondicionIVA.ResponsableInscripto && cuit is null)
             throw new DomainException("CUIT is required for a ResponsableInscripto client.");
 
-        Nombre       = nombre;
-        CondicionIVA = condicionIVA;
-        Cuit         = cuit;
-        Email        = email;
+        Nombre          = nombre;
+        CondicionIVA    = condicionIVA;
+        Cuit            = cuit;
+        Email           = email;
         FechaNacimiento = fechaNacimiento;
+        Apellido        = apellido;
+        Telefono        = telefono;
+        Dni             = dni;
     }
 
     /// <summary>

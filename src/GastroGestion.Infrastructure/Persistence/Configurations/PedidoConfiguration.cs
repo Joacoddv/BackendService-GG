@@ -38,6 +38,7 @@ internal sealed class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
             dir.Property(x => x.Ciudad).HasColumnName("Entrega_Ciudad");
             dir.Property(x => x.Provincia).HasColumnName("Entrega_Provincia");
             dir.Property(x => x.CodigoPostal).HasColumnName("Entrega_CodigoPostal");
+            dir.Property(x => x.Zona).HasColumnName("Entrega_Zona");
         });
         b.Navigation(p => p.DireccionEntrega).IsRequired(false);
 

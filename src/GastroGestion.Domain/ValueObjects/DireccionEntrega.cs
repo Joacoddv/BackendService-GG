@@ -18,6 +18,9 @@ public sealed class DireccionEntrega : ValueObject
     public string Provincia { get; }
     public string CodigoPostal { get; }
 
+    /// <summary>Optional delivery zone or neighborhood descriptor. Part of equality comparison.</summary>
+    public string? Zona { get; }
+
     public DireccionEntrega(
         string calle,
         string numero,
@@ -25,7 +28,8 @@ public sealed class DireccionEntrega : ValueObject
         string provincia,
         string codigoPostal,
         string? piso = null,
-        string? departamento = null)
+        string? departamento = null,
+        string? zona = null)
     {
         if (string.IsNullOrWhiteSpace(calle))
             throw new DomainException("DireccionEntrega.Calle cannot be empty.");
@@ -45,6 +49,7 @@ public sealed class DireccionEntrega : ValueObject
         CodigoPostal = codigoPostal;
         Piso         = piso;
         Departamento = departamento;
+        Zona         = zona;
     }
 
     // EF Core owned-entity materialisation.
@@ -61,6 +66,7 @@ public sealed class DireccionEntrega : ValueObject
         yield return Ciudad;
         yield return Provincia;
         yield return CodigoPostal;
+        yield return Zona;
     }
 
     public override string ToString() =>

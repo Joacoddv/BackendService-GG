@@ -40,6 +40,10 @@ internal sealed class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
 
         b.Property(c => c.FechaNacimiento); // DateOnly? → nullable date column
 
+        b.Property(c => c.Apellido).HasMaxLength(200);   // nullable
+        b.Property(c => c.Telefono).HasMaxLength(50);    // nullable
+        b.Property(c => c.Dni).HasMaxLength(20);         // nullable
+
         b.HasIndex(c => c.Cuit)
             .IsUnique()
             .HasFilter("[Cuit] IS NOT NULL");
@@ -57,6 +61,7 @@ internal sealed class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
             d.Property(x => x.Ciudad).IsRequired();
             d.Property(x => x.Provincia).IsRequired();
             d.Property(x => x.CodigoPostal).IsRequired();
+            d.Property(x => x.Zona); // nullable
         });
 
         b.Navigation(c => c.Direcciones)

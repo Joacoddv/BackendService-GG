@@ -29,6 +29,12 @@ public class Mesa : AggregateRoot
     /// </summary>
     public byte[] RowVersion { get; private set; } = [];
 
+    /// <summary>Optional X coordinate for visual floor-plan layout. Null when not positioned.</summary>
+    public int? PosicionX { get; private set; }
+
+    /// <summary>Optional Y coordinate for visual floor-plan layout. Null when not positioned.</summary>
+    public int? PosicionY { get; private set; }
+
 #pragma warning disable CS8618
     private Mesa() { } // EF Core
 #pragma warning restore CS8618
@@ -97,6 +103,19 @@ public class Mesa : AggregateRoot
     /// Deactivates this table. Idempotent if already inactive.
     /// Throws if there is an active Pedido (deactivation guard).
     /// </summary>
+    /// <summary>
+    /// Sets the visual floor-plan coordinates for this table. Both values must be non-negative.
+    /// </summary>
+    /// <param name="x">Horizontal position in pixels or abstract grid units.</param>
+    /// <param name="y">Vertical position in pixels or abstract grid units.</param>
+    public void Ubicar(int x, int y)
+    {
+        if (x < 0) throw new DomainException("Mesa.PosicionX cannot be negative.");
+        if (y < 0) throw new DomainException("Mesa.PosicionY cannot be negative.");
+        PosicionX = x;
+        PosicionY = y;
+    }
+
     public void Desactivar()
     {
         if (PedidoActivoId is not null)

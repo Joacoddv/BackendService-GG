@@ -137,7 +137,7 @@ public static class ClienteEndpoints
         {
             await handler.Handle(new AgregarDireccionCommand(
                 id, request.Calle, request.Numero, request.Ciudad, request.Provincia,
-                request.CodigoPostal, request.Piso, request.Departamento), ct);
+                request.CodigoPostal, request.Piso, request.Departamento, request.Zona), ct);
 
             var cliente = await getHandler.Handle(new GetClienteByIdQuery(id), ct);
             return Results.Ok(cliente!.ToResponse());

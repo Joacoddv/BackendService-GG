@@ -4,6 +4,7 @@ using GastroGestion.Application.Mesas.DesactivarMesa;
 using GastroGestion.Application.Mesas.EditarMesa;
 using GastroGestion.Application.Mesas.GetAllMesas;
 using GastroGestion.Application.Mesas.GetMesaById;
+using GastroGestion.Application.Mesas.UbicarMesa;
 using GastroGestion.Contracts.Mesas;
 using GastroGestion.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -69,6 +70,30 @@ public static class MesaEndpoints
             return Results.Ok(mesa.ToResponse());
         })
         .WithValidation<EditarMesaRequest>();
+
+        // PUT /mesas/{id}/posicion — set floor-plan coordinates (Admin only)
+        group.MapPut("/{id:guid}/posicion", async (
+            Guid id,
+            [FromBody] UbicarMesaRequest request,
+            HttpContext http,
+            UbicarMesaHandler handler,
+            CancellationToken ct) =>
+        {
+            var rolClaim = http.User.FindFirst(ClaimTypes.Role)?.Value;
+            if (rolClaim is null || !Enum.TryParse<RolUsuario>(rolClaim, out var rol))
+                return Results.Problem(
+                    title: "Invalid or missing role claim.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
+            if (rol is not RolUsuario.Administrador)
+                return Results.Problem(
+                    title: "Access denied. Required role: Administrador.",
+                    statusCode: StatusCodes.Status403Forbidden);
+
+            var mesa = await handler.Handle(request.ToCommand(id), ct);
+            return Results.Ok(mesa.ToResponse());
+        })
+        .WithValidation<UbicarMesaRequest>();
 
         // DELETE /mesas/{id} — soft-delete (Admin only)
         group.MapDelete("/{id:guid}", async (

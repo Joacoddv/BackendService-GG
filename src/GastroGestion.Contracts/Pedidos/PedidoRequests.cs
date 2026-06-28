@@ -15,7 +15,8 @@ public sealed record DireccionEntregaRequest(
     string Provincia,
     string CodigoPostal,
     string? Piso,
-    string? Departamento);
+    string? Departamento,
+    string? Zona = null);
 
 public sealed record AgregarLineaRequest(
     Guid PlatoId,

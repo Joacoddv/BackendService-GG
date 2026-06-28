@@ -26,3 +26,16 @@ public sealed class EditarMesaValidator : AbstractValidator<EditarMesaRequest>
             .GreaterThan(0).WithMessage("Capacidad must be greater than zero.");
     }
 }
+
+/// <summary>Validator for PUT /mesas/{id}/posicion.</summary>
+public sealed class UbicarMesaValidator : AbstractValidator<UbicarMesaRequest>
+{
+    public UbicarMesaValidator()
+    {
+        RuleFor(x => x.X)
+            .GreaterThanOrEqualTo(0).WithMessage("X must be greater than or equal to zero.");
+
+        RuleFor(x => x.Y)
+            .GreaterThanOrEqualTo(0).WithMessage("Y must be greater than or equal to zero.");
+    }
+}

@@ -23,6 +23,9 @@ internal sealed class MesaConfiguration : IEntityTypeConfiguration<Mesa>
 
         b.Property(m => m.PedidoActivoId); // nullable Guid
 
+        b.Property(m => m.PosicionX); // nullable int
+        b.Property(m => m.PosicionY); // nullable int
+
         // SQL Server rowversion — store-generated; domain default [] is ignored on insert
         b.Property(m => m.RowVersion).IsRowVersion();
 

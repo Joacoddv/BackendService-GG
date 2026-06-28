@@ -17,6 +17,9 @@ public class Direccion : Entity
     public string Provincia { get; private set; }
     public string CodigoPostal { get; private set; }
 
+    /// <summary>Optional delivery zone or neighborhood descriptor.</summary>
+    public string? Zona { get; private set; }
+
     public Direccion(
         Guid id,
         string calle,
@@ -25,7 +28,8 @@ public class Direccion : Entity
         string provincia,
         string codigoPostal,
         string? piso = null,
-        string? departamento = null) : base(id)
+        string? departamento = null,
+        string? zona = null) : base(id)
     {
         if (string.IsNullOrWhiteSpace(calle))
             throw new DomainException("Direccion.Calle cannot be empty.");
@@ -42,9 +46,10 @@ public class Direccion : Entity
         Ciudad       = ciudad;
         Provincia    = provincia;
         CodigoPostal = codigoPostal;
-        // Piso and Departamento are genuinely optional (not all addresses have them).
+        // Piso, Departamento, and Zona are genuinely optional (not all addresses have them).
         Piso         = piso;
         Departamento = departamento;
+        Zona         = zona;
     }
 
     // EF Core parameterless ctor.

@@ -31,7 +31,8 @@ public sealed class CrearPedidoHandler
             cmd.DireccionEntrega.Provincia,
             cmd.DireccionEntrega.CodigoPostal,
             cmd.DireccionEntrega.Piso,
-            cmd.DireccionEntrega.Departamento);
+            cmd.DireccionEntrega.Departamento,
+            cmd.DireccionEntrega.Zona);
 
         var pedido = Pedido.Crear(cmd.Tipo, cmd.MesaId, cmd.ClienteId, direccion, cmd.CreadoEnUtc);
 
