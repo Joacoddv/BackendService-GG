@@ -47,10 +47,20 @@ public class Plato : AggregateRoot
         return new Plato(Guid.NewGuid(), nombre, precioBase, alicuotaIVA);
     }
 
-    /// <summary>Adds a recipe line to this dish.</summary>
-    public void AgregarLineaReceta(Guid ingredienteId, Cantidad cantidad)
+    /// <summary>
+    /// Adds a recipe line to this dish. The recipe line quantity MUST be expressed in the
+    /// ingredient's base unit (<paramref name="unidadBaseIngrediente"/>); no unit conversion is
+    /// performed when computing producible quantities, so a mismatched unit is rejected here.
+    /// </summary>
+    public void AgregarLineaReceta(Guid ingredienteId, UnidadDeMedida unidadBaseIngrediente, Cantidad cantidad)
     {
         ArgumentNullException.ThrowIfNull(cantidad);
+
+        if (cantidad.Unidad != unidadBaseIngrediente)
+            throw new DomainException(
+                $"Recipe line unit ({cantidad.Unidad}) must match the ingredient base unit " +
+                $"({unidadBaseIngrediente}).");
+
         _lineasReceta.Add(new LineaReceta(Guid.NewGuid(), ingredienteId, cantidad));
     }
 
@@ -104,12 +114,15 @@ public class Plato : AggregateRoot
             if (required <= 0m)
                 continue;
 
-            var available  = balancesPorIngrediente.GetValueOrDefault(linea.IngredienteId, 0m);
-            var producible = (int)Math.Floor(available / required);
+            var available = balancesPorIngrediente.GetValueOrDefault(linea.IngredienteId, 0m);
+            var ratio     = Math.Floor(available / required);
 
-            // Floor at 0 (negative available means over-committed stock).
-            if (producible < 0)
-                producible = 0;
+            // Clamp the decimal ratio before casting: a very large ratio would overflow int
+            // (decimal→int throws OverflowException), and a negative one means over-committed stock.
+            int producible =
+                ratio > int.MaxValue ? int.MaxValue :
+                ratio < 0m           ? 0 :
+                (int)ratio;
 
             min = min.HasValue ? Math.Min(min.Value, producible) : producible;
         }

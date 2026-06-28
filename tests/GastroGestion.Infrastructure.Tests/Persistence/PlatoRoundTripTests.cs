@@ -40,9 +40,9 @@ public sealed class PlatoRoundTripTests : IClassFixture<LocalDbFixture>
             new Dinero(1200m, Moneda.ARS),
             AlicuotaIVA.General);
 
-        plato.AgregarLineaReceta(ing1.Id, new Cantidad(200, UnidadDeMedida.Gramo));
-        plato.AgregarLineaReceta(ing2.Id, new Cantidad(2, UnidadDeMedida.Unidad));
-        plato.AgregarLineaReceta(ing3.Id, new Cantidad(5, UnidadDeMedida.Gramo));
+        plato.AgregarLineaReceta(ing1.Id, ing1.UnidadBase, new Cantidad(200, UnidadDeMedida.Gramo));
+        plato.AgregarLineaReceta(ing2.Id, ing2.UnidadBase, new Cantidad(2, UnidadDeMedida.Unidad));
+        plato.AgregarLineaReceta(ing3.Id, ing3.UnidadBase, new Cantidad(5, UnidadDeMedida.Gramo));
 
         await using (var saveCtx = _fixture.CreateContext())
         {

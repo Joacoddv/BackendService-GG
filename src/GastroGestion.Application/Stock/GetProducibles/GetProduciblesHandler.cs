@@ -24,16 +24,15 @@ public sealed class GetProduciblesHandler
         GetProduciblesQuery query,
         CancellationToken ct = default)
     {
-        var platos   = await _platoRepo.GetAllAsync(ct);
+        var platos   = await _platoRepo.GetActivosAsync(ct);
         var balances = await _stockRepo.CalcularBalancesAsync(ct);
 
         return platos
-            .Where(p => p.Activo)
             .Select(p => new PlatoProducibleResult(
                 p.Id,
                 p.Nombre,
                 p.CalcularMaxProducible(balances)))
-            .OrderBy(r => r.Nombre)
+            .OrderBy(r => r.Nombre, StringComparer.Ordinal)
             .ToList();
     }
 }

@@ -20,11 +20,12 @@ public sealed class GetBalancesStockHandler
         GetBalancesStockQuery query, CancellationToken ct = default)
     {
         var ingredientes = await _ingredientes.GetAllAsync(ct);
+        var balances     = await _stock.CalcularBalancesAsync(ct);
 
         var result = new List<IngredienteBalanceResult>(ingredientes.Count);
         foreach (var ing in ingredientes)
         {
-            var balance = await _stock.CalcularBalanceAsync(ing.Id, ct);
+            var balance = balances.GetValueOrDefault(ing.Id, 0m);
             // Low-stock when at/below the reorder threshold. With the default threshold of 0 this
             // only fires when the ingredient is actually out of stock.
             var enAlerta = balance <= ing.StockMinimo;

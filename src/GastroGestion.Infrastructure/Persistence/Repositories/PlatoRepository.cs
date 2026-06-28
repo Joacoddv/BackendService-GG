@@ -19,6 +19,9 @@ internal sealed class PlatoRepository : IPlatoRepository
     public async Task<IReadOnlyList<Plato>> GetAllAsync(CancellationToken ct = default)
         => (await _ctx.Platos.ToListAsync(ct)).AsReadOnly();
 
+    public async Task<IReadOnlyList<Plato>> GetActivosAsync(CancellationToken ct = default)
+        => (await _ctx.Platos.Where(p => p.Activo).ToListAsync(ct)).AsReadOnly();
+
     public async Task<IReadOnlyList<Plato>> GetByIdsAsync(
         IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
         => await _ctx.Platos

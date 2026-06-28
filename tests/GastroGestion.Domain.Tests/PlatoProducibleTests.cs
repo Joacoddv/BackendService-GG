@@ -33,7 +33,7 @@ public class PlatoProducibleTests
     {
         var ing = Guid.NewGuid();
         var plato = Plato.Crear("Pasta", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(ing, Kg(0.5m));       // needs 0.5 kg each
+        plato.AgregarLineaReceta(ing, UnidadDeMedida.Kilogramo, Kg(0.5m));       // needs 0.5 kg each
         var balances = new Dictionary<Guid, decimal> { [ing] = 2.0m }; // 4 portions
 
         plato.CalcularMaxProducible(balances).Should().Be(4);
@@ -45,7 +45,7 @@ public class PlatoProducibleTests
         // 2.9 / 1.0 = 2.9 → floor = 2  (not 3)
         var ing = Guid.NewGuid();
         var plato = Plato.Crear("Bife", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(ing, Kg(1.0m));
+        plato.AgregarLineaReceta(ing, UnidadDeMedida.Kilogramo, Kg(1.0m));
         var balances = new Dictionary<Guid, decimal> { [ing] = 2.9m };
 
         plato.CalcularMaxProducible(balances).Should().Be(2);
@@ -57,7 +57,7 @@ public class PlatoProducibleTests
     public void MissingIngredient_ReturnsZero()
     {
         var plato = Plato.Crear("Pizza", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(Guid.NewGuid(), Kg(0.3m));
+        plato.AgregarLineaReceta(Guid.NewGuid(), UnidadDeMedida.Kilogramo, Kg(0.3m));
 
         // balances dict is empty — ingredient not present
         plato.CalcularMaxProducible(new Dictionary<Guid, decimal>()).Should().Be(0);
@@ -68,7 +68,7 @@ public class PlatoProducibleTests
     {
         var ing = Guid.NewGuid();
         var plato = Plato.Crear("Empanadas", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(ing, Kg(1.0m));
+        plato.AgregarLineaReceta(ing, UnidadDeMedida.Kilogramo, Kg(1.0m));
         var balances = new Dictionary<Guid, decimal> { [ing] = 0.5m }; // < required
 
         plato.CalcularMaxProducible(balances).Should().Be(0);
@@ -84,9 +84,9 @@ public class PlatoProducibleTests
         var sauce   = Guid.NewGuid();
 
         var plato = Plato.Crear("Pizza napolitana", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(flour,  Kg(0.25m)); // needs 0.25 kg → 8 portions from 2 kg
-        plato.AgregarLineaReceta(cheese, Kg(0.10m)); // needs 0.10 kg → 15 portions from 1.5 kg
-        plato.AgregarLineaReceta(sauce,  Kg(0.20m)); // needs 0.20 kg → 5 portions from 1.0 kg  ← limiting
+        plato.AgregarLineaReceta(flour,  UnidadDeMedida.Kilogramo, Kg(0.25m)); // needs 0.25 kg → 8 portions from 2 kg
+        plato.AgregarLineaReceta(cheese, UnidadDeMedida.Kilogramo, Kg(0.10m)); // needs 0.10 kg → 15 portions from 1.5 kg
+        plato.AgregarLineaReceta(sauce,  UnidadDeMedida.Kilogramo, Kg(0.20m)); // needs 0.20 kg → 5 portions from 1.0 kg  ← limiting
 
         var balances = new Dictionary<Guid, decimal>
         {
@@ -105,8 +105,8 @@ public class PlatoProducibleTests
         var ing2 = Guid.NewGuid(); // missing from balances
 
         var plato = Plato.Crear("Combo", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(ing1, Kg(0.5m));
-        plato.AgregarLineaReceta(ing2, Kg(0.3m));
+        plato.AgregarLineaReceta(ing1, UnidadDeMedida.Kilogramo, Kg(0.5m));
+        plato.AgregarLineaReceta(ing2, UnidadDeMedida.Kilogramo, Kg(0.3m));
 
         var balances = new Dictionary<Guid, decimal> { [ing1] = 5.0m };
 
@@ -120,7 +120,7 @@ public class PlatoProducibleTests
     {
         var ing = Guid.NewGuid();
         var plato = Plato.Crear("Milanesa", Precio(), AlicuotaIVA.General);
-        plato.AgregarLineaReceta(ing, Kg(0.3m));
+        plato.AgregarLineaReceta(ing, UnidadDeMedida.Kilogramo, Kg(0.3m));
         var balances = new Dictionary<Guid, decimal> { [ing] = -1.0m }; // over-reserved
 
         plato.CalcularMaxProducible(balances).Should().Be(0);

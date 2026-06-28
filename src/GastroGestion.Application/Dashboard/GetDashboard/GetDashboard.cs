@@ -62,10 +62,11 @@ public sealed class GetDashboardHandler
             .ToList();
 
         var ingredientes = await _ingredientes.GetAllAsync(ct);
+        var balances     = await _stock.CalcularBalancesAsync(ct);
         var alertas = new List<AlertaStock>();
         foreach (var ing in ingredientes)
         {
-            var balance = await _stock.CalcularBalanceAsync(ing.Id, ct);
+            var balance = balances.GetValueOrDefault(ing.Id, 0m);
             if (balance <= ing.StockMinimo)
                 alertas.Add(new AlertaStock(ing.Nombre, balance, ing.StockMinimo));
         }

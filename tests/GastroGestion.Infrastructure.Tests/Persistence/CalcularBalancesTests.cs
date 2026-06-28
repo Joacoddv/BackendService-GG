@@ -54,20 +54,13 @@ public sealed class CalcularBalancesTests : IClassFixture<LocalDbFixture>
         Assert.True(balances.ContainsKey(ing1), "ing1 should be present");
         Assert.True(balances.ContainsKey(ing2), "ing2 should be present");
 
-        // CalcularBalanceAsync stores Reserva as the raw Cantidad value (positive stored, sign applied by domain).
-        // The repository sums exactly what is in the DB. Match the guard test convention:
-        // Reserva and Merma are stored with their sign applied by MovimientoStock.RegistrarMovimiento.
-        // Based on existing MovimientoStockGuardTests: Reserva is stored NEGATIVE, LiberacionReserva POSITIVE.
-        // Sign convention (from MovimientoStock.RegistrarMovimiento):
-        //   Compra → stored as +20
-        //   Reserva → stored as -5  (factory negates the caller's positive amount)
-        //   LiberacionReserva → stored as +3
-        // ing1: +20 - 5 + 3 = 18
+        // Sign convention from MovimientoStock.RegistrarMovimiento: the caller passes a positive
+        // amount; the factory stores Compra/LiberacionReserva as positive and negates Reserva/Merma.
+        // The repository sums the stored signed values, so:
+        //   ing1: Compra +20, Reserva -5, LiberacionReserva +3 → 18
         Assert.Equal(18m, balances[ing1]);
 
-        // Compra → stored as +10
-        // Merma  → stored as -2  (factory negates)
-        // ing2: +10 - 2 = 8
+        //   ing2: Compra +10, Merma -2 → 8
         Assert.Equal(8m, balances[ing2]);
     }
 

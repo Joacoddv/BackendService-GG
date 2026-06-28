@@ -8,6 +8,9 @@ public interface IPlatoRepository
     Task AddAsync(Plato plato, CancellationToken ct = default);
     Task<IReadOnlyList<Plato>> GetAllAsync(CancellationToken ct = default);
 
+    /// <summary>Returns only active dishes (Activo == true), filtered at the database level.</summary>
+    Task<IReadOnlyList<Plato>> GetActivosAsync(CancellationToken ct = default);
+
     /// <summary>Batch load by PlatoId — used by GenerarOrdenesTrabajoHandler for recipe resolution.</summary>
     Task<IReadOnlyList<Plato>> GetByIdsAsync(
         IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
